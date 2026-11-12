@@ -20,6 +20,8 @@ Usage:
   python scripts/psi_download.py --no-docs           # metadata + tables only
   python scripts/psi_download.py --max-mb 20         # cap per document (default 50)
   python scripts/psi_download.py --get PSI-25 "PSI-25_Raw Data_BASS_GMT50_SAMPLE_147_TEST_B1.mp4"
+  python scripts/psi_download.py --analyzed          # only the "Analyzed Data" files, into <acc>/analyzed/
+                                                     # (leaves investigation.json and the CSV summaries untouched)
 """
 
 from __future__ import annotations
@@ -206,6 +208,22 @@ def plan_downloads(records: dict[str, dict], docs: bool, max_mb: float) -> tuple
     return todo, skipped
 
 
+def plan_analyzed(records: dict[str, dict], max_mb: float) -> tuple[list, list]:
+    """Only the 'Analyzed Data' files (per-test spreadsheets, summary PDFs). Same item shape as plan_downloads."""
+    todo, skipped = [], []
+    for acc, rec in records.items():
+        seen = set()
+        for f in rec.get("added") or []:
+            name = f["file_name"]
+            if f.get("restricted") or name in seen or category(acc, f) != "Analyzed Data":
+                continue
+            seen.add(name)
+            size = f.get("file_size") or 0
+            item = (acc, name, OUT / acc / "analyzed" / safe_name(name), size)
+            (todo if size <= max_mb * 1e6 else skipped).append(item)
+    return todo, skipped
+
+
 def run_downloads(items: list) -> int:
     failures = 0
     for i, (acc, name, dest, size) in enumerate(items, 1):
@@ -241,6 +259,8 @@ def main() -> int:
     p.add_argument("--dry-run", action="store_true", help="list what would be downloaded, write nothing")
     p.add_argument("--get", nargs="+", metavar=("ACCESSION", "FILE"),
                    help="download specific files of one investigation into <acc>/raw/")
+    p.add_argument("--analyzed", action="store_true",
+                   help="download only 'Analyzed Data' files into <acc>/analyzed/")
     a = p.parse_args()
 
     if a.get:
@@ -254,9 +274,13 @@ def main() -> int:
         wanted = {s.strip().upper() for s in a.only.split(",")}
         investigations = [i for i in investigations if i["Accession"].upper() in wanted]
     print(f"Found {len(investigations)}. Fetching records...")
-    records = fetch_records(investigations, a.dry_run)
+    # --analyzed must not rewrite the existing investigation.json / CSV summaries
+    records = fetch_records(investigations, a.dry_run or a.analyzed)
 
-    todo, skipped = plan_downloads(records, docs=not a.no_docs, max_mb=a.max_mb)
+    if a.analyzed:
+        todo, skipped = plan_analyzed(records, max_mb=a.max_mb)
+    else:
+        todo, skipped = plan_downloads(records, docs=not a.no_docs, max_mb=a.max_mb)
     total = sum(s or 0 for *_, s in todo)
     print(f"\nPlan: {len(todo)} files, {mb(total)}"
           + (f"; {len(skipped)} documents over {a.max_mb:g} MB skipped" if skipped else ""))
@@ -268,7 +292,8 @@ def main() -> int:
             print(f"  would get: {acc} {name} ({mb(size or 0)})")
         return 0
 
-    write_summaries(investigations, records)
+    if not a.analyzed:
+        write_summaries(investigations, records)
     failures = run_downloads(todo)
     print(f"\nDone. Output in {OUT}. {failures} failure(s).")
     return 1 if failures else 0
