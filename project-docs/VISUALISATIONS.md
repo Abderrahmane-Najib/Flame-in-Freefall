@@ -21,7 +21,7 @@ Checked 12 Nov 2026.
 | V9 | **Shrinking droplet animation** | Hot flame → invisible cool flame, for a chosen CFI test | CFI workbook | ⭐ pitch hook |
 | V10 | **Flame colour / soot strip** | Blue vs yellow flames against O₂ and pressure | CFI-G `Color` column, BASS observation text | Low |
 | V11 | **Data quality panel** | Per table: rows, empty rows, repeats, has results?, conversions applied | Our checks | High (trust) |
-| V12 | **Investigation cards with photo** | Goal, hardware, dates, DOI, publications, an official image | `investigation.json` (13 have an `images` entry) | ⭐ |
+| V12 | **Investigation cards with photo** | Goal, hardware, dates, DOI, publications, an official image | `investigation.json` (only 5 of 24 have an `images` entry, 13 images in total) | ⭐ |
 | V13 | **PMMA flammability boundary** | U-shaped "will it burn?" curve | Predictor P10 | ⭐ |
 
 ### Details

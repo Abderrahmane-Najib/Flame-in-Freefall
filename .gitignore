@@ -1,0 +1,13 @@
+# Office lock files (created while a file is open in Excel/Word)
+~$*
+
+# Python
+__pycache__/
+*.pyc
+
+# Raw NASA data is not committed: get it with  python scripts/psi_download.py
+# Only the outputs are committed: data/psi/clean/ and data/psi/cards.json
+data/psi/PSI-*/
+data/psi/investigations.csv
+data/psi/inventory.csv
+data/psi/docs_selected.csv

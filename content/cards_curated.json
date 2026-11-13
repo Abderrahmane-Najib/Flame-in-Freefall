@@ -1,0 +1,28 @@
+{
+  "_about": "Hand-maintained card fields, merged into data/psi/cards.json by scripts/build_cards.py. Edit here, never in cards.json. fuel_type / hardware_group come from project-docs/DATA_EXPLAINED.md sections 5, 7 and 8. safety_jobs = the fire-safety jobs (prevention / detection / suppression) each investigation informs: taken from its objective / impact text where stated, otherwise the team's reading of what the experiment measured. summary, findings and limitations are filled after review (see project-docs/DOCS_FINDINGS.md). Each finding: {\"text\": \"...\", \"source\": \"<file>\", \"page\": \"<page>\"}.",
+
+  "PSI-10":  {"fuel_type": "gas",     "safety_jobs": ["detection"],                  "hardware_group": "CIR + ACME", "summary": null, "findings": [], "limitations": []},
+  "PSI-20":  {"fuel_type": "gas",     "safety_jobs": ["prevention"],                 "hardware_group": "CIR + ACME", "summary": null, "findings": [], "limitations": []},
+  "PSI-21":  {"fuel_type": "gas",     "safety_jobs": ["prevention"],                 "hardware_group": "CIR + ACME", "summary": null, "findings": [], "limitations": []},
+  "PSI-22":  {"fuel_type": "gas",     "safety_jobs": ["prevention"],                 "hardware_group": "CIR + ACME", "summary": null, "findings": [], "limitations": []},
+  "PSI-23":  {"fuel_type": "gas",     "safety_jobs": ["prevention"],                 "hardware_group": "CIR + ACME", "summary": null, "findings": [], "limitations": []},
+  "PSI-25":  {"fuel_type": "solid",   "safety_jobs": ["prevention"],                 "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-26":  {"fuel_type": "solid",   "safety_jobs": ["prevention", "suppression"],  "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-39":  {"fuel_type": "droplet", "safety_jobs": ["detection", "suppression"],   "hardware_group": "CIR + MDCA", "summary": null, "findings": [], "limitations": []},
+  "PSI-47":  {"fuel_type": "smoke",   "safety_jobs": ["detection"],                  "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-60":  {"fuel_type": "ground",  "safety_jobs": ["detection"],                  "hardware_group": "ground",     "summary": null, "findings": [], "limitations": []},
+  "PSI-62":  {"fuel_type": "ground",  "safety_jobs": ["prevention"],                 "hardware_group": "ground",     "summary": null, "findings": [], "limitations": []},
+  "PSI-68":  {"fuel_type": "droplet", "safety_jobs": ["suppression", "prevention"],  "hardware_group": "CIR + MDCA", "summary": null, "findings": [], "limitations": []},
+  "PSI-69":  {"fuel_type": "droplet", "safety_jobs": ["suppression", "prevention"],  "hardware_group": "CIR + MDCA", "summary": null, "findings": [], "limitations": []},
+  "PSI-98":  {"fuel_type": "solid",   "safety_jobs": ["prevention", "detection"],    "hardware_group": "Cygnus",     "summary": null, "findings": [], "limitations": []},
+  "PSI-99":  {"fuel_type": "solid",   "safety_jobs": ["prevention"],                 "hardware_group": "Cygnus",     "summary": null, "findings": [], "limitations": []},
+  "PSI-100": {"fuel_type": "solid",   "safety_jobs": ["prevention"],                 "hardware_group": "Cygnus",     "summary": null, "findings": [], "limitations": []},
+  "PSI-101": {"fuel_type": "smoke",   "safety_jobs": ["detection"],                  "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-102": {"fuel_type": "smoke",   "safety_jobs": ["detection"],                  "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-106": {"fuel_type": "gas",     "safety_jobs": ["prevention"],                 "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-107": {"fuel_type": "gas",     "safety_jobs": ["detection"],                  "hardware_group": "MSG",        "summary": null, "findings": [], "limitations": []},
+  "PSI-115": {"fuel_type": "ground",  "safety_jobs": ["detection"],                  "hardware_group": "ground",     "summary": null, "findings": [], "limitations": []},
+  "PSI-117": {"fuel_type": "ground",  "safety_jobs": ["detection", "suppression"],   "hardware_group": "ground",     "summary": null, "findings": [], "limitations": []},
+  "PSI-142": {"fuel_type": "ground",  "safety_jobs": ["prevention"],                 "hardware_group": "ground",     "summary": null, "findings": [], "limitations": []},
+  "PSI-159": {"fuel_type": "gas",     "safety_jobs": ["prevention", "detection"],    "hardware_group": "CIR + ACME", "summary": null, "findings": [], "limitations": []}
+}

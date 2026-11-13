@@ -1,0 +1,110 @@
+{
+  "_about": "Single source of unit conversions for the cleaning scripts (scripts/units.py) and the front end. Every value is STORED in the quantity's 'standard' unit. Conversion is linear: standard = value * factor + offset; value = (standard - offset) / factor. Do not convert anything listed under never_convert.",
+
+  "quantities": {
+    "pressure": {
+      "label": "Pressure",
+      "standard": "kPa",
+      "units": {
+        "kPa":  {"factor": 1,        "decimals": 1},
+        "atm":  {"factor": 101.325,  "decimals": 3},
+        "bar":  {"factor": 100,      "decimals": 3},
+        "psi":  {"factor": 6.894757, "decimals": 2},
+        "mmHg": {"factor": 0.1333224, "decimals": 0, "aliases": ["Torr", "torr"]}
+      }
+    },
+    "o2_concentration": {
+      "label": "Oxygen concentration",
+      "standard": "%",
+      "units": {
+        "%":        {"factor": 1,   "decimals": 1, "aliases": ["vol%", "% by vol", "percent"]},
+        "fraction": {"factor": 100, "decimals": 3, "aliases": ["mole fraction", "X"]}
+      }
+    },
+    "gas_fraction": {
+      "label": "Gas share (N2, CO2, He, fuel)",
+      "standard": "%",
+      "units": {
+        "%":        {"factor": 1,   "decimals": 1},
+        "fraction": {"factor": 100, "decimals": 3, "aliases": ["mole fraction"]}
+      }
+    },
+    "flow_velocity": {
+      "label": "Airflow speed",
+      "standard": "cm/s",
+      "units": {
+        "cm/s":   {"factor": 1,     "decimals": 1},
+        "mm/s":   {"factor": 0.1,   "decimals": 0},
+        "m/s":    {"factor": 100,   "decimals": 3},
+        "ft/min": {"factor": 0.508, "decimals": 1}
+      }
+    },
+    "temperature": {
+      "label": "Temperature",
+      "standard": "K",
+      "units": {
+        "K":  {"factor": 1,                  "offset": 0,          "decimals": 0},
+        "°C": {"factor": 1,                  "offset": 273.15,     "decimals": 0, "aliases": ["C", "degC"]},
+        "°F": {"factor": 0.5555555555555556, "offset": 255.3722222222222, "decimals": 0, "aliases": ["F", "degF"]}
+      }
+    },
+    "length": {
+      "label": "Length / diameter",
+      "standard": "mm",
+      "units": {
+        "mm": {"factor": 1,    "decimals": 2},
+        "cm": {"factor": 10,   "decimals": 3},
+        "in": {"factor": 25.4, "decimals": 3}
+      }
+    },
+    "time": {
+      "label": "Time",
+      "standard": "s",
+      "units": {
+        "s":   {"factor": 1,  "decimals": 1, "aliases": ["sec"]},
+        "min": {"factor": 60, "decimals": 2}
+      }
+    },
+    "mass_flow": {
+      "label": "Fuel / mass flow",
+      "standard": "mg/s",
+      "units": {
+        "mg/s":  {"factor": 1,                  "decimals": 2},
+        "g/min": {"factor": 16.666666666666668, "decimals": 3}
+      }
+    },
+    "spread_rate": {
+      "label": "Flame spread rate",
+      "standard": "mm/s",
+      "units": {
+        "mm/s":   {"factor": 1,                   "decimals": 3},
+        "cm/s":   {"factor": 10,                  "decimals": 4},
+        "cm/min": {"factor": 0.16666666666666666, "decimals": 2}
+      }
+    },
+    "burning_rate_constant": {
+      "label": "Droplet burning-rate constant (k)",
+      "standard": "mm2/s",
+      "units": {
+        "mm2/s": {"factor": 1, "decimals": 3, "aliases": ["mm^2/s", "mm²/s"]}
+      }
+    }
+  },
+
+  "presets": {
+    "SI":           {"pressure": "kPa", "flow_velocity": "cm/s",   "temperature": "°C", "length": "mm", "time": "s", "mass_flow": "mg/s", "spread_rate": "mm/s"},
+    "Aerospace US": {"pressure": "psi", "flow_velocity": "ft/min", "temperature": "°F", "length": "in", "time": "s", "mass_flow": "g/min", "spread_rate": "cm/min"},
+    "Lab":          {"pressure": "atm", "flow_velocity": "cm/s",   "temperature": "K",  "length": "mm", "time": "s", "mass_flow": "mg/s", "spread_rate": "mm/s"}
+  },
+
+  "derived": {
+    "o2_partial_pressure_kpa": "o2_pct / 100 * pressure_kpa. A derived value, not a unit of O2 concentration; show it separately."
+  },
+
+  "never_convert": {
+    "BASS-II fan display": "Fan voltage x10, not a speed. Only PSI-25 'Fan calibration data.xlsx' maps it to cm/s.",
+    "SAME-R Rt/R0": "Heater resistance ratio, a setting, not a temperature.",
+    "CO 'OR'": "Over range: above 1,000 ppm. A lower bound, not a value.",
+    "CFI-G inverse XO2": "Oxygen in the burner stream, not cabin air. Convert the number, but never compare it with chamber O2."
+  }
+}
