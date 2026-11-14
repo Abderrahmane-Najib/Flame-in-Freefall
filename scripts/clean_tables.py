@@ -125,7 +125,7 @@ _NUM = re.compile(r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?")
 
 def num(s) -> float | None:
     """First number in a cell ('~ 21.5' -> 21.5, '1 atm' -> 1.0, '' -> None)."""
-    if s is None:
+    if s is None or str(s).strip().startswith("#"):  # spreadsheet errors (#DIV/0!, #N/A, #VALUE!) are blank
         return None
     m = _NUM.search(str(s).replace(",", ""))
     return float(m.group()) if m else None

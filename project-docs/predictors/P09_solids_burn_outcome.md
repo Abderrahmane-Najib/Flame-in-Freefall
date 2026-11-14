@@ -90,8 +90,55 @@ Expected size: **~250 tests** (BASS ~124 + BASS-II 129). Mostly PMMA, so first m
 - Very low flows (< 1 cm/s) have large uncertainty (report §6.1).
 - Mixed shapes and directions make a single model weak. Start with PMMA, one flow direction.
 
+## Stage 1 result (14 Nov 2026): Olson, 27 tests ⏳ awaiting human check
+
+- `scripts/extract_p9_olson.py` → `data/psi/extracted/p9_olson.csv`. 24 rows from Table A.5 (viewer pp. 118–119, read from 220-dpi renders because the text layer drops most of each row) + O20–O22 (2016, workbook only, no observation text).
+- Outcomes: quench 9 · blowoff 9 · keeps burning 3 · no ignition 3 · extinguished (cause unclear) 1 · blank 2. 7 reused samples flagged.
+- Cross-check: calibrated initial/final O₂, restrictor and sample number match the BASS-II CSV on all 24 shared rows.
+- Columns added beyond the plan: `last_stable_flow_raw` (NASA's boundary uses the extinction flow **and** the last stable flow, report §6.1.4.4), `observation` (verbatim), `notes`.
+- **Too few for a model** (one material, ≤ 9 per class, flow direction mixed). Olson stays a P10 overlay.
+
+## Stage 2 result (14 Nov 2026): T'ien, 29 tests ⏳ awaiting human check
+
+- `scripts/extract_p9_tien.py` → `data/psi/extracted/p9_tien.csv` (Table A.6, viewer pp. 120–121) and `data/psi/extracted/p11_sibal.csv` (Table 7.1, viewer p. 104: 27 BASS-II fabric rows + 4 BASS rows, outcomes for the BASS rows pending stage 4).
+- Flows and NASA's result label come from **Table 7.1** (already in cm/s); the verbatim observation from A.6. Where they disagree, NASA's summary label is used and the row says so (T12, T18).
+- Outcomes: keeps burning 13 · quench 8 · no ignition 7 · blowoff 1. Fresh fabric samples: quench 6, no ignition 3, blowoff 1 = exactly the counts stated in report §7.1.4.
+- Cross-check vs the BASS-II CSV: O₂ initial/final, restrictor, sample number match on all 29 rows.
+- Fixes recorded in `notes`: dates 6/24/**2018** → 2014 (T9, T10, T18; Table 7.1 says GMT 175); final O₂ 0.9 / 40.4 (T28a/b) blanked; T24 width 2.2 cm (sample 133m, not "1 cm").
+- T3 and T7 are **4 cm spherical sections in stagnation flow**, not fabric: kept in P9, excluded from P11.
+
+## Stage 3 result (14 Nov 2026): Bhattacharjee, Ferkul, Fernandez-Pello, Miller, 73 tests
+
+- `scripts/extract_p9_stage3.py` → `data/psi/extracted/p9_stage3.csv` (Tables A.1–A.4, viewer pp. 111–117).
+- Bhattacharjee 22 (PMMA films, opposed), Ferkul 4 (Nomex + a wax candle), Fernandez-Pello 27 (PMMA rods, mostly opposed), Miller 20 (PMMA slabs, opposed).
+- Cross-check vs the BASS-II CSV: O₂, restrictor and sample number match on all 73 rows; only the 3 typo final-O₂ values (B2 1.6, P22a 0.6, P22b 39.1) differ, blanked on purpose. **BASS-II complete: 27 + 29 + 73 = 129 = the CSV.**
+- New label `self_extinguished`: went out on its own at a steady, not-low flow (Miller's long slab burns ending at 8–15 cm/s).
+- Rule made explicit: went out when the flow was turned down **or off** → `quench` (flow 0 = off), with the last stable flow recorded.
+
+## Stage 4 result (14 Nov 2026): BASS as-run workbook, 121 tests
+
+- `scripts/extract_p9_bass.py` → `data/psi/extracted/p9_bass.csv`. Everything except the label is read straight from the workbook; the script holds one label line per workbook row, guarded by the test number.
+- Mostly PMMA spheres (stagnation flow) and wax candles, plus SIBAL, Nomex, Ultem, PMMA and wax slabs.
+- New flags: `n2_suppression_used` (17 tests used the nitrogen jet); label `suppressed_n2` for the 2 where nitrogen put the flame out. Igniter failures have a blank outcome (not a flammability result).
+- `reused` is computed: a sample number seen in an earlier row.
+
+## Merged dataset and decision (14 Nov 2026)
+
+`scripts/build_p9_dataset.py` → `data/psi/extracted/p9_solids.csv`: **250 solid tests** with material family, shape, size, flow direction, O₂, outcome, flow in cm/s where convertible (air display or BASS-II fan calibration; below-calibration pots give a range; BASS fan/pot values have no calibration).
+
+- Outcomes: quench 108 · keeps burning 70 · no ignition 32 · blowoff 12 · self-extinguished 11 · unclear 4 · N₂-suppressed 2 · blank 11.
+- Usable for modelling (labelled, fresh sample, no N₂): **137**, split over 15 material × shape × direction groups; the largest is 29 (SIBAL, concurrent). Several groups are almost one class (PMMA rods opposed: 16 quench / 1 other).
+- **Decision: no P9 model.** Classes are not balanced within any one material/geometry. P9 ships as the **outcome map** (VISUALISATIONS L4) plus nearest-real-tests lookup, which is what the data honestly supports.
+- Headline (fresh samples, starting O₂): Nomex no ignition at 21.0–22.5% (burned once at 22.0% with the igniter left on); Ultem never ignited (21.9–22.5%); SIBAL fabric sustained a flame down to 16.9%, no ignition at 16.4–16.8%; PMMA rods down to 14.8%, no ignition at 13.6–14.5%; wax candles down to 15.9%.
+
 ## Open questions
 
-- [ ] Stage 1: extract Olson (Table A.5) with page source
+- [x] Stage 1: extract Olson (Table A.5) with page source
+- [x] Stage 2: extract T'ien (Table A.6 + Table 7.1)
+- [x] Stage 3: Tables A.1–A.4
+- [x] Stage 4: BASS as-run workbook
+- [x] Count classes: chart only (see decision)
+- [ ] Human check of the stage 3 and 4 labels (rows with `confidence` = low first)
+- [ ] **Human check of `p9_olson.csv`**
 - [ ] Join BASS-II CSV ↔ Appendix A on `Test #`
 - [ ] Count tests per class after extraction. Is it enough for a model, or chart only?

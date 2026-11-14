@@ -1,0 +1,178 @@
+"""P9 stage 2: T'ien tests (SIBAL fabric + two spherical samples), hand-transcribed from the BASS-II Summary Report.
+
+Sources (PSI-25_Reports_BASS-II Summary Report.pdf):
+  * Table A.6 (viewer pp. 120-121, printed 112-113): test log + verbatim observation. Read from 220-dpi renders.
+  * Table 7.1 (viewer p. 104, printed 96): NASA's own summary of the SIBAL tests: sample width, flow
+    start -> end in cm/s, O2 and result. Used for flows and as NASA's outcome where it gives one
+    ('-----' in Table 7.1 = burned normally, same convention as T5/T6/T11/T16/T19 whose text says so).
+Outcome labels as in extract_p9_olson.py. Every row needs a human check.
+
+Writes data/psi/extracted/p9_tien.csv (Table A.6 tests) and data/psi/extracted/p11_sibal.csv (Table 7.1 rows,
+including the 4 BASS rows whose outcomes come later from the BASS workbook, stage 4).
+"""
+import collections
+import csv
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "data/psi/extracted/p9_tien.csv"
+OUT_P11 = ROOT / "data/psi/extracted/p11_sibal.csv"
+DOC = "PSI-25_Reports_BASS-II Summary Report.pdf"
+
+F = ["test_id", "as_run_no", "date", "sample_no", "material", "shape", "sample_width_cm", "igniter",
+     "flow_restrictor", "flow_direction", "fan_display_raw", "air_display_raw",
+     "o2_cal_initial_pct", "o2_cal_final_pct", "o2_initial_pct", "o2_final_pct",
+     "t71_flow_start_cm_s", "t71_flow_end_cm_s", "t71_comment",
+     "outcome", "outcome_flow_cm_s", "reused", "confidence", "observation", "notes"]
+
+C, S = "concurrent", "stagnation"
+# Table 7.1 gives no width for T3/T7 (not fabric). Widths: '2 cm SIBAL' = 2.2 cm, '1 cm SIBAL' = 1.2 cm (Table 7.1).
+R = [
+    # ---- viewer p. 120
+    ("T1", 1, "2/14/2014", "128", "SIBAL 2 cm", "fabric", 2.2, "Integrated", 2, C, "80", "10",
+     18.5, 18.5, 17.3, 17.3, 10, 10, "-----", "keeps_burning", 10, False, "medium",
+     "Compound Specific Analyzer-Combustion Products (CSA-CP) unit 1024; Carbon Dioxide Monitor (CDM) unit 1018; Prefill O2 reading = 20.9 percent; GN2 fill was from video display time 10:53 to 12:31 at maximum GN2 flow rate (pot = 10); Video display time is currently 1 day plus 6 min 10 s ahead of actual GMT; flow velocity held constant",
+     "Observation is about instruments only; outcome from Table 7.1 '-----' (burned normally). Table 7.1: O2 reading might be inaccurate."),
+    ("T10", 34, "6/24/2014", "134M", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "Pot 1.1", "5",
+     16.4, 16.5, 15.2, 15.3, 5, 5, "No ignition", "no_ignition", 5, False, "high",
+     "Brief ignition but flame extinguished before spreading beyond igniter",
+     "A.6 date reads 6/24/2018 (typo; Table 7.1 = GMT 175 = 24 Jun 2014)."),
+    ("T11", 42, "6/27/2014", "135m", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "48", "5",
+     17.1, 17.0, 16.2, 16.1, 4, 4, "-----", "keeps_burning", 4, False, "high",
+     "Burned completely, steady, HCl 0.3 to 0.9", "Air display 5, Table 7.1 flow 4 cm/s."),
+    ("T12", 44, "6/27/14", "136m", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "Pot 1.1", "5",
+     16.8, 16.9, 15.9, 16.0, 5, 5, "No ignition", "no_ignition", 5, False, "medium",
+     "Extinguished quickly",
+     "A.6 says 'extinguished quickly'; Table 7.1 calls it 'No ignition'. NASA's summary label used."),
+    ("T13", 21, "4/10/2014", "137", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "", "5,1",
+     17.5, 17.6, 15.9, 16.0, 4, 2.2, "Quenched", "quench", 2.2, False, "high",
+     "HCL 0.2 end, 0.1 start, no HCN, flame extinguished quickly after flow change.", ""),
+    ("T14", 45, "6/27/14", "140m", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "", "5, 3",
+     16.9, 16.9, 16, 16.0, 4, 2.8, "Quenched", "quench", 2.8, False, "high",
+     "Extinguished as we reduced flow below 3 cm/s", ""),
+    ("T15", 4, "2/14/2014", "138", "SIBAL 2 cm", "fabric", 2.2, "Integrated", 0, C, "80, 122", "9, 29",
+     18.7, 18.7, 17.5, 17.5, 10, 29, "No blowoff", "keeps_burning", 29, False, "high",
+     "Initial air reading is 15, but Rick did not wait long enough for the anemometer to stabilize; actual airspeed is about 9 cm/s; no flow restrictors installed, but flow only maxed out to 29 cm/s; no blowoff attained",
+     "Still burning at the maximum flow (29 cm/s): no blowoff."),
+    ("T16", 22, "4/10/2014", "139", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "", "5, 3",
+     17.6, 17.5, 16.0, 15.9, 4, 3, "-----", "keeps_burning", 3, False, "high",
+     "Initial HCl 0.2 final 0.5, no HCN, flame spread whole sample at 3 cm/s", ""),
+    ("T17", 46, "6/27/14", "142m", "2 cm SIBAL", "fabric", 2.2, "Integral", 0, C, "", "6, 53",
+     16.9, 16.9, 16, 16.0, 6, 53, "No blowoff", "keeps_burning", 53, False, "high",
+     "Tried to blowoff, but did not", "Still burning at 53 cm/s: no blowoff."),
+    ("T18", 35, "6/24/2014", "141M", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "", "5, 2",
+     17.4, 17.4, 16.2, 16.2, 5, 2.6, "Quenched", "quench", 2.6, False, "medium",
+     "Brief ignition but flame extinguished as it spread away from igniter, further than previous runs today",
+     "A.6 date reads 6/24/2018 (typo). Text reads like a weak ignition; Table 7.1 calls it 'Quenched' (5 to 2.6 cm/s)."),
+    ("T19", 71, "7/9/14", "143m", "1 cm SIBAL", "fabric", 1.2, "Integral", 2, C, "68.5, pot 3.6", "11",
+     17.2, 17.2, 16.3, 16.3, 11, 11, "-----", "keeps_burning", 11, False, "high",
+     "Steady burn, HCL 0.3 > 0.6", ""),
+    ("T2", 2, "2/14/2014", "129", "SIBAL 2 cm", "fabric", 2.2, "Integrated", 2, C, "80, 59, 55", "9, 5, 4",
+     18.5, 18.5, 17.3, 17.3, 10, 5, "-----", "keeps_burning", 5, False, "medium",
+     "Flow velocity changed to 9 to 5 fairly early then very late in the burn changed to 4",
+     "Burned through the flow changes; Table 7.1 flow 10 to 5 (A.6 air display ends at 4). Table 7.1: O2 reading might be inaccurate."),
+    ("T20", 72, "7/9/14", "144m", "1 cm SIBAL", "fabric", 1.2, "Integral", 2, C, "3.6, 0.9", "11, 3",
+     17.2, 17.2, 16.3, 16.3, 11, 3, "Quenched", "quench", 3, False, "high",
+     "Quick extinction when we turned air down to 3 cm/s, HCl 0.8 end", ""),
+    ("T21", 73, "7/9/14", "145m", "1 cm SIBAL", "fabric", 1.2, "Integral", 0, C, "1.6 pot, 52", "11, maximum (47)",
+     17.2, 17.2, 16.3, 16.3, 11, 47, "Blow-off", "blowoff", 47, False, "high",
+     "Successful blowoff! HCl still 0.8 end", ""),
+    ("T22", 76, "7/9/14", "146m", "1 cm SIBAL", "fabric", 1.2, "Integral", 2, C, "3.4, 1.7", "10, 5",
+     17.1, 17.0, 16.2, 16.1, 10.5, 5, "Quenched", "quench", 5, False, "high",
+     "Ignited at 11, turned down to 5 and extinguished, HCl 2.0", ""),
+    ("T23", 74, "7/9/14", "133m", "2 cm SI, moved igniter", "fabric", 2.2, "Integral", 2, C, "3.3, 66", "10",
+     17.2, 17.3, 16.3, 16.4, 10, 10, "Reused, did not ignite", "no_ignition", 10, True, "high",
+     "Did not ignite with moved igniter, HCl 0.8", ""),
+    ("T24", 77, "7/9/14", "133m", "1 cm SIBAL, top side ign", "fabric", 2.2, "-29", 2, C, "3.3, 66", "10",
+     18.2, 18.2, 17.7, 17.7, 10, 10, "Reused, one-sided flame", "keeps_burning", 10, True, "medium",
+     "Ignited top of sample with retractable igniter and got steady spread of a one-sided flame",
+     "A.6 material says '1 cm SIBAL' but sample 133m is the 2 cm sample of T23; Table 7.1 gives width 2.2 cm (used). One-sided flame."),
+    # ---- viewer p. 121
+    ("T25", 119, "8/4/14", "138m", "SIBAL 2 cm", "fabric", 2.2, "39", 1, C, "53, 45", "5, 2.5",
+     20.8, 20.7, 19.8, 19.7, 5, 2.5, "Reused, ignited", "keeps_burning", 2.5, True, "low",
+     "Ignition at 5 cm/s then decrease to 2.5 cm/s and hold constant",
+     "End of test not stated; burning at 2.5 cm/s when last described."),
+    ("T26", 120, "8/4/14", "137m", "SIBAL 2 cm", "fabric", 2.2, "39", 1, C, "53, 45", "5, 2.5",
+     20.8, 20.7, 19.8, 19.7, 5, 2.5, "Reused, ignited", "keeps_burning", 2.5, True, "low",
+     "Ignition at 5 cm/s then decrease to 2.5 cm/s and hold constant",
+     "End of test not stated; burning at 2.5 cm/s when last described."),
+    ("T27", 122, "8/4/14", "146m", "1 cm SIBAL", "fabric", 1.2, "39", 1, C, "53, 45", "5, 2",
+     20.7, 20.6, 19.8, 19.7, 5, 2, "Reused, ignited", "keeps_burning", 2, True, "medium",
+     "Ignition at 5 cm/s, then quickly to 2 cm/s (fan pot 0.7); fuel is burned out",
+     "'Fuel is burned out' = burned to completion at 2 cm/s."),
+    ("T28a", 123, "8/4/14", "144m", "1 cm SIBAL", "fabric", 1.2, "39", 1, C, "53", "5",
+     20.7, "", 19.8, "", 5, 5, "Reused, did not ignite", "no_ignition", 5, True, "high",
+     "Tried to get one-sided ignition, but flame only briefly flashed then went out",
+     "A.6 calibrated final O2 reads 0.9 (typo), left blank."),
+    ("T28b", 124, "8/4/14", "144m", "1 cm SIBAL", "fabric", 1.2, "39", 1, C, "53", "5",
+     20.7, "", "", 19.7, 5, 5, "Reused, did not ignite", "no_ignition", 5, True, "high",
+     "Tried to get one-sided ignition, but again flame only briefly flashed then went out",
+     "A.6 calibrated final O2 reads 40.4 (typo), left blank."),
+    ("T29", 125, "8/4/14", "145m", "1 cm SIBAL", "fabric", 1.2, "39", 1, C, "53, 43", "5, 2(?)",
+     20.7, 20.5, 19.8, 19.6, 5, 2, "Reused, ignited", "quench", 2, True, "medium",
+     "Alex commented that he thought the angle of the igniter should be reversed to get one-sided ignition, so he tried that; one-sided flame initially but quickly became two-sided; after ignition, fan pot changed to 0.6 and flame went out after a few seconds",
+     "Went out a few seconds after the flow was turned down (pot 0.6, ~2 cm/s) = quench. Table 7.1 only says 'Reused, ignited'."),
+    ("T3", 43, "6/27/14", "182m", "4 cm spherical section", "spherical section", "", "-24 broke, -25", 2, S, "63", "10",
+     17.2, 16.8, 16.3, 15.9, "", "", "", "no_ignition", 10, False, "high",
+     "Multiple ignition attempts on card 3, brief flames go out",
+     "Not fabric and not in Table 7.1; flow = air display 10."),
+    ("T4", 3, "2/14/2014", "130", "SIBAL 2 cm", "fabric", 2.2, "Integrated", 2, C, "80, 46", "9,1",
+     18.7, 18.7, 17.5, 17.5, 10, 2.2, "Quenched", "quench", 2.2, False, "high",
+     "O2 reading creeped up slightly after a long pause in operations; flow velocity changed immediately after ignition down to 1 (fan pot 0.9); extinguished after turning into flamelet",
+     "A.6 air display reads 1; Table 7.1 gives the final flow as 2.2 cm/s (used)."),
+    ("T5", 19, "4/10/2014", "131", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "2.72, 0.50, 0.42", "10, 2, 1",
+     18.8, 18.9, 16.7, 16.8, 10, 2.4, "-----", "keeps_burning", 2.4, False, "high",
+     "HCN 0 HCL 0.6; ignited at 10, turned down to 2, then 1, sample very small and dim, but seemed to burn full sample length as a flamelet",
+     "A.6 air display ends at 1; Table 7.1 gives 2.4 cm/s (used)."),
+    ("T6", 20, "4/10/2014", "132", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "", "5, 2, 1, <1",
+     18.8, 18.8, 16.7, 16.7, 4.5, 2.6, "-----", "keeps_burning", 2.6, False, "high",
+     "HCL 0.9 at the end, still did not extinguish",
+     "A.6 air display goes to <1; Table 7.1 gives 2.6 cm/s (used)."),
+    ("T7", 75, "7/9/14", "182m", "4 cm spherical section", "spherical section", "", "-33, -34", 2, S, "3.4, 67", "10, 5, 3, 1, decrease",
+     17.3, 17.1, 16.4, 16.2, "", "", "", "quench", "", True, "high",
+     "Broke one igniter quickly, took a while to ignite, turned pot down in series ignition at 3.4, 1.6, 1.0, 0.4, 0.36, 0.34, 0.32, 0.31, 0.30, 0.29, 0.285, 0.28 extinction finally, HCl 1.8",
+     "Not fabric and not in Table 7.1. Extinction at pot 0.28 (below fan calibration, flow < ~4 cm/s). Same sample as T3."),
+    ("T9", 33, "6/24/2014", "133M", "2 cm SIBAL", "fabric", 2.2, "Integral", 2, C, "Pot 2.5", "10",
+     16.4, 16.4, 15.2, 15.2, 10, 10, "No ignition", "no_ignition", 10, False, "high",
+     "Brief ignition but flame extinguished before spreading beyond igniter",
+     "A.6 date reads 6/24/2018 (typo; Table 7.1 = GMT 175)."),
+]
+PAGE_121 = {"T25", "T26", "T27", "T28a", "T28b", "T29", "T3", "T4", "T5", "T6", "T7", "T9"}
+
+# Table 7.1 rows for the 4 BASS (not BASS-II) SIBAL tests at 21% O2. Outcome comes from the BASS
+# as-run workbook in stage 4; Table 7.1 only says 'BASS'.
+BASS_T71 = [("BASS GMT96-T8", 2.2, 5, 5, 21), ("BASS GMT96-T7", 2.2, 10, 10, 21),
+            ("BASS GMT131-T10", 1.2, 11, 11, 21), ("BASS GMT222-T11", 1.2, 19, 19, 21)]
+
+
+def main():
+    with OUT.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(F + ["source_doc", "source_page"])
+        for r in R:
+            assert len(r) == len(F), (r[0], len(r))
+            page = "121 (printed 113)" if r[0] in PAGE_121 else "120 (printed 112)"
+            src = f"Table A.6 p. {page}" + ("; Table 7.1 p. 104 (printed 96)" if r[18] else "")
+            w.writerow(list(r) + [DOC, src])
+    # P11 chart data: Table 7.1 (fabric only)
+    with OUT_P11.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["test_id", "program", "sample_width_cm", "flow_start_cm_s", "flow_end_cm_s", "o2_pct",
+                    "outcome", "outcome_flow_cm_s", "reused", "o2_maybe_inaccurate", "t71_comment", "source"])
+        for r in R:
+            if r[5] != "fabric":
+                continue
+            w.writerow([r[0], "BASS-II", r[6], r[16], r[17], r[12], r[19], r[20], r[21], r[0] in ("T1", "T2"),
+                        r[18], f"{DOC} Table 7.1 p. 104 (printed 96)"])
+        for tid, wd, f0, f1, o2 in BASS_T71:
+            w.writerow([tid, "BASS", wd, f0, f1, o2, "", "", False, False, "BASS",
+                        f"{DOC} Table 7.1 p. 104 (printed 96); outcome pending (stage 4, BASS workbook)"])
+    print(len(R), "rows ->", OUT)
+    print(collections.Counter(r[19] or "(blank)" for r in R))
+    fab = [r for r in R if r[5] == "fabric"]
+    print("fabric (P11):", len(fab), "BASS-II +", len(BASS_T71), "BASS ->", OUT_P11)
+    print(collections.Counter((r[19], "reused" if r[21] else "fresh") for r in fab))
+
+
+if __name__ == "__main__":
+    main()

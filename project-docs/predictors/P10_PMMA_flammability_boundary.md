@@ -63,4 +63,13 @@ So **materials can burn at lower oxygen in space than on Earth**, and Earth flam
 ## Open questions
 
 - [x] Confirm the stretch-rate definition `a` used in Eq. 6.1: **a = 1.5 · (U/r) · √(r/0.318 cm)** (verified 14 Nov 2026)
-- [ ] Rebuild Fig. 6.10 from our extracted points as a check
+- [x] Rebuild Fig. 6.10 from our extracted points as a check (14 Nov 2026, see below)
+
+## Overlay points (14 Nov 2026)
+
+`scripts/build_p10_points.py` → `data/psi/extracted/p10_olson_points.csv` (38 points: outcome point + last-stable point per test, final O₂).
+
+- Flow: pot → U with that day's fan calibration for the test's restrictor count (`scripts/fan_calibration.py`, U = 1.0066 × air display); air-display flows used directly.
+- **Blowoff branch reproduced:** 8 blowoff points with exact flows lie on Eq. 6.1 (O₂ − boundary = −0.84 to +0.47).
+- **Quench branch: flow known only as a range.** Every quench was at pot 0.27–0.36, below the lowest calibrated pot (0.5), where readings vary 0–3.8 cm/s between days. Extrapolating gave arbitrary values, so these points carry `u_low_cm_s = 0`, `u_high_cm_s` = highest reading ever at pot ≤ 0.5 for that restrictor count. Draw them as horizontal bars. All of them cross the quench branch, consistent with NASA's wide error bars in Fig. 6.10.
+- Flags: `sooted_anemometer_day` (days 209–210 read ~40% low before a "post soot cleaning" calibration), `reused_sample`, `low_confidence_label` (O3a "probably overshot" sits 4.4 points above the curve).

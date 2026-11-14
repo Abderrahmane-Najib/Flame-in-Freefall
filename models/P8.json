@@ -1,0 +1,1760 @@
+{
+ "id": "P8",
+ "title": "Will the flame reignite?",
+ "task": "classification",
+ "classes": [
+  "no reignition",
+  "reignited"
+ ],
+ "unit": null,
+ "target_transform": null,
+ "created": "2026-11-14",
+ "data": {
+  "table": "cfi",
+  "n_rows": 145,
+  "group": "test_date",
+  "n_groups": 40,
+  "cv": "10-fold grouped (40 groups)"
+ },
+ "inputs": {
+  "numeric": [
+   "o2_pct",
+   "pressure_kpa",
+   "he_pct"
+  ],
+  "categorical": []
+ },
+ "input_scale": {
+  "o2_pct": 1.5844067746592752,
+  "pressure_kpa": 137.34860225258046,
+  "he_pct": 17.896579223212473
+ },
+ "features": {
+  "numeric": [
+   {
+    "name": "o2_pct",
+    "mean": 20.22758620689655,
+    "scale": 1.5789338506211514
+   },
+   {
+    "name": "log_pressure_kpa",
+    "mean": 5.053432437004639,
+    "scale": 0.664569923312126
+   },
+   {
+    "name": "he_pct",
+    "mean": 8.282758620689656,
+    "scale": 17.834760111985833
+   }
+  ],
+  "categorical": []
+ },
+ "model": {
+  "type": "logistic",
+  "coef": [
+   [
+    0.034966249391431004,
+    2.3387413342662513,
+    -0.2966146176525568
+   ]
+  ],
+  "intercept": [
+   -2.1963019357754034
+  ]
+ },
+ "interval": null,
+ "baseline": {
+  "what": "always predict the most common outcome",
+  "most_common": "no reignition",
+  "rate": 0.7586
+ },
+ "metrics": {
+  "linear": {
+   "accuracy": 0.7931,
+   "balanced_accuracy": 0.7175,
+   "macro_f1": 0.7175,
+   "log_loss": 0.3381,
+   "brier": 0.2288,
+   "roc_auc": 0.8918,
+   "pr_auc_reignited": 0.6274
+  },
+  "baseline": {
+   "accuracy": 0.7586,
+   "balanced_accuracy": 0.5,
+   "macro_f1": 0.4314,
+   "log_loss": 0.5774,
+   "brier": 0.3841,
+   "roc_auc": null,
+   "pr_auc_reignited": 0.1675
+  },
+  "boosting": {
+   "accuracy": 0.7448,
+   "balanced_accuracy": 0.6468,
+   "macro_f1": 0.6482,
+   "log_loss": 0.4062,
+   "brier": 0.2803,
+   "roc_auc": 0.8651,
+   "pr_auc_reignited": 0.5587
+  },
+  "variants": {},
+  "boost_clearly_wins": false
+ },
+ "coverage": {
+  "": {
+   "o2_pct": [
+    17.0,
+    21.0
+   ],
+   "pressure_kpa": [
+    50.66,
+    506.62
+   ],
+   "he_pct": [
+    0.0,
+    59.0
+   ]
+  }
+ },
+ "rules": [
+  {
+   "action": "never_tested",
+   "all": [
+    {
+     "input": "o2_pct",
+     "op": "<",
+     "value": 19
+    },
+    {
+     "input": "he_pct",
+     "op": ">",
+     "value": 0
+    }
+   ],
+   "message": "Never tested: helium was only used at 21% O2 in CFI."
+  },
+  {
+   "action": "nearest_only",
+   "all": [
+    {
+     "input": "fuel",
+     "op": "in",
+     "value": [
+      "[.60]/[.40] C12H26/iso-dodecane",
+      "[.75]/[.25] C12H26/iso-dodecane"
+     ]
+    },
+    {
+     "input": "pressure_kpa",
+     "op": ">",
+     "value": 400
+    }
+   ],
+   "message": "Blends at 5 atm: only 2 tests each, so no model value. See the nearest tests."
+  }
+ ],
+ "caveats": [
+  "Small sample: 35 tests reignited."
+ ],
+ "sources": [
+  "data/psi/clean/cfi.csv",
+  "PSI-39 CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+  "PSI-39 CFI Science Final Report p. 6, p. 8-10"
+ ],
+ "training_rows": [
+  {
+   "test_id": "1206",
+   "group": "2017-03-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 2",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1207",
+   "group": "2017-03-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 3",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1208",
+   "group": "2017-03-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 4",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1209",
+   "group": "2017-03-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 5",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1210",
+   "group": "2017-03-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 6",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1211",
+   "group": "2017-03-21",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 7",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1212",
+   "group": "2017-03-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 8",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1213",
+   "group": "2017-03-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 9",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1214",
+   "group": "2017-03-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 10",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1215",
+   "group": "2017-03-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 11",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1216",
+   "group": "2017-03-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 12",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1217",
+   "group": "2017-03-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 13",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1218",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 14",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1219",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 15",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1221",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 17",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1222",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 18",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1223",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 19",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1224",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 20",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1225",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 21",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1226",
+   "group": "2017-03-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 22",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1227",
+   "group": "2017-04-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 23",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1229",
+   "group": "2017-04-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 25",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1230",
+   "group": "2017-04-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 26",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1231",
+   "group": "2017-04-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 27",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1232",
+   "group": "2017-04-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 28",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1233",
+   "group": "2017-04-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 29",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1234",
+   "group": "2017-04-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 30",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1237",
+   "group": "2017-05-02",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 33",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1238",
+   "group": "2017-05-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 34",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1239",
+   "group": "2017-05-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 35",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1240",
+   "group": "2017-05-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 36",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1242",
+   "group": "2017-05-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 38",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1243",
+   "group": "2017-05-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 39",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1245",
+   "group": "2017-05-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 41",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1246",
+   "group": "2017-05-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 42",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1247",
+   "group": "2017-05-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 43",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1248",
+   "group": "2017-05-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 44",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1249",
+   "group": "2017-05-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 45",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1250",
+   "group": "2017-05-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 46",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1251",
+   "group": "2017-05-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 47",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1252",
+   "group": "2017-05-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 48",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1253",
+   "group": "2017-05-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 49",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1254",
+   "group": "2017-05-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 50",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1255",
+   "group": "2017-05-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 51",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1256",
+   "group": "2017-05-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 52",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1257",
+   "group": "2017-05-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 53",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1258",
+   "group": "2017-05-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 54",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1259",
+   "group": "2017-05-15",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 55",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1260",
+   "group": "2017-05-15",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 56",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1261",
+   "group": "2017-05-15",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 57",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1263",
+   "group": "2017-05-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 59",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1264",
+   "group": "2017-05-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 60",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1265",
+   "group": "2017-05-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 61",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1266",
+   "group": "2017-05-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 62",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1267",
+   "group": "2017-05-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 63",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1268",
+   "group": "2017-05-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 64",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1270",
+   "group": "2017-05-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 66",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1271",
+   "group": "2017-05-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 67",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1272",
+   "group": "2017-05-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 68",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1273",
+   "group": "2017-05-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 69",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1274",
+   "group": "2017-05-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 70",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1274A",
+   "group": "2017-06-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 71",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1275",
+   "group": "2017-06-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 72",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1276",
+   "group": "2017-06-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 73",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1277",
+   "group": "2017-06-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 74",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1278",
+   "group": "2017-06-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 75",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1279",
+   "group": "2017-06-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 76",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1280",
+   "group": "2017-06-09",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 77",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1281",
+   "group": "2017-06-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 78",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1282",
+   "group": "2017-06-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 79",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1284",
+   "group": "2017-06-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 81",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1285",
+   "group": "2017-06-22",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 82",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1286",
+   "group": "2017-06-22",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 83",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1287",
+   "group": "2017-06-22",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 84",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1288",
+   "group": "2017-06-22",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 85",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1289",
+   "group": "2017-06-22",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 86",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1290",
+   "group": "2017-06-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 87",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1291",
+   "group": "2017-06-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 88",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1292",
+   "group": "2017-06-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 89",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1293",
+   "group": "2017-06-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 90",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1294",
+   "group": "2017-06-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 91",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1295",
+   "group": "2017-06-28",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 92",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1296",
+   "group": "2017-06-28",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 93",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1297",
+   "group": "2017-06-28",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 94",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1298",
+   "group": "2017-06-28",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 95",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1299",
+   "group": "2017-06-28",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 96",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1300",
+   "group": "2017-06-29",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 97",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1301",
+   "group": "2017-07-29",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 98",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1302",
+   "group": "2017-06-29",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 99",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1305",
+   "group": "2017-07-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 102",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1307",
+   "group": "2017-07-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 104",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1308",
+   "group": "2017-07-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 105",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1309",
+   "group": "2017-07-03",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 106",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1310",
+   "group": "2017-07-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 107",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1311",
+   "group": "2017-07-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 108",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1312",
+   "group": "2017-07-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 109",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1314",
+   "group": "2017-07-05",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 111",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 126.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1315",
+   "group": "2017-07-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 112",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1316",
+   "group": "2017-07-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 113",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1317",
+   "group": "2017-07-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 114",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1318",
+   "group": "2017-07-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 115",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1319",
+   "group": "2017-07-07",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 116",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1320",
+   "group": "2017-07-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 117",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1321",
+   "group": "2017-07-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 118",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1322",
+   "group": "2017-07-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 119",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1323",
+   "group": "2017-07-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 120",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 202.65,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1324",
+   "group": "2017-07-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 121",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1325",
+   "group": "2017-07-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 122",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1326",
+   "group": "2017-07-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 123",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1327",
+   "group": "2017-07-12",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 124",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1328",
+   "group": "2017-07-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 125",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1329",
+   "group": "2017-07-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 126",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1330",
+   "group": "2017-07-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 127",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1331",
+   "group": "2017-07-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 128",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1332",
+   "group": "2017-07-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 129",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 17.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1333",
+   "group": "2017-07-17",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 130",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1334",
+   "group": "2017-07-17",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 131",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1335",
+   "group": "2017-07-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 132",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1336",
+   "group": "2017-07-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 133",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1337",
+   "group": "2017-07-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 134",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1338",
+   "group": "2017-07-19",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 135",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1339",
+   "group": "2017-07-21",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 136",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1340",
+   "group": "2017-07-21",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 137",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1341",
+   "group": "2017-07-24",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 138",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1342",
+   "group": "2017-07-24",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 139",
+   "lunar_air": false,
+   "outcome": "reignited",
+   "o2_pct": 21.0,
+   "pressure_kpa": 506.62,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1343",
+   "group": "2017-07-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 140",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1344",
+   "group": "2017-07-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 141",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1345",
+   "group": "2017-07-26",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 142",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1346",
+   "group": "2017-07-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 143",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1347",
+   "group": "2017-07-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 144",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1348",
+   "group": "2017-07-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 145",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1349",
+   "group": "2017-07-27",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 146",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 75.99,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1351",
+   "group": "2017-07-31",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 148",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1355",
+   "group": "2017-08-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 152",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1356",
+   "group": "2017-08-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 153",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1357",
+   "group": "2017-08-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 154",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1358",
+   "group": "2017-08-01",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 155",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 50.66,
+   "he_pct": 0.0
+  },
+  {
+   "test_id": "1363",
+   "group": "2017-08-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 160",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1364",
+   "group": "2017-08-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 161",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1365",
+   "group": "2017-08-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 162",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1366",
+   "group": "2017-08-10",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 163",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 101.33,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1370",
+   "group": "2017-08-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 167",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1371",
+   "group": "2017-08-14",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 168",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 29.0
+  },
+  {
+   "test_id": "1376",
+   "group": "2017-08-16",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 173",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 59.0
+  },
+  {
+   "test_id": "1377",
+   "group": "2017-08-16",
+   "source_file": "data/psi/PSI-39/docs/PSI-39_Science Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
+   "source_row": "Master Sheet row 174",
+   "lunar_air": false,
+   "outcome": "no reignition",
+   "o2_pct": 21.0,
+   "pressure_kpa": 303.98,
+   "he_pct": 59.0
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+test_id,program,sample_width_cm,flow_start_cm_s,flow_end_cm_s,o2_pct,outcome,outcome_flow_cm_s,reused,o2_maybe_inaccurate,t71_comment,source
+T1,BASS-II,2.2,10,10,18.5,keeps_burning,10,False,True,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T10,BASS-II,2.2,5,5,16.4,no_ignition,5,False,False,No ignition,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T11,BASS-II,2.2,4,4,17.1,keeps_burning,4,False,False,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T12,BASS-II,2.2,5,5,16.8,no_ignition,5,False,False,No ignition,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T13,BASS-II,2.2,4,2.2,17.5,quench,2.2,False,False,Quenched,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T14,BASS-II,2.2,4,2.8,16.9,quench,2.8,False,False,Quenched,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T15,BASS-II,2.2,10,29,18.7,keeps_burning,29,False,False,No blowoff,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T16,BASS-II,2.2,4,3,17.6,keeps_burning,3,False,False,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T17,BASS-II,2.2,6,53,16.9,keeps_burning,53,False,False,No blowoff,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T18,BASS-II,2.2,5,2.6,17.4,quench,2.6,False,False,Quenched,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T19,BASS-II,1.2,11,11,17.2,keeps_burning,11,False,False,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T2,BASS-II,2.2,10,5,18.5,keeps_burning,5,False,True,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T20,BASS-II,1.2,11,3,17.2,quench,3,False,False,Quenched,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T21,BASS-II,1.2,11,47,17.2,blowoff,47,False,False,Blow-off,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T22,BASS-II,1.2,10.5,5,17.1,quench,5,False,False,Quenched,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T23,BASS-II,2.2,10,10,17.2,no_ignition,10,True,False,"Reused, did not ignite",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T24,BASS-II,2.2,10,10,18.2,keeps_burning,10,True,False,"Reused, one-sided flame",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T25,BASS-II,2.2,5,2.5,20.8,keeps_burning,2.5,True,False,"Reused, ignited",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T26,BASS-II,2.2,5,2.5,20.8,keeps_burning,2.5,True,False,"Reused, ignited",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T27,BASS-II,1.2,5,2,20.7,keeps_burning,2,True,False,"Reused, ignited",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T28a,BASS-II,1.2,5,5,20.7,no_ignition,5,True,False,"Reused, did not ignite",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T28b,BASS-II,1.2,5,5,20.7,no_ignition,5,True,False,"Reused, did not ignite",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T29,BASS-II,1.2,5,2,20.7,quench,2,True,False,"Reused, ignited",PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T4,BASS-II,2.2,10,2.2,18.7,quench,2.2,False,False,Quenched,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T5,BASS-II,2.2,10,2.4,18.8,keeps_burning,2.4,False,False,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T6,BASS-II,2.2,4.5,2.6,18.8,keeps_burning,2.6,False,False,-----,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+T9,BASS-II,2.2,10,10,16.4,no_ignition,10,False,False,No ignition,PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96)
+BASS GMT96-T8,BASS,2.2,5,5,21,,,False,False,BASS,"PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96); outcome pending (stage 4, BASS workbook)"
+BASS GMT96-T7,BASS,2.2,10,10,21,,,False,False,BASS,"PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96); outcome pending (stage 4, BASS workbook)"
+BASS GMT131-T10,BASS,1.2,11,11,21,,,False,False,BASS,"PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96); outcome pending (stage 4, BASS workbook)"
+BASS GMT222-T11,BASS,1.2,19,19,21,,,False,False,BASS,"PSI-25_Reports_BASS-II Summary Report.pdf Table 7.1 p. 104 (printed 96); outcome pending (stage 4, BASS workbook)"

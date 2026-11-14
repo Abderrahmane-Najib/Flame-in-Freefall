@@ -39,3 +39,5 @@ Too few tests for a model, so this is a **chart**: O₂ (%) vs airflow (cm/s), e
 - One fabric type only.
 
 *Verified 14 Nov 2026: Table 7.1 results (Quenched 6, No ignition 3 at 16.4 / 16.4 / 16.8%, Blow-off 1, No blowoff 2, Reused 4), quench flows 2.2 to 2.8 cm/s. Status: ✅ doable now (type ~30 rows). P9 stage 2 (T'ien, Table A.6) adds the full log.*
+
+**Data built 14 Nov 2026:** `data/psi/extracted/p11_sibal.csv` (from `scripts/extract_p9_tien.py`): Table 7.1's 27 BASS-II rows with width, flow start → end (cm/s), O₂, outcome, `reused`, `o2_maybe_inaccurate` (T1, T2), plus the 4 BASS rows (outcomes pending stage 4). Fresh-sample reading: no ignition at 16.4 / 16.4 / 16.8% O₂; lowest O₂ with a complete burn 17.1% (T11, 4 cm/s); quench at 2.2–5 cm/s.

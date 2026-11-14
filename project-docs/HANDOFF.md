@@ -19,10 +19,10 @@ The build plan, in order:
 | 2 | Filters (fuel type, safety job, O₂/pressure/flow ranges, lunar air, has results) | ⏳ |
 | 3 | Ranker with user weights | ⏳ |
 | 4 | AI assistant: RAG over the reports, plus a data tool for numbers | ⏳ |
-| 5 | Models (predictors P1–P11, see `predictors/README.md`) | ⏳ |
+| 5 | Models (predictors P1–P11, see `predictors/README.md`) | ✅ P1–P8 trained (`models/*.json`, scores in `models/REPORT.md`). ⏳ P9 extraction, P10 curve, P11 chart |
 
-| 6 | **UI design** (explanation levels, languages, accessibility: see `IDEAS.md`) | ⏳ **next** |
-| 7 | P9 solid outcomes: extraction in stages (Olson → T'ien → others → BASS) | ⏳ decided, see `predictors/P09_solids_burn_outcome.md` |
+| 6 | **UI design**: structure + API contract done in `UI_BRIEF.md`; visual direction is next | ⏳ **next** |
+| 7 | P9 solid outcomes: extraction in stages (Olson → T'ien → others → BASS) | ✅ 250 tests in `data/psi/extracted/` (scripts `extract_p9_*.py`, `build_p9_dataset.py`, `build_p10_points.py`). No model: chart + nearest tests. ⏳ human check of stage 3–4 labels |
 
 Also pending:
 - Images: 19 of 24 cards have none.
@@ -33,7 +33,8 @@ Also pending:
 ## 2. Setup on a new PC
 Requirements:
 - Python 3.10+.
-- No pip packages; everything uses the standard library. openpyxl is *not* needed, because `scripts/xlsx_read.py` reads `.xlsx` files itself.
+- No pip packages for the data pipeline and the app runtime (`scripts/predict.py`); they use the standard library. openpyxl is *not* needed, because `scripts/xlsx_read.py` reads `.xlsx` files itself.
+- **Training only** (`scripts/train_predictors.py`) needs `pandas` + `scikit-learn` (+ `scipy` for the one-off Tad fit check).
 
 ```
 git clone <repo-url>
@@ -132,7 +133,7 @@ Example cards:
   - explanation levels + multiple languages (`IDEAS.md`)
 
 ## 6. Working rules agreed with Claude
-- **Claude doesn't run scripts.** It writes or edits the code and gives the exact commands, and the user runs them and pastes the output. This rule lived in Claude's memory on the old PC. Tell Claude again on the new PC, or point it to this file.
+- **Claude runs scripts itself** (changed 14 Nov 2026) and asks the user only when blocked or really unsure about a decision. Still no commits unless asked.
 - Keep commands short. Long one-liners break when copied.
 - After editing a file that's open in the editor, check that the change is really on disk.
 - Cards: `fire_safety` holds only `jobs` + `psi_label`. No basis, stated_in or relevance.
