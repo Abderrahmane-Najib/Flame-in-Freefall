@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PageHead } from "../components/InvCard.jsx";
 import Explain from "../components/Explain.jsx";
 import FlameScene from "../components/FlameScene.jsx";
-import { fresh, get } from "../lib/api.js";
+import { fresh, get, post } from "../lib/api.js";
 
 const HABS = [["iss", "ISS", "ug"], ["moon_base_rover", "Moon base", "bounds"], ["mars_base", "Mars base", "bounds"]];
 // [id, label, experiment, a typical starting droplet in that experiment (mm)]
@@ -25,6 +25,17 @@ const ENDS = {
   cool_flame: "cool flame", early_extinction: "cool flame went out", consumed_droplet: "burned away",
 };
 const STAGE = { hot: "Hot flame", cool: "Cool flame", out: "Out", none: "–" };
+const TRUST = { tested_here: ["burn", "Tested here"], between: ["burn", "Between tests"], outside: ["", "Outside the tested range"] };
+
+/** Trained predictors (POST /predict/models/{id}) that answer a question about this droplet: nitrogen air only,
+ *  because the lab does not ask for the CO2 / helium percentage the models need. */
+function modelQueries(res) {
+  if (!res || res.diluent !== "N2") return [];
+  const q = res.query, air = { o2_pct: q.o2_pct, pressure_kpa: q.pressure_kpa };
+  if (res.experiment === "FLEX") return [["P1b", { ...air, fuel: res.table_fuel, co2_pct: 0, he_pct: 0 }]];
+  return [["P7", { ...air, fuel: res.table_fuel, he_pct: 0, droplet_d0_mm: q.d0_mm }],
+          ["P8", { ...air, he_pct: 0 }]];
+}
 
 export default function FlameLab({ level }) {
   const [habs, setHabs] = useState({});
@@ -40,6 +51,7 @@ export default function FlameLab({ level }) {
   const [res, setRes] = useState(null);
   const [error, setError] = useState(null);
   const [tick, setTick] = useState({ t: 0, d: 2.5, stage: "none" });
+  const [preds, setPreds] = useState([]);     // [{ id, result }]
 
   useEffect(() => {
     get("/habitats").then((list) => setHabs(Object.fromEntries((list.habitats || list).map((h) => [h.id, h]))))
@@ -53,6 +65,13 @@ export default function FlameLab({ level }) {
     }, 150);
     return () => clearTimeout(t);
   }, [fuel, o2, p, d0, diluent]);
+
+  useEffect(() => {
+    let live = true;
+    Promise.all(modelQueries(res).map(([id, body]) => post(`/predict/models/${id}`, body).then((result) => ({ id, result }))))
+      .then((r) => live && setPreds(r)).catch(() => live && setPreds([]));
+    return () => { live = false; };
+  }, [res]);
 
   // a diluent this fuel was never tested with (CFI had no CO2): fall back to nitrogen
   useEffect(() => {
@@ -97,7 +116,7 @@ export default function FlameLab({ level }) {
               <span>Droplet now</span><b>{tick.d.toFixed(2)} mm</b>
               <span>Burning now</span><b className={tick.stage === "cool" ? "lab-cool" : undefined}>{STAGE[tick.stage] || "–"}</b>
               <span>Hot flame K</span><b>{est ? `${est.k_mm2_s} mm²/s` : "–"}</b>
-              <span>Hot flame out at</span><b>{est ? `${est.end === "completion" ? 0 : est.d_ext_mm} mm` : "–"}</b>
+              <span>Hot flame out at</span><b title={est ? `From the ${est.ext_ratio_source}` : undefined}>{est ? `${est.end === "completion" ? 0 : est.d_ext_mm} mm${est.ext_ratio_source === "P6b model" ? " (P6b)" : ""}` : "–"}</b>
               <span>Hot flame time</span><b>{est ? `${est.burn_time_s} s` : "–"}</b>
               {cool && <>
                 <span>Cool flame K</span><b className="lab-cool">{cool.k_mm2_s} mm²/s</b>
@@ -158,6 +177,13 @@ export default function FlameLab({ level }) {
               {grav !== "ug" && <small> {grav === "1g" ? "The Earth shape is" : "The two shapes are"} an illustration from a NASA photo: the droplet tests have no 1 g runs and Moon or Mars gravity was never tested.</small>}
             </div>}
 
+            {preds.length > 0 && <>
+              <h3 style={{ marginTop: 16 }}>Trained models: a second opinion</h3>
+              <p className="tool" style={{ marginBottom: 8 }}>Fitted to all {res.experiment} tests, not just the 5 nearest, They can disagree with the lab.</p>
+              {preds.map(({ id, result }) => <ModelAnswer key={id} result={result} />)}
+            </>}
+            {res && res.diluent !== "N2" && <p className="tool" style={{ marginTop: 12 }}>Trained models are shown for nitrogen air only.</p>}
+
             {res?.nearest?.length > 0 && <>
               <h3 style={{ marginTop: 16 }}>Nearest NASA tests ({res.experiment})</h3>
               <table className="lab-near">
@@ -175,6 +201,22 @@ export default function FlameLab({ level }) {
           </aside>
         </div>
       </PageHead>
+    </div>
+  );
+}
+
+/** One predictor's answer: most likely outcome with its probability and the trust badge. */
+function ModelAnswer({ result }) {
+  const [cls, label] = TRUST[result.trust] || TRUST.outside;
+  const a = result.answer;
+  return (
+    <div className={"verdict lab-model" + (cls ? " " + cls : "")}>
+      <small>{result.predictor} · {label}</small>
+      <b>{result.title}</b>
+      {a ? Object.entries(a.probabilities).map(([k, p]) => (
+        <div key={k} className="lab-prob"><span>{k}</span><i style={{ width: `${Math.round(p * 100)}%` }} /><em>{Math.round(p * 100)} %</em></div>
+      )) : <div>No model value here: see the nearest NASA tests below.</div>}
+      {result.notes.map((n) => <small key={n}>{n}</small>)}
     </div>
   );
 }

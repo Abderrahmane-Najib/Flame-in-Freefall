@@ -42,7 +42,10 @@ def ingest(filename: str, data: bytes) -> dict:
         raise UploadError("not a PDF file")
     sha1 = hashlib.sha1(data).hexdigest()
     with connect() as conn:
-        if row := conn.execute("select id from documents where sha1 = %s", (sha1,)).fetchone():
+        if row := conn.execute("select id, origin, file, psi_id from documents where sha1 = %s", (sha1,)).fetchone():
+            if row["origin"] != "upload":   # the same file is one of the NASA reports: not an upload
+                raise UploadError(f"this PDF is already in the NASA library ({row['psi_id']}: {row['file']}), "
+                                  "so it is already searchable")
             return {**get_upload(row["id"]), "already_uploaded": True}
     try:
         reader = PdfReader(io.BytesIO(data))

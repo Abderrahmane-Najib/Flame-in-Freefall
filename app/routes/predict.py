@@ -2,6 +2,7 @@ from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Query
 
+from services import predictors
 from services.droplet import droplet
 from services.pmma import ROD_DIAMETERS_MM, boundary
 
@@ -34,3 +35,22 @@ def droplet_burn(
     methanol / heptane, CFI (PSI-39) for dodecane and its blends, which adds the cool-flame phase.
     Burning rate K, end sizes and endings; no estimate outside the tested range."""
     return droplet(fuel, o2_pct, pressure_kpa, d0_mm, diluent)
+
+
+@router.get("/models")
+def list_models() -> list[dict]:
+    """The trained predictors P1-P8 (models/*.json): inputs, tested ranges, held-out scores vs an always-guess
+    baseline. Scores are on test days the model never saw."""
+    return [predictors.summary(pid) for pid in predictors.IDS]
+
+
+@router.post("/models/{pid}")
+def run_model(pid: str, inputs: dict) -> dict:
+    """Run one predictor. Body = its inputs, e.g. P1b: {"fuel": "heptane", "o2_pct": 21, "pressure_kpa": 101.3,
+    "co2_pct": 0, "he_pct": 0}. Outside the tested range there is no model value, only the nearest real tests."""
+    if pid not in predictors.IDS:
+        raise HTTPException(404, f"unknown predictor {pid}; known: {', '.join(predictors.IDS)}")
+    try:
+        return predictors.run(pid, inputs)
+    except (ValueError, TypeError) as e:
+        raise HTTPException(400, str(e)) from e

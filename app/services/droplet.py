@@ -20,6 +20,7 @@ import urllib.parse
 from functools import lru_cache
 
 from database.connection import connect
+from services import predictors
 from services.coverage import LUNAR_O2_MIN, LUNAR_P_MAX, NEAR_LUNAR_P_MAX
 from services.tests_query import PSI_FILE_URL
 
@@ -119,8 +120,7 @@ def _votes(pairs):
     for w, v in pairs:
         if v:
             votes[v] = votes.get(v, 0) + w
-    total = sum(votes.values())
-    return (max(votes, key=votes.get), {k: round(v / total, 2) for k, v in votes.items()}) if votes else (None, {})
+    return max(votes, key=votes.get) if votes else None   # the pick only: vote shares are not probabilities
 
 
 def _cool_estimate(near, w, d_hot):
@@ -129,7 +129,7 @@ def _cool_estimate(near, w, d_hot):
     if sum(wi for wi, _ in with_cool) / sum(w) < 0.5:
         return None
     k = _wavg([(wi, r["cool"]["k_mm2_s"]) for wi, r in with_cool])
-    end, votes = _votes([(wi, r["cool"]["end"]) for wi, r in with_cool])
+    end = _votes([(wi, r["cool"]["end"]) for wi, r in with_cool])
     # end size as a fraction of the size where the hot flame went out
     ratio = _wavg([(wi, r["cool"]["d_end_mm"] / r["d_ext_mm"]) for wi, r in with_cool
                    if r["cool"]["d_end_mm"] is not None and r["d_ext_mm"]])
@@ -138,9 +138,21 @@ def _cool_estimate(near, w, d_hot):
         "share": round(sum(wi for wi, _ in with_cool) / sum(w), 2),
         "k_mm2_s": round(k, 3), "d_end_mm": round(d_end, 3),
         "burn_time_s": round((d_hot ** 2 - d_end ** 2) / k, 2),
-        "end": end, "end_votes": votes,
+        "end": end,
         "extrapolated_share": round(sum(wi for wi, r in with_cool if r["cool"]["extrapolated"]) / sum(w), 2),
     }
+
+
+def _p6b(table_fuel, o2_pct, pressure_kpa, d0_mm):
+    """CFI hot-flame end size / start size from the trained P6b model, when it gives a value here (else None).
+    On held-out test days P6b has R² 0.43 against 0.06 for the 5-nearest average (models/NEAREST_VS_MODELS.md)."""
+    try:
+        r = predictors.run("P6b", {"fuel": table_fuel, "o2_pct": o2_pct, "pressure_kpa": pressure_kpa,
+                                   "he_pct": 0, "droplet_d0_mm": d0_mm})
+    except ValueError:
+        return None
+    a = r.get("answer")
+    return a["value"] if a and r["trust"] != "outside" else None
 
 
 def droplet(fuel: str, o2_pct: float, pressure_kpa: float, d0_mm: float, diluent: str = "N2") -> dict:
@@ -174,12 +186,18 @@ def droplet(fuel: str, o2_pct: float, pressure_kpa: float, d0_mm: float, diluent
         w = [1 / (d + 0.05) for d, _ in near]
         k = _wavg([(wi, r["k_mm2_s"]) for wi, (_, r) in zip(w, near)])
         ratio = _wavg([(wi, r["d_ext_mm"] / r["d0_mm"]) for wi, (_, r) in zip(w, near)])
-        end, votes = _votes([(wi, r["end"]) for wi, (_, r) in zip(w, near)])
+        end = _votes([(wi, r["end"]) for wi, (_, r) in zip(w, near)])
+        ratio_source = "nearest tests"
+        if exp == "CFI" and diluent == "N2":
+            model_ratio = _p6b(table_fuel, o2_pct, pressure_kpa, d0_mm)
+            if model_ratio is not None:
+                ratio, ratio_source = model_ratio, "P6b model"
         d_ext = min(ratio, 1.0) * d0_mm
         estimate = {
             "k_mm2_s": round(k, 3), "d_ext_mm": round(d_ext, 3), "ext_ratio": round(ratio, 3),
+            "ext_ratio_source": ratio_source,   # where the hot-flame end size comes from
             "burn_time_s": round((d0_mm ** 2 - d_ext ** 2) / k, 2),
-            "end": end, "end_votes": votes,
+            "end": end,
             "cool": _cool_estimate(near, w, d_ext) if exp == "CFI" else None,
         }
         if exp == "CFI":   # the hot flame always went out; did a cool flame follow in most nearby tests?
@@ -187,7 +205,7 @@ def droplet(fuel: str, o2_pct: float, pressure_kpa: float, d0_mm: float, diluent
 
     meta = EXPERIMENTS[exp]
     return {
-        "fuel": fuel, "fuel_label": label, "experiment": exp, "diluent": diluent,
+        "fuel": fuel, "fuel_label": label, "table_fuel": table_fuel, "experiment": exp, "diluent": diluent,
         "diluents": sorted({r["diluent"] for r in fuel_rows if r["diluent"]}),   # what was tested for this fuel
         "query": {"o2_pct": o2_pct, "pressure_kpa": pressure_kpa, "d0_mm": d0_mm},
         "zone": _zone(o2_pct, pressure_kpa),

@@ -364,3 +364,8 @@ section{padding:56px 48px 0}
 @media (max-width:860px){.lab-stage{height:340px}.lab-kv{grid-template-columns:auto 1fr auto 1fr}}
 .lab-kv b.lab-cool{color:#8ec5ff}
 .lab-panel + aside .chip:disabled{opacity:.4;cursor:not-allowed}
+.lab-model{margin-bottom:10px;display:flex;flex-direction:column;gap:4px}
+.lab-model b{font-size:14px;margin:0}
+.lab-prob{display:grid;grid-template-columns:minmax(0,1fr) 90px 40px;align-items:center;gap:8px;font-size:12.5px}
+.lab-prob i{display:block;height:6px;border-radius:3px;background:var(--ember);justify-self:start}
+.lab-prob em{font:500 12px "Geist Mono";font-style:normal;text-align:right}
