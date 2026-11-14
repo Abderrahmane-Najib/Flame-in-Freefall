@@ -247,6 +247,7 @@ All endpoints (Swagger at `/docs`):
 | `GET /tests?filters&limit` | test rows (≥ 1 filter) |
 | `GET /coverage` | O₂ × pressure points (1,489), habitat boxes, near-lunar band, counts |
 | `GET /predict/pmma?rod_diameter_mm&flow_cm_s&o2_pct` | P10 boundary curve + references + verdict |
+| `GET /predict/droplet?fuel&o2_pct&pressure_kpa&d0_mm&diluent` | Flame Lab: 5 nearest droplet tests → K, end size, ending; `status` measured / interpolated / outside (no estimate). FLEX (methanol, heptane) and **CFI** (dodecane + 2 iso-dodecane blends, with a **cool-flame phase**: K_cool, end size, end). d² law vs recorded burn time: FLEX 0.95× (0.86–1.01), CFI 0.82× (0.37–1.10, CFI time likely includes ignition) |
 | `GET /graph` | knowledge graph: 71 nodes, 154 edges (investigations, materials, families, jobs, hardware, habitats) |
 | `GET /search?q` | hybrid report search |
 | `POST /chat` | main assistant (NDJSON) |
@@ -274,7 +275,8 @@ The design is `ghostflame-home.html` (the team's mock): its CSS is copied **unch
 | Search | `/search` | words vs meaning tags, source page links |
 | My reports | `/uploads/*` | upload, progress, report chat, card draft (editable), approve / reject |
 | Data & method | `/health` | counts + the rules behind every number |
-| Compare, Flame Lab | — | "coming soon" placeholders |
+| Flame Lab | `/predict/droplet` | three.js droplet (`components/FlameScene.jsx`): shrinks by d² = d0² − K·t with FLEX/CFI K, ends as extinction / disruption (burst) / completion, or (CFI) hot flame → brightened cool flame + vapour cloud; 1 g teardrop measured on the Researcher's Guide Fig. 1 heptane photo (3.5× taller than wide) + Saufi et al. (methanol 1 g flame ≲ 2 droplet diameters); habitat presets from `/habitats`; Moon/Mars = µg and 1 g shapes side by side; ghost wireframe outside the tested range. Flame size and the 1 g shape are illustrations (labelled) |
+| Compare | — | "coming soon" placeholder |
 
 Everywhere: card drawer (findings with links, "Why it matters for fire safety", **"Ask AI about this card"** inline chat), floating "Ask Ghostflame" chat (streams `/chat`).
 

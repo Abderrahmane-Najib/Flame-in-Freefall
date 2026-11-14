@@ -7,6 +7,7 @@ import Home from "./pages/Home.jsx";
 import Experiments from "./pages/Experiments.jsx";
 import Coverage from "./pages/Coverage.jsx";
 import Predict from "./pages/Predict.jsx";
+import FlameLab from "./pages/FlameLab.jsx";
 import Graph from "./pages/Graph.jsx";
 import Search from "./pages/Search.jsx";
 import Uploads from "./pages/Uploads.jsx";
@@ -95,7 +96,7 @@ export default function App() {
     uploads: <Uploads persona={persona} level={level} />,
     data: <DataMethod />,
     compare: <Placeholder id="compare" />,
-    lab: <Placeholder id="lab" />,
+    lab: <FlameLab level={level} />,
   }[route];
 
   return (

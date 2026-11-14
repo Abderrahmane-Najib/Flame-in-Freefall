@@ -1,5 +1,8 @@
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException, Query
 
+from services.droplet import droplet
 from services.pmma import ROD_DIAMETERS_MM, boundary
 
 router = APIRouter(prefix="/predict", tags=["predictors"])
@@ -17,3 +20,17 @@ def pmma_boundary(
     if rod_diameter_mm not in ROD_DIAMETERS_MM:
         raise HTTPException(400, f"rod_diameter_mm must be one of {ROD_DIAMETERS_MM} (the rods BASS-II tested)")
     return boundary(rod_diameter_mm, flow_cm_s, o2_pct)
+
+
+@router.get("/droplet")
+def droplet_burn(
+    fuel: Literal["methanol", "heptane", "dodecane", "dodecane_iso25", "dodecane_iso40"] = "methanol",
+    o2_pct: float = Query(21, gt=0, le=100),
+    pressure_kpa: float = Query(101.3, gt=0, le=400),
+    d0_mm: float = Query(2.5, gt=0, le=10, description="Starting droplet diameter"),
+    diluent: Literal["N2", "CO2", "He"] = "N2",
+) -> dict:
+    """Flame Lab: a burning fuel droplet in microgravity, from the 5 nearest NASA droplet tests: FLEX (PSI-69) for
+    methanol / heptane, CFI (PSI-39) for dodecane and its blends, which adds the cool-flame phase.
+    Burning rate K, end sizes and endings; no estimate outside the tested range."""
+    return droplet(fuel, o2_pct, pressure_kpa, d0_mm, diluent)
