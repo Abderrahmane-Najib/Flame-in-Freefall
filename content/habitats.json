@@ -1,0 +1,62 @@
+{
+  "_about": "Habitat atmospheres used to rank investigations. scripts/build_cards.py counts, per investigation, the tests whose CHAMBER O2 and pressure both fall inside each habitat's 'match' box (burner-stream O2 of inverse flames is never counted: it is gas blown out of the burner, not cabin air). Every value has a source; values that are the team's choice are listed under 'assumptions'. Units: O2 in % by volume, pressure in kPa (1 psi = 6.895 kPa).",
+
+  "_sources": {
+    "challenge": {"label": "NASA Space Apps 2026, Flame in Freefall challenge text (Potential considerations: Spacesuits and oxygen concentration; Partial-gravity data)",
+                  "url": "https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/"},
+    "ntrs_m2m":  {"label": "Walton & Norcross, Moon to Mars (M2M): Exploration Atmosphere, NASA JSC, NTRS 20240003211 (2024), abstract",
+                  "url": "https://ntrs.nasa.gov/citations/20240003211"},
+    "guide":     {"label": "NASA, A Researcher's Guide to Combustion Science (2015)",
+                  "url": "https://www.nasa.gov/wp-content/uploads/2016/05/np-2015-10-034-jsc_combustion_in_reduced_gravity-iss-mini-book-011116-508.pdf"}
+  },
+
+  "habitats": [
+    {
+      "id": "iss",
+      "label": "ISS / spacecraft at sea-level air",
+      "target": {"o2_pct": 21, "pressure_kpa": 101.3},
+      "match": {"o2_pct": [19, 24], "pressure_kpa": [90, 110]},
+      "gravity": "microgravity",
+      "sources": [
+        {"src": "ntrs_m2m", "quote": "the sea level atmosphere of 14.7 psia, 21% oxygen (O2) found on the International Space Station, Shuttle, and most other Russian and Chinese space vehicles and stations"},
+        {"src": "challenge", "quote": "the Earth's pressure at sea level is 14.7 psi"}
+      ],
+      "assumptions": ["The match box (19-24% O2, 90-110 kPa) is the team's tolerance around the 21% / 101.3 kPa target."]
+    },
+    {
+      "id": "moon_base_rover",
+      "label": "Moon base & pressurized rover",
+      "target": {"o2_pct": 34, "pressure_kpa": 56.5},
+      "match": {"o2_pct": [30, 100], "pressure_kpa": [29.6, 70.3]},
+      "gravity": "lunar (about 0.16 g): no combustion data at this gravity",
+      "sources": [
+        {"src": "challenge", "quote": "The intermediate oxygen concentration used on the Moon will likely be 30% or greater, with a corresponding pressure of 10.2 psi or less."},
+        {"src": "challenge", "quote": "it is expected that the Moon Base and pressurized rover(s) will be at a pressure and oxygen concentration between those in a spacesuit and the Earth's atmosphere"},
+        {"src": "ntrs_m2m", "quote": "Current plans for M2M habitats on the Lunar surface require EVA, thus EA recommendation became 8 psia and 32% O2 but was revised to 8.2 psia and 34% O2"}
+      ],
+      "assumptions": ["Moon base and rover share one entry because the challenge gives them the same atmosphere."]
+    },
+    {
+      "id": "mars_base",
+      "label": "Mars base (assumed same air as the Moon base)",
+      "target": {"o2_pct": 34, "pressure_kpa": 56.5},
+      "match": {"o2_pct": [30, 100], "pressure_kpa": [29.6, 70.3]},
+      "gravity": "Mars (about 0.38 g): no combustion data at this gravity",
+      "sources": [],
+      "assumptions": ["Neither the challenge nor the NTRS abstract gives a Mars atmosphere. The team assumes the same exploration atmosphere as the Moon base; show this as an assumption in the UI."]
+    }
+  ],
+
+  "reference_points": [
+    {"id": "spacesuit",    "label": "Spacesuit",                  "o2_pct": 100,  "pressure_kpa": 29.6, "src": "challenge", "quote": "spacesuits are filled with 100% oxygen to only 4.3 psi"},
+    {"id": "shuttle_eva",  "label": "Shuttle before spacewalks",  "o2_pct": 26.5, "pressure_kpa": 70.3, "src": "ntrs_m2m",  "quote": "the Shuttle was retroactively certified to operate using 10.2 psia, 26.5% O2"},
+    {"id": "skylab",       "label": "Skylab",                     "o2_pct": 72,   "pressure_kpa": 34.5, "src": "ntrs_m2m",  "quote": "changing the atmosphere to 5 psia, 70-74% O2"},
+    {"id": "apollo",       "label": "Mercury to Apollo",          "o2_pct": 100,  "pressure_kpa": 34.5, "src": "ntrs_m2m",  "quote": "Early space vehicles (Mercury through Apollo Programs) used a 5 psia, 100% O2 environment"}
+  ],
+
+  "shared_facts": [
+    {"text": "There is currently no partial-gravity combustion data in PSI. Microgravity and normal-gravity results could bound what happens at Moon or Mars gravity.", "src": "challenge"},
+    {"text": "Partial gravity was mimicked in ACME's E-FIELD Flames experiment through the effect of the electric field on the ions in flames.", "src": "challenge"},
+    {"text": "Spacecraft ventilation airflow is in the 0-30 cm/s range; solids burn at the lowest oxygen at about 10 cm/s, typical of spacecraft ventilation.", "src": "guide", "where": "p. 21, 31"}
+  ]
+}
