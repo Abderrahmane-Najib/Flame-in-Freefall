@@ -1,0 +1,10 @@
+# torch (2.9.0) is installed first, CPU-only, so pip does not pull the large GPU build:
+#   pip install torch==2.9.0 --index-url https://download.pytorch.org/whl/cpu
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+psycopg[binary]==3.2.9
+python-dotenv==1.1.0
+pypdf==5.6.0
+groq==1.7.0
+agno==3.2.0
+sentence-transformers==6.3.0

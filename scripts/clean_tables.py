@@ -619,11 +619,15 @@ def clean_flame_design(kind: str) -> Report:
         flags: list[str] = []
 
         def f(col: str) -> float | None:
-            v = r.get(col, "")
-            return None if v.strip().upper() == "RAMPED" else num(v)
+            # Text cells ('RAMP', 'RAMPED', 'LOW O2') are notes, not numbers: num('LOW O2') would read 2.
+            v = r.get(col, "").strip()
+            return None if re.search(r"[A-Za-z]{2,}", v) else num(v)
 
-        if any(v.strip().upper() == "RAMPED" for v in r.values()):
+        texts = {v.strip().upper() for v in r.values()}
+        if texts & {"RAMP", "RAMPED"}:
             flags.append("ramped_flow_values_empty")
+        if "LOW O2" in texts:
+            flags.append("low_o2_note_values_empty")
         # Mean pressure, else initial, else final (day 21301 only lists pinit).
         p_col = next((k for k in ("pmean", "pinit", "pfinal") if (f(c[k]) or 0) > 0), None)
         if p_col is None:
@@ -961,15 +965,17 @@ def clean_bass() -> Report:
          "air": find_col(wh, r"^Air display"), "o2": find_col(wh, r"^O2 % by volume"),
          "p": find_col(wh, r"^pressure, atm"), "co2": find_col(wh, r"^CO2, mm ?Hg"),
          "obs": find_col(wh, r"^Test Observations")}
-    by_run: dict[str, tuple[int, dict]] = {}
+    # A few test numbers appear twice in the workbook AND twice in the CSV (24, 85, 89, 90, 91).
+    # Match them in order: the 1st CSV row with number k joins the 1st workbook row with k, the 2nd the 2nd.
+    by_run: dict[str, list[tuple[int, dict]]] = {}
     for wn, wr in wrows:
         k = run_key(wr[w["run"]])
         if not k:
             continue
-        if k in by_run:  # keep the first row for a test number; count the clash
-            rep.d.setdefault("workbook_duplicate_test_numbers", []).append(f"{k} (rows {by_run[k][0]} and {wn})")
-            continue
-        by_run[k] = (wn, wr)
+        if k in by_run:
+            rep.d.setdefault("workbook_duplicate_test_numbers", []).append(f"{k} (rows {by_run[k][0][0]} and {wn})")
+        by_run.setdefault(k, []).append((wn, wr))
+    used: dict[str, int] = {}
     dups = mark_duplicates([(n, r) for n, r in rows if not is_empty(r)])
     out = []
     for n, r in rows:
@@ -984,8 +990,19 @@ def clean_bass() -> Report:
         if n in dups:
             flags.append(f"duplicate_of_row_{dups[n]}")
             rep.d["duplicates_flagged"] += 1
-        wn, wr = by_run.get(run_key(r[c["asrun"]]), (None, {}))
-        if wn is None:
+        k = run_key(r[c["asrun"]])
+        matches = by_run.get(k, [])
+        i = used.get(k, 0)
+        used[k] = i + 1
+        if i < len(matches):
+            wn, wr = matches[i]
+            if len(matches) > 1:
+                flags.append(f"repeated_test_number_matched_in_order_{i + 1}_of_{len(matches)}")
+        elif matches:  # more CSV rows than workbook rows for this number: reuse the last, flagged
+            wn, wr = matches[-1]
+            flags.append("repeated_test_number_more_csv_rows_than_workbook_rows")
+        else:
+            wn, wr = None, {}
             flags.append("no_as_run_workbook_row")
         p_atm = num(wr.get(w["p"]))
         co2_mmhg = num(wr.get(w["co2"]))
@@ -1077,6 +1094,18 @@ def clean_saffire(number: int, psi: str) -> Report:
             flags.append("o2_derived_from_co2_production")
         if not c["o2"]:
             flags.append("o2_not_recorded")
+        # Saffire-I lists the 94 x 40.6 cm sheet as length 40.6 / width 94; the Saffire paper (p. 2) and the
+        # Saffire-III table give length 94 / width 40.6, so put the larger value in length.
+        length, width = r[c["length"]], r[c["width"]]
+        if num(length) is not None and num(width) is not None and num(length) < num(width):
+            length, width = width, length
+            flags.append("length_width_swapped_in_source")
+        # SIBAL fabric is 0.33 mm thick (Saffire paper, Table 1); Saffire-I/III write 0.37 / .33 with a cm unit.
+        thick = r[c["thick"]]
+        if "sibal" in material.lower() and ("(cm)" in c["thick"] or thick.strip().endswith("cm")):
+            flags.append("thickness_unit_doubtful_fabric_is_about_0.33_mm")
+        if re.match(r"^0\d", thick.strip()):
+            flags.append("thickness_typo_leading_zero_probably_0.37_mm")
         bt_raw = g("bt")
         burn_time = num(bt_raw) if re.search(r"\d", bt_raw) else None
         ug_spread, g1_spread = mm_per_s(g("ugs")), mm_per_s(g("g1s"))
@@ -1086,8 +1115,8 @@ def clean_saffire(number: int, psi: str) -> Report:
             "o2_pct": o2s[0] if o2s else None, "o2_min_pct": lo, "o2_max_pct": hi, "o2_location": "chamber",
             "flow_cm_s": num(r[c["flow"]]), "diluent": "N2",
             "has_result": bool(burn_time is not None or bt_raw or ug_spread is not None),
-            "material": material, "thickness_raw": r[c["thick"]], "length_raw": r[c["length"]],
-            "width_raw": r[c["width"]], "flow_direction": r[c["dir"]].strip(),
+            "material": material, "thickness_raw": thick, "length_raw": length,
+            "width_raw": width, "flow_direction": r[c["dir"]].strip(),
             "ignition_power_w": num(g("ipw")), "ignition_time_s": num(g("it")),
             "burn_time_s": burn_time, "burn_time_raw": bt_raw,
             "ug_burn_length_raw": g("ugb"), "ug_spread_rate_mm_s": ug_spread, "ug_spread_raw": g("ugs"),

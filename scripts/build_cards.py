@@ -29,15 +29,17 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import sys
 import urllib.parse
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 from psi_download import DOWNLOAD_URL, OUT as PSI_DIR, REPO_PAGE, ROOT, safe_name
 
 CURATED = ROOT / "content" / "cards_curated.json"
+HABITATS = ROOT / "content" / "habitats.json"
 CLEAN_DIR = PSI_DIR / "clean"
 DEFAULT_OUT = PSI_DIR / "cards.json"
 
@@ -213,7 +215,96 @@ def summarize(entries: list[tuple[str, dict]]) -> tuple[dict, dict]:
 NO_TABLE = {"available": False, "note": "No test table for this investigation."}
 
 
-def build_card(rec: dict, curated: dict, clean: dict[str, list[tuple[str, dict]]]) -> dict:
+# ---------------------------------------------------------------- habitat match (content/habitats.json)
+
+def in_box(v: float | None, box: list[float]) -> bool:
+    return v is not None and box[0] <= v <= box[1]
+
+
+def overlaps(lo: float | None, hi: float | None, box: list[float]) -> bool:
+    return lo is not None and hi is not None and lo <= box[1] and hi >= box[0]
+
+
+def habitat_match(entries: list[tuple[str, dict]], habitats: list[dict]) -> dict:
+    """Per habitat, tests whose CHAMBER O2 and pressure fall inside the habitat's match box, in four groups
+    (each test is counted in one group only):
+      measured  - O2 and pressure both recorded per test in the table (this group is the ranking)
+      from_note - inside the box, but O2 or pressure comes from a report or table note, not per test
+      o2_only   - recorded O2 inside the box, pressure not recorded
+      mixed     - the row covers several O2 values (e.g. a BRE test day '26.5; 34; 40') and some of them
+                  are inside the box; how many of the row's tests were at that O2 is not recorded
+    Burner-stream O2 (inverse flames) is never counted. Plain counts, no weights."""
+    rows = [r for _, r in entries if r["o2_location"] == "chamber"]
+
+    def tests(rs: list[dict]) -> int:
+        return sum(n_tests(r) or 0 for r in rs)
+
+    out = {}
+    for h in habitats:
+        o2_box, p_box = h["match"]["o2_pct"], h["match"]["pressure_kpa"]
+        groups: dict[str, list[dict]] = {"measured": [], "from_note": [], "o2_only": [], "mixed": []}
+        for r in rows:
+            o2, p = fnum(r["o2_pct"]), fnum(r["pressure_kpa"])
+            noted = truthy(r["o2_assumed"]) or truthy(r["pressure_assumed"])
+            p_ok = in_box(p, p_box) or (p is None and overlaps(fnum(r["pressure_min_kpa"]), fnum(r["pressure_max_kpa"]), p_box))
+            if in_box(o2, o2_box) and in_box(p, p_box):
+                groups["from_note" if noted else "measured"].append(r)
+            elif in_box(o2, o2_box) and p is None and not truthy(r["o2_assumed"]):
+                groups["o2_only"].append(r)
+            elif overlaps(fnum(r["o2_min_pct"]), fnum(r["o2_max_pct"]), o2_box) and (p is None or p_ok):
+                groups["mixed"].append(r)
+        out[h["id"]] = {k: {"tests": tests(v)} for k, v in groups.items()}
+        out[h["id"]]["measured"]["with_results"] = tests([r for r in groups["measured"] if truthy(r["has_result"])])
+    return out
+
+
+# ---------------------------------------------------------------- sources
+
+def page_anchor(where: str) -> str:
+    """'84' or '76-77' -> '#page=84' (browsers' PDF viewers jump to that page)."""
+    m = re.match(r"\s*(\d+)", where)
+    return f"#page={m.group(1)}" if m else ""
+
+
+def source_url(s: dict, ref: dict, acc: str, tables: list[dict]) -> str:
+    """The most direct link to what is cited:
+    - a PSI document (file under data/psi/<id>/docs/): its PSI download link, plus #page= for PDFs
+    - a test table ('data' / 'psi_table'): the PSI download link of the original table CSV
+    - otherwise the source's url (plus #page= when it is a PDF, e.g. the Researcher's Guide)."""
+    f = s.get("file", "").format(id=acc)
+    where = text(ref.get("where")) or ""
+    if "/docs/" in f:
+        url = file_url(f.split("/")[2], Path(f).name)
+        return url + page_anchor(where) if f.lower().endswith(".pdf") else url
+    if ref.get("src") in ("data", "psi_table") and tables:
+        named = [t for t in tables if Path(t["clean_file"]).name in where]
+        pick = named[0] if named else (tables[0] if len(tables) == 1 else None)
+        if pick:
+            return file_url(acc, Path(pick["source_file"]).name)
+    url = s["url"].format(id=acc)
+    return url + page_anchor(where) if url.lower().endswith(".pdf") else url
+
+
+def cite(ref: dict, acc: str, sources: dict, tables: list[dict]) -> dict:
+    """{src, where} -> adds a ready-to-display 'cite' line, the direct 'url' and the local 'file'.
+    Unknown src keys get cite=None (reported by problems())."""
+    s = sources.get(ref.get("src"))
+    if not s:
+        return {**ref, "cite": None, "url": None, "file": None}
+    where = text(ref.get("where"))
+    line = s["label"].format(id=acc) + (f", {s.get('where_prefix', '')}{where}" if where else "")
+    return {**ref, "cite": line, "url": source_url(s, ref, acc, tables),
+            "file": s.get("file", "").format(id=acc) or None}
+
+
+def cited_summary(summary, acc: str, sources: dict, tables: list[dict]):
+    if not summary:
+        return None
+    return {"text": summary["text"], "sources": [cite(r, acc, sources, tables) for r in summary.get("sources", [])]}
+
+
+def build_card(rec: dict, curated: dict, clean: dict[str, list[tuple[str, dict]]], sources: dict,
+               habitats: list[dict]) -> dict:
     acc = rec["accession"]
     cur = curated.get(acc, {})
     project_type = text(rec.get("projectType"))
@@ -237,9 +328,10 @@ def build_card(rec: dict, curated: dict, clean: dict[str, list[tuple[str, dict]]
         },
         "hardware_group": cur.get("hardware_group"),
         "hardware_raw": text(rec.get("experimentHardware")),
-        "summary": cur.get("summary"),
-        "findings": cur.get("findings", []),
-        "limitations": cur.get("limitations", []),
+        # every item carries its source: {text, src, where, cite, url}; summary = {text, sources: [...]}
+        "summary": cited_summary(cur.get("summary"), acc, sources, tests.get("tables", [])),
+        "findings": [cite(f, acc, sources, tests.get("tables", [])) for f in cur.get("findings", [])],
+        "limitations": [cite(x, acc, sources, tests.get("tables", [])) for x in cur.get("limitations", [])],
 
         "dates": {
             "project_start": iso_date(rec.get("investigationStartDate")),
@@ -256,6 +348,8 @@ def build_card(rec: dict, curated: dict, clean: dict[str, list[tuple[str, dict]]
         # from the cleaned test tables (data/psi/clean/)
         "tests": tests,
         "conditions": conditions,
+        # tests run inside each habitat's O2 / pressure box (content/habitats.json); None = no test table
+        "habitat_match": habitat_match(clean[acc], habitats) if clean.get(acc) else None,
 
         "tables": tables(acc, rec),
         "documents": {"url": REPO_PAGE.format(acc=acc), "note": "All reports and files on the PSI repository page."},
@@ -294,6 +388,11 @@ def problems(card: dict) -> list[str]:
         out.append(f"{len(missing)} table(s) not downloaded")
     if card["tables"] and not card["tests"]["available"]:
         out.append("has a PSI test table but no cleaned rows (run scripts/clean_tables.py)")
+    refs = (card["summary"] or {}).get("sources", []) + card["findings"] + card["limitations"]
+    if any(r.get("cite") is None for r in refs):
+        out.append("an item has no or an unknown source (src)")
+    if card["summary"] and not card["summary"]["sources"]:
+        out.append("summary has no source")
     return out
 
 
@@ -323,19 +422,21 @@ def main() -> int:
         return 1
     records.sort(key=lambda r: int(r["accession"].split("-")[1]))
 
-    curated = {k: v for k, v in json.loads(CURATED.read_text(encoding="utf-8")).items() if not k.startswith("_")}
+    raw = json.loads(CURATED.read_text(encoding="utf-8"))
+    sources = raw.get("_sources", {})
+    curated = {k: v for k, v in raw.items() if not k.startswith("_")}
     if not CLEAN_DIR.exists():
         print(f"No cleaned tables in {CLEAN_DIR}. Run scripts/clean_tables.py first.", file=sys.stderr)
         return 1
     clean = load_clean()
 
-    cards = [build_card(r, curated, clean) for r in records]
+    habitats = json.loads(HABITATS.read_text(encoding="utf-8"))["habitats"]
+    cards = [build_card(r, curated, clean, sources, habitats) for r in records]
     for acc in sorted(set(curated) - {c["id"] for c in cards}):
         print(f"  warning: {acc} is in {rel(CURATED)} but has no investigation.json", file=sys.stderr)
 
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps({
-        "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "generator": "scripts/build_cards.py",
         "count": len(cards),
         "cards": cards,
@@ -370,6 +471,23 @@ def main() -> int:
         print(f"{c['id']:8} {c['name'][:18]:18} {str(c['fuel_type']):8} {line}  {flags}")
     print("\n* = also has burner-stream O2 (inverse flames), shown separately in the card."
           "\n? = number of fires unknown;  N+ = N fires counted plus rows with an unknown number.")
+    print("\nTests inside each habitat's O2 / pressure box (chamber O2 only; content/habitats.json):")
+    for h in habitats:
+        hid = h["id"]
+        matched = [c for c in cards if c["habitat_match"]]
+
+        def group(key: str) -> str:
+            ranked = sorted(matched, key=lambda c: (-c["habitat_match"][hid][key]["tests"],
+                                                    -c["habitat_match"][hid][key].get("with_results", 0)))
+            items = [f"{c['name']} {c['habitat_match'][hid][key]['tests']}" for c in ranked
+                     if c["habitat_match"][hid][key]["tests"]]
+            return ", ".join(items) or "none"
+
+        print(f"  {h['label']}")
+        print(f"    measured per test:                 {group('measured')}")
+        print(f"    from a report or table note:       {group('from_note')}")
+        print(f"    O2 matches, pressure not recorded: {group('o2_only')}")
+        print(f"    row mixes several O2 values:       {group('mixed')}")
     print(f"\nWrote {len(cards)} cards to {a.out}. {n_problems} problem(s).")
     return 1 if n_problems else 0
 
