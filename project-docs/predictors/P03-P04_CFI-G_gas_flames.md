@@ -24,14 +24,19 @@
 
 | Column | Range | Cleaning |
 |---|---|---|
-| `Fuel` | 30% butane 52, 30% propane 36, 50% butane 30, 30% ethane 27, propane 20, ethane 14 | Split into `fuel_gas` + `fuel_fraction` |
+| `Fuel` | 30% butane 52, 30% propane 36, 50% butane 30, 30% ethane 27, propane 20, ethane 14 | Use **only the gas name** (`fuel_gas`). **Don't take the fuel fraction from this label**: it's the bottle mix, not what burned (see `Xf`) |
 | `XO2 before test` | 0.18 to 0.40 | Chamber O₂. × 100 → % |
 | `approx p (bar)` | 0.51 to 3.04 | × 100 → kPa |
-| `Xf` | 0 to 1 | Fuel fraction in burner gas |
+| `Xf` | 0.027 to 1 | **The real fuel fraction in the burner gas.** 26 tests labelled "30% propane/butane" actually ran at 2.7 to 4.7% fuel. `clean_tables.py` already uses `Xf` → `burner_fuel_pct` ✅ |
 | `mHC (mg/s)` | | Fuel flow |
-| `Day` | | For grouped split |
+| `Tad (K)`, `Zst` | | **OK to use.** Both are calculated from the *starting* conditions (before ignition), so they don't leak the answer, and they carry the physics (flame temperature, mixture). Keep them as optional inputs and compare with/without. |
+| `Day` | 11 days | For grouped split (only 11 groups, so the cross-validation is coarse) |
 
-**Do not use as inputs:** `Tad (K)` (a *calculated* flame temperature, not measured), `burn time`, `Peak burner T`, `Color` (these happen after ignition, so they would leak the answer).
+**Do not use as inputs** (they are measured after ignition or contain the answer):
+- `burn time`, `Peak burner T`, `Color`, `XO2 after test`
+- `Cool flame?`: an outcome
+- `TFP`: "Yes" only on flames that ignited (18 of 18), so it leaks P3. Meaning not documented.
+- `Comments`: contains answers ("direct cool - no hot ignition", "Cool flame!", "Lowest flow rate for ignition")
 
 ## Documents to use
 
@@ -45,9 +50,11 @@
 
 - **Inverse flames are different physics.** Their `XO2` (0.12 to 0.85) is oxygen **inside the burner stream**, blown into a fuel-filled chamber. It is **not cabin oxygen.** Never plot on the same axis without a different marker and label. Never train P3/P4 on them.
 - Inverse ignition values mix case (`Yes`/`yes`, `No`/`no`), plus `flash` (8). Normalise before counting.
-- High O₂ tests are at a range of pressures. Check how many are both ≥30% O₂ **and** ≤70 kPa before claiming lunar relevance.
+- 115 normal flames are at ≥ 30% O₂, but only **20** are also at ≤ 70.3 kPa (lunar-like air): 17 ignited, 3 didn't; of those, SE 13 / FT 5 (one row is inconsistent, see below). **20 is too few for a separate model**: in the lunar zone show the nearest real tests, not a percentage.
+- **Inconsistent row:** one test has `Hot ignition` = No but `Self-ext or flow term` = FT. Flag it and drop it from P4.
 
 ## Open questions
 
-- [ ] Count normal-flame tests in lunar-like air (≥30% O₂ and ≤70 kPa)
+- [x] Count normal-flame tests in lunar-like air (≥30% O₂ and ≤70 kPa): **20** (verified 14 Nov 2026)
 - [ ] Check row counts per day against report Tables 1 and 2
+- [ ] Find what `TFP` means (ACME non-imaging data file description?)

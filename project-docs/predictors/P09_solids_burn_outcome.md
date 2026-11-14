@@ -5,7 +5,7 @@
 
 ## What we predict
 
-**For a material + shape + O₂ + airflow, what happens?**
+**For a material + shape + O₂ + airflow + flow direction, what happens?**
 
 | Class | Meaning |
 |---|---|
@@ -16,34 +16,54 @@
 
 Possible extra target: burn time (s), where the text gives it.
 
-**Why it matters:** this is the **prevention** pillar of the brief (material flammability).
+## Decision (14 Nov 2026): ✅ do it, as **data extraction first, model second**
+
+**Why it's worth it:**
+- The brief names solids directly: *"Flammability studies focus on solid materials such as fabrics and plastics … BASS and BASS-II … Saffire."* Fabric and plastic are the most realistic habitat fires (clothes, cables, foam).
+- Without P9, solids = only the P10 curve and the small P11 chart. With P9 we have **~250 real solid outcomes**, which also covers the brief's *"extract data that supports predictive modeling"*.
+- It gives the **P10 curve its real test dots** (Olson, Table A.5).
+- The competitor (MicroFire Atlas) covers solids, so skipping P9 means they have more solids data than us.
+
+**Why it's hard:** the results are sentences in a PDF whose table rows are broken across lines and cut off by text extraction. Each row has to be read and labelled.
+
+**Plan in stages.** Each stage is useful on its own, so we can stop at any point:
+
+| Stage | Source | Rows | Time | What we get |
+|---|---|---|---|---|
+| 1 | **Olson**, Table A.5 (PMMA rods) | ~28 | ~1 h | Real dots on the P10 curve ⭐ |
+| 2 | **T'ien**, Table A.6 (SIBAL fabric) | ~30 | ~1 h | Bigger P11 fabric chart |
+| 3 | Bhattacharjee, Ferkul, Fernandez-Pello, Miller (A.1 to A.4) | ~70 | ~2 h | BASS-II outcome map |
+| 4 | BASS as-run workbook (text already in Excel, easier) | ~124 | ~2 h | ~250 solid tests in total |
+| 5 | Model, **only if the classes are balanced enough** | | ~1 h | Predictor. Otherwise P9 stays a chart (outcome map, VISUALISATIONS L4) |
+
+**Extraction method:** an LLM reads each row's observation text and fills `test_id, outcome, flow_direction, final_flow_raw, burn_time_s, confidence, source_doc, source_page`. A person checks every row. Never let the LLM invent a value: blank if the text doesn't say.
 
 ## Status: ⚠️ the outcomes must be extracted from text first
 
 Neither CSV has a result column. The results are written as sentences in:
-1. **BASS-II Summary Report, Appendix A** (observations column dropped from the CSV)
-2. **BASS as-run workbook** (`Test Observations and Anomalies` column)
+1. **BASS-II Summary Report, Appendix A** (Tables A.1 to A.6). Verified: the observation text is there (viewer pp. 111 to ~122). Outcome words in the appendix: *extinguish* 56, *blowoff* 22, *blew* 6, *quench* 6, *did not ignite / no ignition* 2. The layout is broken by `pdftotext -layout` (one row spread over several lines, long sentences cut), so extract from the page image or by hand if the text is unreadable.
+2. **BASS as-run workbook** (`Test Observations and Anomalies` column): **125 rows, 124 with text**. Words: *extinguish* 31, *spread* 24, *blow* 11, *quench* 1, *no ignition / did not ignite* 6, *soot* 72, *blue* 60.
 
-**Extraction plan:** for each test, an LLM (or a person) reads the row's observation text and fills `outcome`, `flow_at_outcome_cm_s`, `burn_time_s`, `confidence`, with the **document + page/row** as source. A person reviews every row. ~240 tests, so this is a few hours of review.
+⚠️ **The BASS-II `Test.Matrices.xlsx` has NO observation column** (verified). It only has a few `ext` notes inside flow cells (Fernandez-Pello 16, Olson 5, others ≤ 2). Don't count on it for outcomes.
 
-Expected size: **~240 tests** (BASS 109 + BASS-II ~129). Mostly PMMA, so first model = **PMMA only**.
+Expected size: **~250 tests** (BASS ~124 + BASS-II 129). Mostly PMMA, so first model = **PMMA only, one flow direction**.
 
 ## Data
 
 | File | Use |
 |---|---|
-| `Data/psi/PSI-25/tables/PSI-25_Experimental table_BASS-II.csv` | BASS-II conditions (129 rows): material, fan/air display, calibrated O₂ before/after, CO₂, CO |
-| `Data/psi/PSI-25/docs/PSI-25_Science Documents_BASS-II_Test.Matrices.xlsx` | Same tests, one sheet per scientist (Bhattacharjee 23, Ferkul 5, Miller 21, Olson 28, Fernandez-Pello 28, T'ien 30). Has `ext` notes inside the flow columns. |
-| `Data/psi/PSI-25/docs/PSI-25_Reference Data_Fan calibration data.xlsx` | **Convert fan display to cm/s** |
+| `Data/psi/PSI-25/tables/PSI-25_Experimental table_BASS-II.csv` | BASS-II conditions (129 rows): material, fan/air display, calibrated O₂ before/after, CO₂, CO. **No pressure column.** |
+| `Data/psi/PSI-25/docs/PSI-25_Science Documents_BASS-II_Test.Matrices.xlsx` | Same tests, one sheet per scientist (Bhattacharjee 23, Ferkul 5, Miller 21, Olson 28, Fernandez-Pello 28, T'ien 30). Cross-check only: no observations. |
+| `Data/psi/PSI-25/docs/PSI-25_Reference Data_Fan calibration data.xlsx` | **Convert fan display to cm/s.** Organised **per test day and per number of flow restrictors** (Pot → Fan display → Air display → `U cm/s`). Not every day is complete. The note says don't use the 3.8 V zero-flow value. Match each test to its day + restrictor. |
 | `Data/psi/PSI-26/tables/PSI-26_Experimental table_BASS.csv` | BASS IDs and materials only |
-| **`Data/psi/PSI-26/docs/PSI-26_Science Documents_As Run_Test Matrix.xlsx`** | **BASS outcomes.** Sheet `as run matrix`: 109 tests with O₂ % (0.17 to 0.225), pressure (atm), CO₂ (mmHg), `Air display` (cm/s), material and the observation text. Sheets `2012`, `2013` split it by year. |
-| `Data/psi/PSI-26/docs/PSI-26_Science Documents_Planned_Test Matrix.xlsx` | Planned vs as-run (check which tests were skipped) |
+| **`Data/psi/PSI-26/docs/PSI-26_Science Documents_As Run_Test Matrix.xlsx`** | **BASS outcomes.** Sheet `as run matrix`: **125 rows** (124 with observation text, 109 with an `Air display` value) with O₂ % (0.17 to 0.225), pressure (~0.97 atm), CO₂ (mmHg), `Air display` (cm/s, often a sequence like `10, 5, 3`), material and the observation text. Sheets `2012`, `2013` split it by year. |
+| `Data/psi/PSI-26/docs/PSI-26_Science Documents_Planned_Test Matrix.xlsx` | Planned vs as-run (check which tests were skipped). Low value. |
 
 ## Documents to use
 
 | Document | Where | What for |
 |---|---|---|
-| **BASS-II Summary Report** (NASA/TM-20210011385) | `Data/psi/PSI-25/docs/PSI-25_Reports_BASS-II Summary Report.pdf` | **Appendix A, Tables A.1 to A.6 (p. 111 to ~122): the test log with observations → outcomes.** §1.4 (p. 14 to 15): O₂/CO₂/CO sensor use. Table 5.1 (p. 65): 11 thick-PMMA tests with spread rate (mm/s) and burn time. |
+| **BASS-II Summary Report** (NASA/TM-20210011385) | `Data/psi/PSI-25/docs/PSI-25_Reports_BASS-II Summary Report.pdf` | **Appendix A, Tables A.1 to A.6 (viewer p. 111 to ~122): the test log with observations → outcomes, and the flow direction column.** A.5 Olson starts p. 118, A.6 T'ien p. 120. §1.4 (p. 14 to 15): O₂/CO₂/CO sensor use. **Table 5.1: 20 BASS-II tests** (Miller, thick PMMA) with spread rate (mm/s) and burn time. |
 | **BASS-II ReadMe** | `Data/psi/PSI-25/docs/PSI-25_Science Documents_BASS-II_ReadMe.docx` | Column definitions: video date is one day off (leap year), fan display = voltage × 10, `OR` = CO over range (> 1,000 ppm), air display lags ~1 min, samples reused |
 | BASS-II SRD | `…/PSI-25_Science Documents_BASS-II_SRD.pdf` | Planned variables and ranges |
 | BASS presentations | `Data/psi/PSI-26/docs/PSI-26_Presentations_BASS_Overview of Recent ISS Results.pdf`, `…Flammability Aspects of Fabric…pdf` | Summary results and images for the app |
@@ -51,14 +71,16 @@ Expected size: **~240 tests** (BASS 109 + BASS-II ~129). Mostly PMMA, so first m
 
 ## Inputs
 
-| Input | Source | Cleaning |
-|---|---|---|
-| Material | CSV / workbook | **Normalise names:** `2 cm sphere`, `PMMA sphere 2 cm`, `pmma sphere` → `PMMA sphere, 2 cm` |
-| Shape + size | Material text | Split into `shape` (rod, sphere, slab, film, fabric) and `size_mm` |
-| Flow direction | Report / material text | Opposed vs concurrent (changes the physics) |
-| O₂ % | Calibrated O₂ (BASS-II), `O2 % by volume` (BASS) | Use the **calibrated** value. Both before and after are given. |
-| Pressure | BASS workbook (~0.97 atm) | Nearly constant |
-| Flow (cm/s) | `Air display` or fan display + calibration | **Use the flow at the moment of the outcome**, not the starting flow |
+| Input | Source | Status | Cleaning |
+|---|---|---|---|
+| Material | CSV / workbook | ⚠️ free text | **Normalise names:** `2 cm sphere`, `PMMA sphere 2 cm`, `pmma sphere` → `PMMA sphere, 2 cm` |
+| Shape + size | Material text | ⚠️ parse | Split into `shape` (rod, sphere, slab, film, fabric) and `size_mm` |
+| **Flow direction** | **Appendix A only** (not in any CSV) | ❌ extract | Opposed 67 / Concurrent 38 / Stagnation 15 mentions in Appendix A. Changes the physics: never mix directions in one model. |
+| O₂ % | Calibrated O₂ (BASS-II), `O2 % by volume` (BASS) | ✅ | Use the **calibrated** value. Both before and after are given. |
+| Pressure | BASS workbook (~0.97 atm) | ⚠️ BASS-II has none | BASS-II: assume ISS cabin pressure and set `pressure_assumed = true` |
+| Flow (cm/s) | `Air display` or fan display + calibration | ⚠️ | **Use the flow at the moment of the outcome**, not the starting flow (sequences like `10, 5, 3, 2, 1`) |
+
+**Do not use as inputs:** final O₂ / CO₂ / CO (measured after burning), `total frames shot`, radiometer columns.
 
 ## Caveats
 
@@ -70,6 +92,6 @@ Expected size: **~240 tests** (BASS 109 + BASS-II ~129). Mostly PMMA, so first m
 
 ## Open questions
 
-- [ ] Extract outcomes from Appendix A and the as-run workbook (with page/row source)
+- [ ] Stage 1: extract Olson (Table A.5) with page source
 - [ ] Join BASS-II CSV ↔ Appendix A on `Test #`
 - [ ] Count tests per class after extraction. Is it enough for a model, or chart only?

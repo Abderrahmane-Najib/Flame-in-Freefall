@@ -1,6 +1,8 @@
 # Handoff: Flame in Freefall (NASA Space Apps 2026)
 
-*Last updated 2026-11-13. Read this first when continuing on another PC.*
+*Last updated 2026-11-14. Read this first when continuing on another PC.*
+
+**New on 14 Nov:** all docs re-verified against the raw data and PDFs (`VERIFICATION.md`); product ideas and decisions in `IDEAS.md` (P9 go-ahead, near-lunar band, explanation levels, languages). Next step: **UI design**.
 
 ## 1. What we're building
 This is an AI-powered web dashboard that summarizes, ranks and interprets the 24 NASA PSI combustion investigations, for fire safety in spacecraft, the ISS, Moon/Mars bases and rovers. Every investigation is tagged with the fire-safety jobs it informs: **prevention**, **detection** and **suppression**.
@@ -18,6 +20,9 @@ The build plan, in order:
 | 3 | Ranker with user weights | ⏳ |
 | 4 | AI assistant: RAG over the reports, plus a data tool for numbers | ⏳ |
 | 5 | Models (predictors P1–P11, see `predictors/README.md`) | ⏳ |
+
+| 6 | **UI design** (explanation levels, languages, accessibility: see `IDEAS.md`) | ⏳ **next** |
+| 7 | P9 solid outcomes: extraction in stages (Olson → T'ien → others → BASS) | ⏳ decided, see `predictors/P09_solids_burn_outcome.md` |
 
 Also pending:
 - Images: 19 of 24 cards have none.
@@ -67,7 +72,7 @@ investigation.json + clean/ + content/cards_curated.json ──build_cards.py─
 | `scripts/units.py` + `content/units.json` | Unit conversion. Values are stored in one standard unit and converted only for display (SI / Aerospace US / Lab presets) |
 | `scripts/xlsx_read.py` | Minimal `.xlsx` reader |
 | `content/cards_curated.json` | **Hand-edited** card fields: fuel_type, safety_jobs, hardware_group, summary, findings, limitations. Edit here, never in `cards.json` |
-| `project-docs/` | `DATA_EXPLAINED.md`, `DOCS_FINDINGS.md`, `VISUALISATIONS.md`, `predictors/` |
+| `project-docs/` | `DATA_EXPLAINED.md`, `DOCS_FINDINGS.md`, `VISUALISATIONS.md`, `predictors/`, `IDEAS.md`, `VERIFICATION.md` |
 
 ### Standard units in the clean CSVs
 | Quantity | Unit |
@@ -99,10 +104,10 @@ Rebuilding on the new PC should give these numbers:
 | bre / cld / efield / sflame | 194 / 344 / 219 / 276 |
 | bass2 / bass | 129 / 121 (0 unjoined) |
 | saffire 1 / 2 / 3 | 2 / 9 / 2 |
-| same_r | 67 |
-| same | 4+ |
-| spice | 150+ |
-| slice / flex2 | ? |
+| same_r | 67 tests (109 rows) |
+| same | 4 tests (8 rows) |
+| spice | 150 tests (469 rows, 34 duplicates flagged) |
+| slice / flex2 | 0 / 0 (no per-test data: dates / planned ranges only) |
 
 Totals: about 2,679 fires, about 596 tests with results, and 20 lunar-air tests (all CFI-G).
 
@@ -114,13 +119,17 @@ Example cards:
 - **Microgravity only.** There is no Moon/Mars gravity data. A Moon estimate must be a bounded range between the µg and 1 g results.
 - CFI workbook: **227** tests, not 87.
 - Images: only **5 of 24** investigations have an images entry.
-- PMMA boundary (P10): O₂ = 6·exp(−0.5a) + 0.0167a + 13.4.
-- P9 (solids burn outcome) needs outcomes extracted from BASS Appendix A plus the as-run workbook first.
+- PMMA boundary (P10): O₂ = 6·exp(−0.5a) + 0.0167a + 13.4, with **a = 1.5·(U/r)·√(r/0.318 cm)** (not just U/r).
+- P9 (solids burn outcome) needs outcomes extracted from BASS-II Appendix A plus the BASS as-run workbook first. The BASS-II Test.Matrices.xlsx has **no** outcomes.
+- CFI-G fuel fraction = `Xf` column, **not** the "30% propane" label (26 tests differ).
+- Lunar air = 20 tests (CFI-G). **Near-lunar** = 17 more FLEX tests at 71–72 kPa. Never call near-lunar "lunar".
+- CFI: helium only at 21% O₂. 17% O₂ + He = "never tested".
 - How we differ from MicroFire Atlas:
-  - CFI-G and FLEX data at high O₂
+  - CFI-G and FLEX data at high O₂ (lunar + near-lunar)
   - all three fuel families
   - a bounded Moon range
   - cool flames
+  - explanation levels + multiple languages (`IDEAS.md`)
 
 ## 6. Working rules agreed with Claude
 - **Claude doesn't run scripts.** It writes or edits the code and gives the exact commands, and the user runs them and pastes the output. This rule lived in Claude's memory on the old PC. Tell Claude again on the new PC, or point it to this file.

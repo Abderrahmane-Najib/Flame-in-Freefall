@@ -11,12 +11,14 @@ Only rows with `Completed Analysis?` = **Yes (146 of 227)**.
 
 | ID | Target | Column (`DATA` sheet) | Rows | Range / classes | Baseline |
 |---|---|---|---|---|---|
-| **P5** | Hot-flame burn time (s) | `HF Burn Time` | 147 | 1.9 to 21.6 s | mean |
-| **P6** | Hot-flame extinction diameter (mm) | `Dext, hot ( mm )` | 144 | 2.8 to 6.4 mm. Also try `Dext,hot / D0` to remove droplet size. | mean |
-| **P7** | Cool-flame end state | `Dext,cool ( mm )` | 119 | **> 0** = cool flame went out early (71) · **= 0** = cool flame consumed the droplet (48) · blank = no measurement, **excluded** (27) | 60% |
-| **P8** | Did it reignite? | `Reignitions` > 0 | 151 | none 114 / one or more 37 | 75% |
+| **P5** | Hot-flame burn time (s) | `HF Burn Time` | 143 | 1.9 to 21.6 s | mean |
+| **P6** | Hot-flame extinction diameter (mm) | `Dext, hot ( mm )` | 141 | 2.8 to 6.4 mm. Also try `Dext,hot / D0` to remove droplet size. | mean |
+| **P7** | Cool-flame end state | `Dext,cool ( mm )` | 117 | **> 0** = cool flame went out early (69) · **= 0** = cool flame consumed the droplet (48) · blank = no measurement, **excluded** (29) | 59% |
+| **P8** | Did it reignite? | `Reignitions` > 0 | 145 | none 110 / one or more 35 | 76% |
 
-Extra target if useful: `khot ( mm²/s )` (hot burning rate, 148 rows).
+Extra target if useful: `khot ( mm²/s )` (hot burning rate, 145 rows).
+
+*Counts re-checked on 14 Nov 2026 against `data/psi/clean/cfi.csv` (analysed tests only). The earlier numbers (147 / 144 / 71 / 151) didn't filter to analysed tests. ⚠️ The raw workbook has **119** `Dext,cool` values, the clean CSV **117**: check which 2 the cleaner blanked and why.*
 
 ## Data
 
@@ -32,7 +34,7 @@ Extra target if useful: `khot ( mm²/s )` (hot burning rate, 148 rows).
 |---|---|---|
 | Pressure | 0.5 to 5 atm (7 levels) | Master Sheet is text (`"1 atm"`, `".5 atm"`). Use the numeric `Pressure (atm)` in `DATA`. × 101.325 → kPa. |
 | O₂ | **0.21 (118) or 0.17 (28) only** | |
-| He | 0, 0.29, 0.59 | |
+| He | 0, 0.29, 0.59 | ⚠️ **Helium was only used at 21% O₂** (21% + He 0: 89, He 29%: 17, He 59%: 12; 17% O₂: He 0 only). The app must not predict "17% O₂ + helium": show **"never tested"** instead. |
 | Fuel | n-dodecane 72, 60/40 dodecane/iso-dodecane 42, 75/25 blend 32 | Farnesane (44) has no analysed results |
 | Fiber | Yes / No / blank | Droplet on a support fibre or free-floating. Report: little effect on extinction diameter. |
 | `D0 ( mm )` | 3.8 to 6.4 | Initial droplet size |
@@ -51,9 +53,9 @@ Extra target if useful: `khot ( mm²/s )` (hot burning rate, 148 rows).
 
 | `Dext,cool` | Tests | Has `kcool` | At ≥ 2 atm | With reignitions |
 |---|---|---|---|---|
-| > 0 | 71 | 71 | 19 | 13 |
+| > 0 | 69 | 69 | 17 | 12 |
 | = 0 | 48 | 48 | 41 | 21 |
-| blank | 27 | 5 | 2 | 1 |
+| blank | 29 | 7 | 4 | 2 |
 
 **0 is not "no cool flame"**: every zero row has a cool-flame burning rate and almost all are at high pressure, which matches the report. Blank rows usually had a camera problem (e.g. test 1208: *"IPSUG did not switch to continuous mode"*). This is **our interpretation**, not a NASA definition.
 
@@ -62,11 +64,13 @@ Extra target if useful: `khot ( mm²/s )` (hot burning rate, 148 rows).
 ## Caveats
 
 - **Not relevant to lunar oxygen:** only 17% and 21% O₂. Its value is **pressure (0.5 to 5 atm) and helium**.
-- **Fuel and conditions overlap:** not every fuel was run at every pressure and He level. Check coverage before reading effects.
+- **Fuel × pressure coverage** (analysed tests): every fuel was run at all 7 pressures, but the blends are thin at the ends. n-dodecane: 4/4/30/4/3/16/11 tests at 0.5/0.75/1/1.25/2/3/5 atm. 60/40 blend: 4/4/11/4/4/13/2. 75/25 blend: 1/3/11/4/5/6/2. At 5 atm the blends have only 2 tests each, so show nearest tests there, not a model value.
+- **Do not use as inputs** (results): `Dext,hot`, `Dext,cool`, `khot`, `kcool`, `HF Burn Time`, `Reignitions`, `Extrap CF?`, radiometer columns, `Actual D`.
 - Radiometer columns (`Rad Ratio`, `CF Rad Ratio`, `Peak … Rad`, `2.5mm …`) are display only. `2.5mm CF` ranges oddly from 36 to 7,196.
 - Report Fig. 3 caption says test 1268 was 12% O₂. The workbook says 21% (21 + 50 + 29 = 100). **Trust the workbook.**
 
 ## Open questions
 
 - [ ] Confirm `Dext,cool` = 0 / blank and `Extrap CF?` in Nayagam et al. 2015
-- [ ] Check the fuel × pressure × He coverage grid
+- [x] Check the fuel × pressure × He coverage grid (see Caveats)
+- [ ] Find the 2 `Dext,cool` values that are in the workbook but blank in `clean/cfi.csv`

@@ -118,7 +118,7 @@ The same fire behaves differently depending on the **air** and the **gravity**.
 
 **Very important:**
 - **All tests were done in microgravity.** None were done at Moon or Mars gravity.
-- Some ISS tests used **lunar-like air** (≥30% O₂, ≤70 kPa). **20 tests** match it.
+- Some ISS tests used **lunar-like air** (≥30% O₂, ≤70 kPa). **20 tests** match it (CFI-G gas flames). **17 FLEX droplet tests** are just outside (71–72 kPa): we call them **near-lunar**.
 - So for a lunar base we can say how fire behaves *in that air*, but **not at Moon gravity**. The app always says this.
 
 ### Pressure units (the tables mix them)
@@ -164,23 +164,23 @@ We label each investigation two ways: **what burned**, and **which fire-safety j
 | Name | ID | Category | In plain words | Usable test data? |
 |---|---|---|---|---|
 | **FLEX** (Flame Extinguishment) | PSI-69 | Droplet | Lit fuel droplets in different gas mixes (with CO₂ or helium) to see which mixes **put fires out** | ⭐ 274 tests, conditions + result |
-| **FLEX-2** | — | Droplet | Follow-up of FLEX with fuel mixtures | Few rows, no result |
-| **CFI** (Cool Flames Investigation) | PSI-39 | Droplet | Studied **cool flames** that keep burning invisibly | 87 tests, results in a spreadsheet |
+| **FLEX-2** | PSI-68 | Droplet | Follow-up of FLEX with fuel mixtures | 8 rows of planned ranges, no result |
+| **CFI** (Cool Flames Investigation) | PSI-39 | Droplet | Studied **cool flames** that keep burning invisibly | ⭐ **227 tests in the workbook** (146 with results). The CSV has only 87 rows |
 | **ACME CFI-G** (Cool Flames with Gases) | PSI-159 | Gas | Lit gas flames at many oxygen levels and pressures: did it light? Did it go out by itself? | ⭐ 333 flames, conditions + result |
 | **Flame Design** | PSI-10 | Gas | How oxygen and flame temperature change soot (smoke) | 327 tests, conditions only |
 | **s-Flame** | PSI-23 | Gas | Round (spherical) gas flames | Per test day |
-| **BRE** (Burning Rate Emulator) | — | Gas | A gas burner that **imitates a burning solid**, to measure when solids stop burning | Per test day |
-| **CLD**, **E-FIELD** | — | Gas | Flame structure; E-FIELD uses electricity to push the flame around (like fake gravity) | Per test day |
-| **SPICE** | PSI-107 | Gas (soot) | How much smoke gas flames make | 469 tests, conditions only |
-| **SLICE** | — | Gas | When a flame "lifts off" its burner | Conditions only |
-| **BASS** (Burning and Suppression of Solids) | PSI-26 | Solid | Burned fabrics and plastics with a fan, to find when they go out | Rows in a spreadsheet; results in reports |
-| **BASS-II** | PSI-25 | Solid | Same, 51 materials | 129 tests, results partly in text |
-| **Saffire I–III** | PSI-98 to 100 | Solid | **Big** fabric fires inside an empty cargo ship | Very few rows (2 / 9 / 2) but rare space vs Earth comparison |
-| **SAME** / **SAME-R** (Smoke Aerosol Measurement) | PSI-102 / PSI-101 | Smoke | Heated materials to make smoke and tested **smoke detectors** in space | SAME-R: 109 tests with detector readings |
+| **BRE** (Burning Rate Emulator) | PSI-20 | Gas | A gas burner that **imitates a burning solid**, to measure when solids stop burning | Per test day |
+| **CLD**, **E-FIELD** | PSI-21, PSI-22 | Gas | Flame structure; E-FIELD uses electricity to push the flame around (like fake gravity) | Per test day |
+| **SPICE** | PSI-107 | Gas (soot) | How much smoke gas flames make | 469 rows = 150 tests, conditions only |
+| **SLICE** | PSI-106 | Gas | When a flame "lifts off" its burner | Date + fuel only |
+| **BASS** (Burning and Suppression of Solids) | PSI-26 | Solid | Burned fabrics and plastics with a fan, to find when they go out | ~124 tests in the as-run workbook; results as sentences (P9) |
+| **BASS-II** | PSI-25 | Solid | Same, 51 materials | 129 tests; results only as sentences in the report's Appendix A (P9) |
+| **Saffire I–III** | PSI-98 to 100 | Solid | **Big** fabric fires inside an empty cargo ship | Very few tests (2 / 9 / 2) but rare space vs Earth comparison (mostly in words) |
+| **SAME** / **SAME-R** (Smoke Aerosol Measurement) | PSI-102 / PSI-101 | Smoke | Heated materials to make smoke and tested **smoke detectors** in space | SAME-R: 109 rows = 67 tests |
 | **DAFT** | PSI-47 | Smoke | Tested an instrument that counts dust/smoke particles | Context only |
 | **Ground studies** | PSI-60, 62, 115, 117, 142 | Ground | Models and lab experiments on Earth | Not usable as tests |
 
-⭐ = our two best tables: every test has **conditions and result**, so we can train predictors on them.
+⭐ = our best tables: every test has **conditions and result**, so we can train predictors on them.
 
 ---
 
@@ -202,7 +202,7 @@ We label each investigation two ways: **what burned**, and **which fire-safety j
 
 | Column | Meaning | Example |
 |---|---|---|
-| Fuel | Gas used | ethylene, methane |
+| Fuel | Gas used | ethane, propane, butane (often diluted, e.g. "30% butane"). The real fuel fraction is the `Xf` column |
 | O₂ | Oxygen % | 18–40% (up to 85% in "inverse" flames) |
 | Pressure | in bar | 0.5–3 |
 | Fuel flow | How fast gas comes out | |
@@ -219,7 +219,7 @@ We label each investigation two ways: **what burned**, and **which fire-safety j
 | Material | e.g. cotton, Nomex, acrylic |
 | O₂ / CO₂ / CO before and after | Gas levels before and after burning |
 | Fan setting | Dial position, needs conversion to cm/s (calibration file) |
-| Notes | Result described in text ("flame went out after 30 s") |
+| Notes | **Not in the CSV.** The result is described in text ("flame went out after 30 s") in the report's Appendix A |
 
 ---
 
@@ -244,12 +244,12 @@ The goal is **one clean table** in which every test has the same columns: invest
 
 ## 11. Key findings
 
-1. **Two tables are excellent** (FLEX, CFI-G). They are the base of our predictors.
-2. **Half the tables have conditions but no result.** For solids, the results are in the reports.
-3. **746 tests** record oxygen and pressure. Only **20** are in lunar-base air.
+1. **Three sources are excellent** (FLEX, CFI-G, the CFI workbook). They are the base of our predictors.
+2. **Half the tables have conditions but no result.** For solids, the results are in the reports (P9 extracts them).
+3. **~1,600 tests** record oxygen and pressure (some values assumed). Only **20** are in lunar-base air (all CFI-G gas flames). **17 more FLEX droplet tests are "near-lunar"** (≥ 30% O₂ at 71–72 kPa, just above the 70.3 kPa cutoff), and none of them went out by itself.
 4. **No partial-gravity data:** nothing tested at Moon or Mars gravity.
 5. **Some reports are missing** from PSI (FLEX, FLEX-2, Saffire-II, BRE, CLD, E-FIELD, SLICE; the BASS final report is broken). They can be found on NASA's report server (NTRS).
-6. The **challenge organisers release more resources on Fri Nov 13**.
+6. The challenge **Resources tab** (checked 14 Nov) has 10 links: the PSI repository (= our data), 2 NASA overview pages, a 2018 video, Apollo 1 / Apollo 13 / Mir history pages and 3 spinoff pages. **No new data**: useful only for the "About", "Why it matters" and "Earth applications" pages.
 
 ---
 
@@ -269,7 +269,7 @@ The goal is **one clean table** in which every test has the same columns: invest
 - Predict fire **at Moon or Mars gravity** (never tested). We show an "untested" range instead.
 - Give one **"fire risk %"** for everything. Each experiment measures something different.
 - Predict **smoke alarms** (no "alarm went off" column).
-- Predict **fabric burning** unless the AI recovers enough results from the reports (~80+ tests).
+- Predict **solid / fabric burning** until the results are extracted from the reports (P9, planned in stages; ~250 tests in total).
 
 ### How a prediction stays honest
 Every prediction shows:
@@ -284,9 +284,9 @@ Every prediction shows:
 
 1. **Habitat → air:** lunar rover = ~30% O₂, ~70 kPa.
 2. **Category:** liquid droplet, so we use **FLEX**.
-3. **Find similar tests:** FLEX tests near 30% O₂ and 70 kPa (all done on the ISS, in microgravity).
-4. **Result:** e.g. "5 of the 7 closest tests went out early". Prediction: likely goes out, trust badge *Between tests*.
-5. **Caveat shown:** "Tested in lunar-like air but in microgravity. Moon gravity was never tested."
+3. **Find similar tests:** no FLEX test is strictly inside lunar air, but **17 are near-lunar** (≥ 30% O₂ at 71–72 kPa, all on the ISS, in microgravity).
+4. **Result (real data):** "**0 of the 17** went out early: 15 broke apart, 2 burned all the fuel." Prediction: **unlikely to go out by itself**, trust badge *Tested here* with a **near-lunar** label.
+5. **Caveat shown:** "Tested in near-lunar air (1 kPa above the lunar limit) and in microgravity. Moon gravity was never tested. These tests had no CO₂ or helium added."
 6. **Source:** links to the FLEX rows and the PSI-69 record.
 
 ---

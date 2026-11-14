@@ -11,7 +11,11 @@
 O₂_min (%) = 6 · exp(−0.5 · a) + 0.0167 · a + 13.4
 ```
 
-- `a` = **stretch rate** (s⁻¹), roughly flow speed ÷ rod radius
+- `a` = **stretch rate** (s⁻¹). **Exact definition (report §6.1, p. 83, verified):**
+  ```
+  a = (3/2) · (U / r) · (r / r₀)^½      with r₀ = 0.318 cm (base rod radius)
+  ```
+  `U` = free-stream flow velocity, `r` = rod radius. The square root corrects for the different rod sizes. **Don't use "U ÷ r" alone**, or the test dots will land in the wrong place on the curve.
 - Low `a` (weak flow): **quenching branch**, the flame dies from heat loss (exponential term)
 - High `a` (strong flow): **blow-off branch**, the flame is blown out (linear term)
 - **Minimum ≈ 13.5% O₂ at a ≈ 8 to 12 s⁻¹** (checked: the formula gives 13.6% at a = 10.4 s⁻¹ ✅)
@@ -25,7 +29,7 @@ O₂_min (%) = 6 · exp(−0.5 · a) + 0.0167 · a + 13.4
 
 | | Microgravity | Earth (1 g) | Source |
 |---|---|---|---|
-| Minimum O₂, PMMA rods | **13.5%** | 15.4% (upward spread) | Report §6.1, p. 84 |
+| Minimum O₂, PMMA rods | **13.5%** | 15.4% (upward spread, with an extra 4 cm/s forced flow) | Report §6.1, p. 84 |
 | Lowest O₂ with flame spread, PMMA rods (opposed flow) | **17.5%** | 19% | Report §4, p. 58 |
 
 > *"the material remains flammable under the weak ventilation only obtainable in microgravity"* (§6.1, p. 84)
@@ -44,7 +48,7 @@ So **materials can burn at lower oxygen in space than on Earth**, and Earth flam
 
 | Document | Where | What for |
 |---|---|---|
-| **BASS-II Summary Report** | `Data/psi/PSI-25/docs/PSI-25_Reports_BASS-II Summary Report.pdf` | **Eq. 6.1 (p. 83):** the formula. **Figs. 6.9 and 6.10 (p. 83 to 84):** the boundary with flight and drop-tower data, for checking our curve. **Table A.5 (p. ~118):** Olson test log with outcomes. **§6.1.4.2:** how quenching was measured. **§4 (p. 58):** µg vs 1 g spread limit. **Table 2.1 (p. 36):** extinction flow for **thin** PMMA at 1 atm: 21% O₂ → 10 ± 5 mm/s, 16% O₂ → 30 ± 5 mm/s. |
+| **BASS-II Summary Report** | `Data/psi/PSI-25/docs/PSI-25_Reports_BASS-II Summary Report.pdf` | **Eq. 6.1 (p. 83):** the formula. **Figs. 6.9 and 6.10 (p. 83 to 84):** the boundary with flight and drop-tower data, for checking our curve. **Table A.5 (p. ~118):** Olson test log with outcomes. **§6.1.4.2:** how quenching was measured. **§4 (p. 58):** µg vs 1 g spread limit. **Table 2.1 (viewer p. 35, doc p. 27):** extinction flow for **thin** PMMA at 1 atm: 21% O₂ → 10 ± 5 mm/s, 16% O₂ → 30 ± 5 mm/s. |
 | BASS-II ReadMe | `Data/psi/PSI-25/docs/PSI-25_Science Documents_BASS-II_ReadMe.docx` | Olson geometry (clear PMMA rods, upstream ignition) |
 
 ## Caveats
@@ -53,8 +57,10 @@ So **materials can burn at lower oxygen in space than on Earth**, and Earth flam
 - `a` needs flow speed **and** rod radius. Get both per test. The radius is in the material name (6.35 / 9.53 / 12.7 mm rods).
 - Very low flows (< 1 cm/s) are uncertain (report §6.1).
 - The formula is a **fit to O₂ at extinction (final O₂)**, not starting O₂.
+- The Earth value (15.4%) comes from a different setup (upward spread + 4 cm/s forced flow). The "Moon range between 13.5% and 15.4%" is a **reasonable bound, not a measurement**. Label it that way.
+- **Status:** the curve is ready now. The overlay dots depend on **P9 stage 1** (extracting Olson, Table A.5).
 
 ## Open questions
 
-- [ ] Confirm the stretch-rate definition `a` used in Eq. 6.1 (in §6.1)
+- [x] Confirm the stretch-rate definition `a` used in Eq. 6.1: **a = 1.5 · (U/r) · √(r/0.318 cm)** (verified 14 Nov 2026)
 - [ ] Rebuild Fig. 6.10 from our extracted points as a check

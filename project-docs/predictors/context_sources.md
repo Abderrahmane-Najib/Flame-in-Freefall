@@ -23,14 +23,15 @@ Key facts:
 |---|---|---|
 | SAME Final Science Report | `Data/psi/PSI-102/docs/PSI-102_Reports_SAME_Final Science Report.pdf` | **Table 1 (p. 8, repeated p. 27):** particle sizes above. Detector history: ionization (Shuttle) vs light-scattering (ISS). |
 | SAME-R Final Report | `Data/psi/PSI-101/docs/PSI-101_Reports_SAME-R_Final Report.pdf` | Baseline diameters per material, particle size vs duct velocity (Figs. 6 to 8, p. ~79), heater-temperature note (p. 2 to 3) |
-| SAME / SAME-R CSVs | `Data/psi/PSI-102/tables/…SAME.csv` (8), `Data/psi/PSI-101/tables/…SAME-R.csv` (109) | Test conditions for the coverage map |
+| SAME / SAME-R CSVs | `Data/psi/PSI-102/tables/…SAME.csv` (8 rows = 4 tests), `Data/psi/PSI-101/tables/…SAME-R.csv` (109 rows = 67 tests) | Test conditions. ⚠️ No O₂ or pressure columns, so they **don't appear on the V1 map** unless we assume ISS cabin air (flag it). |
 | SAME-2 presentations | `Data/psi/PSI-101/docs/*.pptx` | Flight vs ground comparison, images |
 | NIST/NASA "one detector doesn't fit all" (web) | nist.gov, 2018 | Outside source for the pitch |
 
 ## SPICE: soot and smoke points of gas flames
 
 **Why no predictor:** the 469-row CSV doesn't mark which rows are smoke points.
-**What we show:** 52 smoke points over 5 fuels; *"an increase in coflow velocity generally increases the smoke point length"*.
+**What we show:** 52 smoke points over 5 fuels (C₂H₄ 6, C₃H₈ 6, C₃H₆ 20, 75% C₃H₆ 13, 50% C₃H₆ 7, verified); *"an increase in coflow velocity generally increases the smoke point length"*.
+⚠️ The Final Report Table 1 gives **ranges per fuel, not the 52 individual points**. For a per-point chart use Dotson thesis Table 3.1 (not yet checked).
 
 | File / document | Where |
 |---|---|
@@ -39,8 +40,9 @@ Key facts:
 
 ## Saffire I to III: large fabric fires in a cargo ship
 
-**Why no predictor:** 4 / 15 / 2 rows.
+**Why no predictor:** 2 / 9 / 2 tests (the Saffire-II CSV has 15 lines, but 6 are flow-visualisation and note rows).
 **What we show:** the only **large-scale** fires, and Saffire-II's microgravity vs Earth spread comparison (columns `?-g Spread Length`, `1-g Spread Rate`).
+⚠️ That comparison is **mostly words**, not numbers: µg spread is `~ 0`, `n/a`, `29 cm`; 1 g is `Complete`, `Acceleratory`. Numeric rates exist only for a few samples (µg SIBAL 2.1 and 2.6 mm/s; 1 g silicone 1.2 and 0.6 mm/s). Show it as a **qualitative** table.
 
 | File / document | Where |
 |---|---|
