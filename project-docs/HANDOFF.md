@@ -1,6 +1,8 @@
 # Handoff: Flame in Freefall (NASA Space Apps 2026)
 
-*Last updated 2026-11-14. Read this first when continuing on another PC.*
+*Last updated 2026-11-14 (late evening). Read this first when continuing on another PC.*
+
+**Newest (14 Nov, evening):** the web app **Ghostflame** exists (React + Vite in `web/`, the design of `ghostflame-home.html`), wired to every backend feature; report **upload** (chunk, embed, own chat, card agent, approve) and a **card-only chat** were added to the API. See sections 8c and 8d. Flame Lab research started (8e). Deadline: **Sun 15 Nov, 23:59**.
 
 **New on 14 Nov:** all docs re-verified against the raw data and PDFs (`VERIFICATION.md`); product ideas and decisions in `IDEAS.md` (P9 go-ahead, near-lunar band, explanation levels, languages). Next step: **UI design**.
 
@@ -18,12 +20,11 @@ The build plan, in order:
 | 1c | Card tests and conditions, built from the cleaned tables | ✅ done, verified |
 | 1c+ | `fire_safety: {jobs, psi_label}` on every card | ✅ done, verified |
 | 1d | Card content: summary, findings (doc + page), limitations | ✅ done: 24 summaries, 56 findings on 17 cards, every item with a source link (section 8) |
-| 2 | Filters (fuel type, safety job, O₂/pressure/flow ranges, lunar air, has results) | ⏳ will be the `query_tests` tool + API |
+| 2 | Filters (fuel type, safety job, O₂/pressure/flow ranges, lunar air, has results) | ✅ `query_tests` tool, `GET /tests`, filter chips on the Experiments page |
 | 3 | Ranker | ✅ done, **without weights**: investigations ranked by tests *measured* in the habitat's air (section 8) |
-| 4 | AI assistant: RAG over the reports, plus a data tool for numbers | 🔧 in progress: database + search done, assistant next (section 9) |
-| 5 | Models (predictors P1–P11, see `predictors/README.md`) | ⏳ |
-
-| 6 | **UI design** (explanation levels, languages, accessibility: see `IDEAS.md`) | ⏳ **next** |
+| 4 | AI assistant: RAG over the reports, plus a data tool for numbers | ✅ done (8b); plus a card-only chat and a per-upload chat (8c) |
+| 5 | Models (predictors P1–P11, see `predictors/README.md`) | 🔧 P10 (PMMA boundary) done: `GET /predict/pmma` + Predict page. Others ⏳ |
+| 6 | **UI** (explanation levels, languages, accessibility: see `IDEAS.md`) | 🔧 Ghostflame web app working (8d); Flame Lab and Compare are placeholders; languages not started |
 | 7 | P9 solid outcomes: extraction in stages (Olson → T'ien → others → BASS) | ⏳ decided, see `predictors/P09_solids_burn_outcome.md` |
 
 Also pending:
@@ -38,6 +39,7 @@ Requirements:
 - The data pipeline (`scripts/`) needs no pip packages; everything uses the standard library. openpyxl is *not* needed, because `scripts/xlsx_read.py` reads `.xlsx` files itself.
 - The backend (`app/`) does: first `pip install torch==2.9.0 --index-url https://download.pytorch.org/whl/cpu` (CPU-only torch), then `pip install -r app/requirements.txt`, then copy `app/.env.example` to `app/.env` and fill in `DATABASE_URL` and `GROQ_API_KEY` (ask the team lead; never commit `app/.env`).
 - If `uvicorn` is "not recognized" in PowerShell, run it as `python -m uvicorn`.
+- The web app (`web/`) needs **Node 18+** (tested with 22): `cd web; npm install`. Run the API (`cd app; python -m uvicorn main:app --reload`) and, in a second terminal, `cd web; npm run dev` → http://localhost:5173 (Vite forwards the API paths to :8000). `npm run build` writes `web/dist`, which FastAPI then serves at `/`.
 
 ```
 git clone <repo-url>
@@ -126,7 +128,7 @@ Example cards:
 - PMMA boundary (P10): O₂ = 6·exp(−0.5a) + 0.0167a + 13.4, with **a = 1.5·(U/r)·√(r/0.318 cm)** (not just U/r).
 - P9 (solids burn outcome) needs outcomes extracted from BASS-II Appendix A plus the BASS as-run workbook first. The BASS-II Test.Matrices.xlsx has **no** outcomes.
 - CFI-G fuel fraction = `Xf` column, **not** the "30% propane" label (26 tests differ).
-- Lunar air = 20 tests (CFI-G). **Near-lunar** = 17 more FLEX tests at 71–72 kPa. Never call near-lunar "lunar".
+- Lunar air = 20 tests (CFI-G). **Near-lunar** = 17 more FLEX tests at 71–72 kPa (exactly 71.23–72.37; the API's band is 70.3 < p ≤ 72.5 kPa, so never cut at 72). Never call near-lunar "lunar".
 - CFI: helium only at 21% O₂. 17% O₂ + He = "never tested".
 - How we differ from MicroFire Atlas:
   - CFI-G and FLEX data at high O₂ (lunar + near-lunar)
@@ -178,13 +180,14 @@ Example cards:
 ### Backend, `app/`
 ```
 app/
-  main.py                 creates the app, plugs in the routes
-  core/config.py          settings from app/.env (DATABASE_URL, GEMINI_API_KEY)
+  main.py                 creates the app, plugs in the routes, serves ../web/dist at /
+  core/config.py          settings from app/.env (DATABASE_URL, GROQ_API_KEY, GROQ_MODEL, CORS_ORIGINS)
   database/               connection.py + schema.sql (the tables)
-  schemas/                API response models (Pydantic)
-  services/               logic: embeddings.py (Gemini), search.py (hybrid search), health.py
-  routes/                 endpoints only: GET /health, GET /search
-  scripts/push_data.py    pushes our data into the database
+  schemas/                request/response models (Pydantic)
+  services/               logic (assistant, card_writer, uploads, indexing, search, embeddings, coverage,
+                          graph, habitats, investigations, pmma, tests_query, chat, health)
+  routes/                 endpoints only (list in 8c)
+  scripts/push_data.py    pushes our data into the database; try_assistant.py = terminal chat
   Dockerfile, requirements.txt, .env.example
 ```
 - **Database:** PostgreSQL on **Neon** (free plan, Frankfurt), with **pgvector**. Tables: `investigations` (full card as JSON), `tests` (the 2,128 cleaned rows; table-specific columns in `extra`), `habitats`, `documents` (66 unique report PDFs; 6 duplicates skipped), `pages` (2,327), `chunks` (4,075 pieces of about 250 words, never across a page).
@@ -229,6 +232,67 @@ python -m uvicorn main:app --reload        # then open http://localhost:8000/doc
 
 Checked answers (all matched the data): solid fuels = 5; BASS-II findings with pages; Moon base = CFI-G 20; lunar ethane = 6 tests, O₂ 33.2–38.9 %; lunar tests = 50.67 kPa, O₂ 33.2–39.3 %.
 
+### 8c. API for the UI, uploads and the card chat (evening, 14 Nov)
+
+All endpoints (Swagger at `/docs`):
+
+| Endpoint | What |
+|---|---|
+| `GET /health` | database counts |
+| `GET /investigations?fuel_type&safety_job` | short list (now with `summary`, `origin` = psi / upload) |
+| `GET /investigations/{id}` | full card |
+| `POST /investigations/{id}/chat` | **card-only chat**: tools locked to that card, its reports and its test rows (`make_card_agent`) |
+| `GET /habitats`, `GET /habitats/{id}/ranking` | habitat air + ranking |
+| `GET /tests?filters&limit` | test rows (≥ 1 filter) |
+| `GET /coverage` | O₂ × pressure points (1,489), habitat boxes, near-lunar band, counts |
+| `GET /predict/pmma?rod_diameter_mm&flow_cm_s&o2_pct` | P10 boundary curve + references + verdict |
+| `GET /graph` | knowledge graph: 71 nodes, 154 edges (investigations, materials, families, jobs, hardware, habitats) |
+| `GET /search?q` | hybrid report search |
+| `POST /chat` | main assistant (NDJSON) |
+| `/uploads…` | see below |
+
+**Report upload** (`routes/uploads.py`, `services/uploads.py`, `services/card_writer.py`):
+1. `POST /uploads` (PDF ≤ 20 MB, ≤ 300 pages, text PDFs only): pages + chunks stored at once (same chunker as NASA reports, now in `services/indexing.py`), status `processing`; BGE-M3 embedding runs in the background → `unreviewed`. Same file twice = the existing upload.
+2. `POST /uploads/{id}/chat`: a chat that searches **only that report** (`make_report_agent`); citations point to `/uploads/{id}/pages/{n}` (page text).
+3. `POST /uploads/{id}/card`: a **separate card agent** (not the chatbot) drafts a card in the NASA cards' shape. It reads only ~3,000 words of passages found by 5 fixed questions (Groq token limit); every point must name its page, points citing a page it was not shown are **dropped**, cite/url are built by code, never by the model.
+4. `POST /uploads/{id}/approve` (optionally with the user-edited card) → investigation `UP-{id}`: appears in `/investigations`, the graph and the main search. `POST /uploads/{id}/reject` removes it from everything.
+- ⚠ **Run once** `python app/scripts/push_data.py --no-reports` so the database gets the new `documents.card` column.
+- ⚠ **Not tested end to end yet** against Neon + Groq. Risk: Groq JSON mode may not fill the card schema cleanly.
+
+### 8d. Web app "Ghostflame" (`web/`, React 18 + Vite 5)
+
+The design is `ghostflame-home.html` (the team's mock): its CSS is copied **unchanged** into `web/src/styles.css`; additions are appended below it. Photos extracted to `web/public/img/`. Plain hash routing (`#/predict`), no router library. Extra packages: `d3-force`, `d3-zoom`, `d3-selection` (graph only).
+
+| Page | Uses | Notes |
+|---|---|---|
+| Home | rankings, coverage, tests, health, pmma | hero per habitat (ISS / Moon / rover / Mars), 4 KPIs per explanation level, ranked cards, mini coverage map (hover a card → its tests glow) |
+| Experiments | `/investigations` | filter chips: fuel family, safety job |
+| Coverage map | `/coverage` | log-pressure scatter, hover = NASA table + row, click → card; table by experiment |
+| Knowledge graph | `/graph` | habitat chips redraw the graph with only that air's experiments; "Show" chips hide node types |
+| Predict | `/predict/pmma` | rod / flow / O₂ sliders, ISS and Moon presets, live verdict |
+| Search | `/search` | words vs meaning tags, source page links |
+| My reports | `/uploads/*` | upload, progress, report chat, card draft (editable), approve / reject |
+| Data & method | `/health` | counts + the rules behind every number |
+| Compare, Flame Lab | — | "coming soon" placeholders |
+
+Everywhere: card drawer (findings with links, "Why it matters for fire safety", **"Ask AI about this card"** inline chat), floating "Ask Ghostflame" chat (streams `/chat`).
+
+Design rules applied:
+- **Explanation level** (Explorer / Student / Researcher) changes KPI texts and the chat style (UI → API persona: explorer→student, student→researcher, researcher→researcher).
+- **Avatars** per level (guide in a helmet / teacher with cap and glasses / scientist with lab glasses), `components/Avatar.jsx`, purely visual.
+- **"Explain it simply"** button next to page titles (Explorer + Student only): a step-by-step tour that highlights parts of the chart (Predict, Coverage) or switches the graph view. Texts written by us, no new facts.
+- **Chart colours:** the mock's purple/blue accents failed the colour-blind check, so charts use the validated fuel palette (gas `#2a78d6`, droplet `#eb6834`, solid `#1baf7a`; dark `#3987e5`, `#d95926`, `#199e70`) **plus shapes**. Coverage map and graph use a "space" night-sky theme in both modes.
+- **Sources shown to users are NASA's only** (e.g. "NASA PSI test tables"), never our own pipeline ("cleaned tables").
+- The 4 equipment cards on Home were **re-checked** and fixed: SAME Table 1 PDF p. 27 (Kapton 105 nm, Teflon 205 nm "challenging for light scattering"); FLEX near-lunar 0 of 17 self-extinguished (15 disruption, 2 completion); the old claim "CO₂ or helium is what stopped them" was **wrong** (58 of 185 extinctions had N₂ only) and was removed; BASS-II p. 84; ventilation ≈ 10 cm/s (Researcher's Guide p. 31).
+
+### 8e. Flame Lab: research started (not built)
+
+Goal (from the mock): real NASA test videos next to reconstructions built from their measurements, including the cool flame.
+- **Videos exist:** 855 `.mp4` in PSI, none restricted: BASS-II (PSI-25) 296, s-Flame (PSI-23) 290, CFI (PSI-39) 126, BASS (PSI-26) 114, SPICE 18, SAME-R 8, SAME 2, CFI-G 1. Median 38 MB; BASS-II clips are small (3–8 MB).
+- **BASS-II clips match test rows:** file `BASS_GMT50_SAMPLE_147_TEST_B1.mp4` = `bass2.csv` row with `sample=147`, `test_id=B1` (O₂ 22.2 %, flow 5 cm/s, PMMA film). So a clip can be shown with its measured conditions.
+- **Streaming:** the PSI download URL answers **302 → a signed S3 URL** (expires, `attachment`). To play in a `<video>`: an API endpoint that redirects to a fresh signed URL, or copy a few chosen clips to our own storage.
+- **Reference repos** (none models microgravity; we must remove buoyancy ourselves so the flame is a sphere): [`@wolffo/three-fire`](https://unpkg.com/@wolffo/three-fire@1.3.0/README.md) (ray-marched volumetric fire for three.js), [ThreeVolumetricFire](https://github.com/Housz/ThreeVolumetricFire), [SmokeGL](https://github.com/SqrtPapere/SmokeGL) (candle, particles), [WebGL-Fluid-Simulation](https://github.com/PavelDoGreat/WebGL-Fluid-Simulation), [Trinity](https://awesome.ecosyste.ms/projects/github.com%2Fportsmouth%2FTrinity) (GPU fluid with programmable forces). Droplet burning: the d² law (diameter² falls linearly in time) is a simple, honest model for a droplet reconstruction.
+
 ## 9. Planned next
 
 | # | What | Notes |
@@ -239,7 +303,10 @@ Checked answers (all matched the data): solid fuels = 5; BASS-II findings with p
 | 4 | ~~Personas~~ | ✅ done (8b) |
 | 5 | ~~Rules for every answer~~ | ✅ in `INSTRUCTIONS` (8b). Open: the model still mixes "measured" and "suggests" sometimes; link text is the word "cite" |
 | 5b | Groq token limit | Decide: Dev tier (paid) for the demo, or keep the free tier |
-| 6 | **Report upload** | A user uploads a PDF → stored in Google Cloud Storage → pages extracted, chunked, embedded → searchable as **unreviewed** → AI drafts findings, kept only if the quote is on the cited page → an admin approves it into the knowledge base |
-| 7 | Deploy | API on **Google Cloud Run** (`europe-west3`, next to Neon) from `app/Dockerfile`; set `DATABASE_URL` and `GROQ_API_KEY` as env vars; CPU torch + BGE-M3 baked into the image (8b). Add CORS for the UI |
-| 8 | API for the UI | Cards, habitat ranking, tests, chat events (text, chart, diagram). The UI colleague's design decides the rest |
-| 9 | Before submitting | **Reset the Neon password** (it was shared in a chat); write the SI-usage description; list all libraries and data in References |
+| 6 | ~~Report upload~~ | ✅ built (8c), the PDF itself is not stored (only its text). **Test it end to end** (upload → chat → `/card` → approve) |
+| 7 | Deploy | API on **Google Cloud Run** (`europe-west3`, next to Neon) from `app/Dockerfile`; set `DATABASE_URL` and `GROQ_API_KEY`; CPU torch + BGE-M3 baked in (8b). The Dockerfile must also **build `web/`** (`npm ci && npm run build`) and copy `web/dist` next to `app/` |
+| 8 | ~~API for the UI~~ | ✅ (8c, 8d) |
+| 8b | **Flame Lab** | next: pick clips (BASS-II matched to rows), a video endpoint, and a microgravity flame reconstruction (8e) |
+| 8c | Compare page, languages | placeholders now |
+| 8d | Optional | backend answer styles matching the 3 avatars (explorer / teacher / researcher) — started, then cancelled by the user; not done |
+| 9 | Before submitting | **Reset the Neon password** (it was shared in a chat); write the SI-usage description; list all libraries and data in References (add React, Vite, d3-force/zoom/selection, Geist font) |

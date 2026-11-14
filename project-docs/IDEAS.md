@@ -30,7 +30,7 @@ Product ideas and team decisions, agreed on 14 Nov 2026. For the data behind the
 ## 2. Near-lunar band (new finding)
 
 - **Lunar-like air** (strict, from the brief): O₂ ≥ 30% and ≤ 70.3 kPa (10.2 psi) → **20 tests**, all CFI-G gas flames.
-- **Near-lunar** (new): **17 FLEX droplet tests** at ≥ 30% O₂ and **71 to 72 kPa** (~10.3 psi), only ~1 kPa outside.
+- **Near-lunar** (new): **17 FLEX droplet tests** at ≥ 30% O₂ and **71 to 72 kPa** (exactly 71.23–72.37 kPa, ~10.3 psi), only ~1 kPa outside.
 - **None of the 17 went out by itself** (15 broke apart, 2 burned all the fuel; no CO₂ or He added).
 - Effect: lunar evidence goes from 20 tests in 1 fuel family to **37 tests in 2 fuel families**.
 - **Rule:** always label them "near-lunar", never "lunar". Show them as a lighter band around the lunar box on the map, and as a separate filter option.

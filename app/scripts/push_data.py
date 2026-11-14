@@ -25,7 +25,6 @@ import argparse
 import csv
 import hashlib
 import json
-import re
 import sys
 import urllib.parse
 from pathlib import Path
@@ -37,6 +36,7 @@ APP_DIR = Path(__file__).resolve().parents[1]
 ROOT = APP_DIR.parent
 sys.path.insert(0, str(APP_DIR))
 from database.connection import connect, create_schema  # noqa: E402
+from services.indexing import EMBED_BATCH, MIN_PAGE_CHARS, clean_text, embed_text, split_words  # noqa: E402
 
 CARDS = ROOT / "data" / "psi" / "cards.json"
 HABITATS = ROOT / "content" / "habitats.json"
@@ -44,10 +44,6 @@ CLEAN_DIR = ROOT / "data" / "psi" / "clean"
 PSI_DIR = ROOT / "data" / "psi"
 PSI_FILE_URL = "https://psi.nasa.gov/geode-py/ws/studies/{acc}/download?file={file}"
 REPORT_KINDS = ("_Reports_", "_Presentations_", "_Science Documents_")  # software documents are skipped
-
-CHUNK_WORDS = 250     # words per chunk
-CHUNK_OVERLAP = 50    # words repeated from the previous chunk, so a sentence cut at a border is whole once
-EMBED_BATCH = 50      # chunks per model call (model and size: services/embeddings.py)
 
 TEST_COLUMNS = {  # column -> type; every other CSV column goes to "extra"
     "investigation": str, "test_id": str, "test_date": str, "row_granularity": str, "n_tests": int,
@@ -117,11 +113,6 @@ def push_tests(conn) -> int:
     return len(rows)
 
 
-def clean_text(text: str) -> str:
-    text = re.sub(r"[ \t]+", " ", text.replace("\x00", ""))
-    return re.sub(r"\n\s*\n+", "\n", text).strip()
-
-
 def push_reports(conn) -> tuple[int, int, int]:
     pdfs = sorted(p for p in PSI_DIR.glob("PSI-*/docs/*.pdf") if any(k in p.name for k in REPORT_KINDS))
     added = skipped = n_pages = 0
@@ -141,7 +132,7 @@ def push_reports(conn) -> tuple[int, int, int]:
             """insert into documents (origin, psi_id, file, url, sha1, status, n_pages)
                values ('psi', %s, %s, %s, %s, 'approved', %s) returning id""",
             (acc, pdf.name, url, sha1, len(pages))).fetchone()["id"]
-        kept = [(doc_id, i, t) for i, t in enumerate(pages, 1) if len(t) >= 40]  # skip blank / image-only pages
+        kept = [(doc_id, i, t) for i, t in enumerate(pages, 1) if len(t) >= MIN_PAGE_CHARS]
         with conn.cursor() as cur:
             cur.executemany("insert into pages (document_id, page, text) values (%s, %s, %s)", kept)
         conn.commit()  # one report at a time, so an interrupted run keeps what is done
@@ -149,20 +140,6 @@ def push_reports(conn) -> tuple[int, int, int]:
         n_pages += len(kept)
         print(f"  {acc:8} {len(kept):4} pages  {pdf.name}")
     return added, skipped, n_pages
-
-
-def split_words(text: str) -> list[str]:
-    """~CHUNK_WORDS-word pieces with CHUNK_OVERLAP words of overlap. A short page is one chunk."""
-    words = text.split()
-    if len(words) <= CHUNK_WORDS:
-        return [" ".join(words)]
-    step = CHUNK_WORDS - CHUNK_OVERLAP
-    out = []
-    for start in range(0, len(words), step):
-        out.append(" ".join(words[start:start + CHUNK_WORDS]))
-        if start + CHUNK_WORDS >= len(words):
-            break
-    return out
 
 
 def push_chunks(conn) -> tuple[int, int]:
@@ -191,8 +168,7 @@ def embed_chunks() -> int:
     done = 0
     for i in range(0, len(todo), EMBED_BATCH):
         batch = todo[i:i + EMBED_BATCH]
-        # The document name and page go in front of the text: it helps the model place the chunk.
-        texts = [f"{c['file']}, page {c['page']}\n{c['text']}" for c in batch]
+        texts = [embed_text(c["file"], c["page"], c["text"]) for c in batch]
         vectors = embed(texts)
         # A fresh short connection per batch: Neon drops connections left idle for long.
         with connect() as wconn, wconn.cursor() as cur:
