@@ -5,9 +5,16 @@
 __pycache__/
 *.pyc
 
+# Secrets (database address and passwords)
+app/.env
+
 # Raw NASA data is not committed: get it with  python scripts/psi_download.py
 # Only the outputs are committed: data/psi/clean/ and data/psi/cards.json
 data/psi/PSI-*/
 data/psi/investigations.csv
 data/psi/inventory.csv
 data/psi/docs_selected.csv
+
+# Web UI (React + Vite)
+web/node_modules/
+web/dist/
