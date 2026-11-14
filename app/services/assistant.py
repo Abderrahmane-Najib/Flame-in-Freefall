@@ -11,8 +11,7 @@ from agno.db.in_memory import InMemoryDb
 from agno.models.groq import Groq
 
 from core.config import GROQ_API_KEY, GROQ_MODEL
-from database.connection import connect
-from services import tests_query
+from services import habitats, investigations, tests_query
 from services.search import search
 
 INSTRUCTIONS = [
@@ -59,11 +58,10 @@ def get_investigation(psi_id: str) -> str:
     Returns:
         The card as JSON, or an error if the id is unknown.
     """
-    with connect() as conn:
-        row = conn.execute("select card from investigations where id = %s", (psi_id,)).fetchone()
-    if not row:
+    card = investigations.get_card(psi_id)
+    if not card:
         return json.dumps({"error": f"unknown id {psi_id}"})
-    return json.dumps({k: row["card"].get(k) for k in CARD_FIELDS})
+    return json.dumps({k: card.get(k) for k in CARD_FIELDS})
 
 
 def list_investigations(fuel_type: str | None = None) -> str:
@@ -75,19 +73,8 @@ def list_investigations(fuel_type: str | None = None) -> str:
     Returns:
         JSON list, one entry per investigation.
     """
-    with connect() as conn:
-        rows = conn.execute("select id, name, fuel_type, safety_jobs from investigations"
-                            " where %(f)s::text is null or fuel_type = %(f)s order by id", {"f": fuel_type}).fetchall()
-    return json.dumps(rows)
-
-
-GROUPS = ("measured", "from_note", "o2_only", "mixed")
-GROUPS_MEANING = {
-    "measured": "chamber O2 and pressure both recorded inside the habitat's box: this group alone sets the ranking",
-    "from_note": "inside the box, but O2 or pressure comes from a NASA document, not the test table",
-    "o2_only": "O2 inside the box, pressure not recorded",
-    "mixed": "a row lists several O2 values, so it cannot be counted exactly",
-}
+    keep = ("id", "name", "fuel_type", "safety_jobs")  # short: the list is sent to the model
+    return json.dumps([{k: r[k] for k in keep} for r in investigations.list_investigations(fuel_type)])
 
 
 def rank_for_habitat(habitat: str) -> str:
@@ -103,27 +90,10 @@ def rank_for_habitat(habitat: str) -> str:
         JSON: the habitat's air (with sources and assumptions) and the investigations,
         ordered by tests measured in that air; the other groups are listed but do not set the order.
     """
-    with connect() as conn:
-        hab = conn.execute("select data from habitats where id = %s", (habitat,)).fetchone()
-        if not hab:
-            ids = [r["id"] for r in conn.execute("select id from habitats order by id")]
-            return json.dumps({"error": f"unknown habitat {habitat}", "habitats": ids})
-        cards = conn.execute("select id, name, card -> 'habitat_match' -> %s as m from investigations",
-                             (habitat,)).fetchall()
-    ranked = []
-    for c in cards:
-        m = c["m"] or {}
-        counts = {g: (m.get(g) or {}).get("tests", 0) for g in GROUPS}
-        if any(counts.values()):
-            ranked.append({"psi_id": c["id"], "name": c["name"], **counts,
-                           "url": f"https://psi.nasa.gov/physci/repo/data/investigations/{c['id']}",
-                           "measured_with_results": (m.get("measured") or {}).get("with_results", 0)})
-    ranked.sort(key=lambda r: [r[g] for g in GROUPS], reverse=True)
-    return json.dumps({
-        "cite": "FlameScope count of NASA PSI test rows in this habitat's air (cleaned PSI test tables); "
-                "link each investigation to its url",
-        "habitat": hab["data"], "groups": GROUPS_MEANING, "investigations": ranked,
-    })
+    result = habitats.rank(habitat)
+    if not result:
+        return json.dumps({"error": f"unknown habitat {habitat}", "habitats": ["iss", "moon_base_rover", "mars_base"]})
+    return json.dumps(result)
 
 
 def query_tests(
@@ -189,6 +159,109 @@ def make_agent(persona: str = "researcher", debug: bool = False) -> Agent:
         num_history_runs=3,
         tool_call_limit=6,         # stops a model that loops on the same calls (and burns the token limit)
         debug_mode=debug,          # prints every message sent to and received from the model
+    )
+
+
+def make_card_agent(psi_id: str, name: str, persona: str = "researcher") -> Agent:
+    """The chat inside one card's drawer: its tools are locked to that investigation (card, reports, tests)."""
+
+    def get_card() -> str:
+        """Get this investigation's card: summary, findings and limitations (each with its source), test counts.
+
+        Returns:
+            The card as JSON.
+        """
+        return get_investigation(psi_id)
+
+    def search_card_reports(query: str) -> str:
+        """Search this investigation's reports for passages that answer a question.
+
+        Args:
+            query: the question or keywords, in English.
+
+        Returns:
+            JSON with passages, each with its text, PDF page, url and 'cite' line.
+        """
+        return search_reports(query, psi_id)
+
+    def query_card_tests(
+        fuel: str | None = None,
+        o2_min: float | None = None,
+        o2_max: float | None = None,
+        pressure_min_kpa: float | None = None,
+        pressure_max_kpa: float | None = None,
+        flow_min_cm_s: float | None = None,
+        flow_max_cm_s: float | None = None,
+        lunar_air: bool | None = None,
+        has_result: bool | None = None,
+    ) -> str:
+        """Find this investigation's fire tests under given conditions (all filters optional).
+
+        Args:
+            fuel: part of the fuel name, e.g. 'heptane'.
+            o2_min: lowest chamber oxygen, in %.
+            o2_max: highest chamber oxygen, in %.
+            pressure_min_kpa: lowest pressure, in kPa (101.3 = sea level).
+            pressure_max_kpa: highest pressure, in kPa.
+            flow_min_cm_s: lowest flow, in cm/s.
+            flow_max_cm_s: highest flow, in cm/s.
+            lunar_air: true = only tests in lunar air (30% O2 or more at 70.3 kPa or less).
+            has_result: true = only tests with a recorded outcome.
+
+        Returns:
+            JSON: totals and ranges of all matches, up to 10 rows (each with cite + url), more_rows if there are more.
+        """
+        return query_tests(psi_id, fuel, None, o2_min, o2_max, pressure_min_kpa, pressure_max_kpa,
+                           flow_min_cm_s, flow_max_cm_s, lunar_air, has_result)
+
+    return Agent(
+        model=Groq(id=GROQ_MODEL, api_key=GROQ_API_KEY),
+        tools=[get_card, search_card_reports, query_card_tests],
+        instructions=[
+            f"You answer questions about one investigation only: {name} ({psi_id}). "
+            "If asked about anything else, say this chat covers only this card and suggest the main assistant.",
+        ] + INSTRUCTIONS[1:-1] + [PERSONAS[persona]],  # same answer rules, minus the 24-investigation intro and list rule
+        markdown=True,
+        db=_db,
+        add_history_to_context=True,
+        num_history_runs=3,
+        tool_call_limit=5,
+    )
+
+
+def make_report_agent(doc_id: int, file: str, persona: str = "researcher") -> Agent:
+    """The chat that opens with one uploaded report: it searches only that report."""
+
+    def search_report(query: str) -> str:
+        """Search the uploaded report for passages that answer a question.
+
+        Args:
+            query: the question or keywords, in English.
+
+        Returns:
+            JSON with passages, each with its text, PDF page, url and 'cite' line.
+        """
+        hits = search(query, k=6, include_unreviewed=True, document_id=doc_id)["results"]
+        return json.dumps([{k: h[k] for k in ("text", "page", "url", "cite")} for h in hits])
+
+    return Agent(
+        model=Groq(id=GROQ_MODEL, api_key=GROQ_API_KEY),
+        tools=[search_report],
+        instructions=[
+            f"You answer questions about one report the user uploaded: '{file}'. Only this report, no other knowledge.",
+            "Use search_report for every fact. Never state a number or condition that is not in a passage.",
+            "Cite each claim as a markdown link [cite](url), copying the 'cite' line and url of the passage.",
+            "If the report does not say it, answer that it is not in the report.",
+            "This is a user upload, not reviewed by NASA or FlameScope: never present it as NASA PSI data.",
+            "A finding holds only for the conditions the report states (gravity, oxygen, pressure): never move it.",
+            "Never call the same tool with the same arguments twice.",
+            PERSONAS[persona],
+        ],
+        markdown=True,
+        db=_db,
+        add_history_to_context=True,
+        num_history_runs=3,
+        tool_call_limit=4,
     )
 
 

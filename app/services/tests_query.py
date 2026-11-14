@@ -42,11 +42,12 @@ limit %(limit)s
 """
 
 
-def query_tests(filters: dict) -> dict:
+def query_tests(filters: dict, max_rows: int = MAX_ROWS) -> dict:
+    """max_rows: 10 for the assistant (token limit); the API allows more for tables and charts."""
     used = {k: v for k, v in filters.items() if k in FILTERS and v is not None}
     if not used:
         return {"error": "give at least one filter", "filters": list(FILTERS)}
-    params = dict(used, limit=MAX_ROWS)
+    params = dict(used, limit=max_rows)
     if "fuel" in params:
         params["fuel"] = f"%{params['fuel']}%"
     where = " and ".join(FILTERS[k] for k in used)

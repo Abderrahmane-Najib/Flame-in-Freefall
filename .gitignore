@@ -14,3 +14,7 @@ data/psi/PSI-*/
 data/psi/investigations.csv
 data/psi/inventory.csv
 data/psi/docs_selected.csv
+
+# Web UI (React + Vite)
+web/node_modules/
+web/dist/

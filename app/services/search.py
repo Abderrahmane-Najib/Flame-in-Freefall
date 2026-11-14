@@ -19,6 +19,7 @@ allowed as (
     select c.id
     from chunks c join pages p on p.id = c.page_id join documents d on d.id = p.document_id
     where d.status = any(%(statuses)s) and (%(psi_id)s::text is null or d.psi_id = %(psi_id)s)
+      and (%(doc_id)s::int is null or d.id = %(doc_id)s)
 ),
 by_vector as (
     select c.id, row_number() over (order by c.embedding <=> (select v from q_vec)) as rank
@@ -44,7 +45,8 @@ fused as (
 )
 select round(f.score::numeric, 4)::float as score, f.by_meaning, f.by_words,
        c.text, p.page, d.file, d.psi_id, i.name as investigation, d.origin, d.status,
-       case when d.url is not null then d.url || '#page=' || p.page end as url
+       case when d.url is not null then d.url || '#page=' || p.page
+            when d.origin = 'upload' then '/uploads/' || d.id || '/pages/' || p.page end as url  -- API path
 from fused f
 join chunks c on c.id = f.id
 join pages p on p.id = c.page_id
@@ -55,7 +57,9 @@ limit %(k)s
 """
 
 
-def search(q: str, psi_id: str | None = None, k: int = 8, include_unreviewed: bool = False) -> dict:
+def search(q: str, psi_id: str | None = None, k: int = 8, include_unreviewed: bool = False,
+           document_id: int | None = None) -> dict:
+    """document_id: only this document (an upload's own chat); include_unreviewed: also uploads not yet approved."""
     try:
         vec = to_pgvector(embed([q])[0])
         mode = "hybrid"
@@ -64,7 +68,7 @@ def search(q: str, psi_id: str | None = None, k: int = 8, include_unreviewed: bo
     statuses = ["approved", "unreviewed"] if include_unreviewed else ["approved"]
     with connect() as conn:
         hits = conn.execute(SQL, {"vec": vec, "q": q, "psi_id": psi_id, "statuses": statuses,
-                                  "n": CANDIDATES, "rrf_k": RRF_K, "k": k}).fetchall()
+                                  "doc_id": document_id, "n": CANDIDATES, "rrf_k": RRF_K, "k": k}).fetchall()
     for h in hits:
         h["cite"] = f"{h['investigation'] or h['psi_id'] or 'Upload'}: {h['file']}, PDF p. {h['page']}"
     return {"query": q, "mode": mode, "results": hits}

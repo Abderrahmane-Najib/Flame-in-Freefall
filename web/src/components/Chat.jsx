@@ -1,0 +1,101 @@
+// Chat with the assistant. ChatThread streams one endpoint (NDJSON: session, tool, text, error, done)
+// and keeps its session for follow-ups; used by the floating "Ask Ghostflame" and by each uploaded report.
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import Markdown from "./Markdown.jsx";
+import Avatar, { GUIDES } from "./Avatar.jsx";
+import { streamChat } from "../lib/api.js";
+
+const TOOL_LABEL = {
+  search_reports: "searching NASA reports", search_report: "searching the report",
+  get_investigation: "reading an investigation card", list_investigations: "listing investigations",
+  rank_for_habitat: "ranking for a habitat", query_tests: "querying test tables",
+};
+
+export const ChatThread = forwardRef(function ChatThread(
+  { endpoint, persona, level, intro, suggestions = [], placeholder, onLink, draft, setDraft, autoFocus }, ref) {
+  const [msgs, setMsgs] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [own, setOwn] = useState("");
+  const value = draft ?? own;
+  const setValue = setDraft ?? setOwn;
+  const session = useRef(null);
+  const abort = useRef(null);
+  const input = useRef(null);
+  const end = useRef(null);
+
+  useEffect(() => { end.current?.scrollIntoView({ block: "nearest" }); }, [msgs]);
+  useEffect(() => { if (autoFocus) input.current?.focus(); }, [autoFocus, draft]);
+
+  const update = (fn) => setMsgs((m) => { const c = [...m]; c[c.length - 1] = fn({ ...c[c.length - 1] }); return c; });
+
+  async function ask(q) {
+    q = q.trim();
+    if (!q || busy) return;
+    setValue("");
+    setBusy(true);
+    setMsgs((m) => [...m, { role: "me", text: q }, { role: "bot", text: "", tools: [] }]);
+    abort.current = new AbortController();
+    try {
+      for await (const ev of streamChat(endpoint, { message: q, session_id: session.current, persona }, abort.current.signal)) {
+        if (ev.type === "session") session.current = ev.session_id;
+        else if (ev.type === "tool") update((b) => ({ ...b, tools: [...b.tools, TOOL_LABEL[ev.name] || ev.name] }));
+        else if (ev.type === "text") update((b) => ({ ...b, text: b.text + ev.content }));
+        else if (ev.type === "error") update((b) => ({ ...b, error: ev.message }));
+      }
+    } catch (e) {
+      if (e.name !== "AbortError") update((b) => ({ ...b, error: e.message }));
+    }
+    setBusy(false);
+  }
+
+  useImperativeHandle(ref, () => ({
+    reset() { abort.current?.abort(); session.current = null; setMsgs([]); setBusy(false); },
+  }));
+
+  return (
+    <>
+      <div className="msgs" aria-live="polite">
+        <div className="bot-row"><Avatar level={level} size={28} /><div className="bub">{intro || GUIDES[level]?.greet}</div></div>
+        {!msgs.length && suggestions.length > 0 && (
+          <div className="sugg">{suggestions.map((s) => <button key={s} type="button" onClick={() => ask(s)}>{s}</button>)}</div>
+        )}
+        {msgs.map((m, i) => m.role === "me"
+          ? <div key={i} className="bub me">{m.text}</div>
+          : <div key={i} className="bot-row"><Avatar level={level} size={28} />
+              <div className={"bub" + (m.error ? " err" : "")}>
+                {m.tools.length > 0 && <div className="tool">{[...new Set(m.tools)].join(" · ")}…</div>}
+                {m.text ? <Markdown text={m.text} onLink={onLink} /> : !m.error && <span className="tool">thinking…</span>}
+                {m.error && <p className="tool">Something went wrong: {m.error}</p>}
+              </div>
+            </div>)}
+        <div ref={end} />
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); ask(value); }}>
+        <input ref={input} value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder}
+               aria-label="Your question" maxLength={2000} autoComplete="off" />
+        <button type="submit" disabled={busy}>{busy ? "…" : "Send"}</button>
+      </form>
+    </>
+  );
+});
+
+export default function Chat({ open, setOpen, context, suggestions, persona, level, draft, setDraft }) {
+  const thread = useRef(null);
+  const guide = GUIDES[level] || GUIDES.student;
+  return (
+    <>
+      <button className="fab" type="button" aria-expanded={open} aria-controls="chat" onClick={() => setOpen(!open)}>
+        <span className="fab-av"><Avatar level={level} size={30} /></span>
+        Ask Ghostflame
+      </button>
+      <div className="chat" id="chat" role="dialog" aria-label="Ask Ghostflame">
+        <header>
+          <div className="chat-who"><Avatar level={level} size={38} /><div><b>Ask Ghostflame</b><br /><span>{guide.role} · {context}</span></div></div>
+          <div><button className="pill" type="button" title="New conversation" onClick={() => thread.current?.reset()}>↺</button></div>
+        </header>
+        <ChatThread ref={thread} endpoint="/chat" persona={persona} level={level} suggestions={suggestions} draft={draft} setDraft={setDraft}
+                    autoFocus={open} placeholder="Ask about any experiment or habitat…" />
+      </div>
+    </>
+  );
+}

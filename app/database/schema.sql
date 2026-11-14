@@ -76,6 +76,8 @@ create table if not exists documents (
     n_pages     integer,
     created_at  timestamptz not null default now()
 );
+-- Uploads: the card drafted by the card agent, waiting for the user's approval (then copied to investigations).
+alter table documents add column if not exists card jsonb;
 
 -- One row per PDF page: the full text, for display and citations ("file, PDF p. N").
 create table if not exists pages (

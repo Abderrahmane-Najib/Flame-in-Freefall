@@ -12,19 +12,22 @@ import json
 import uuid
 from collections.abc import Iterator
 
-from services.assistant import clean_citation, make_agent
+from agno.agent import Agent
+
+from services.assistant import clean_citation
 
 
 def _line(event: dict) -> str:
     return json.dumps(event, default=str) + "\n"
 
 
-def chat_events(message: str, session_id: str | None, persona: str) -> Iterator[str]:
+def chat_events(agent: Agent, message: str, session_id: str | None) -> Iterator[str]:
+    """agent: the main assistant (make_agent) or one upload's chat (make_report_agent)."""
     session_id = session_id or str(uuid.uuid4())
     yield _line({"type": "session", "session_id": session_id})
     try:
         # stream_events=True: also tool-call events, not only the answer text
-        for chunk in make_agent(persona).run(message, session_id=session_id, stream=True, stream_events=True):
+        for chunk in agent.run(message, session_id=session_id, stream=True, stream_events=True):
             # Agno event names (docs.agno.com/agents/running-agents); compared as strings
             if chunk.event == "RunContent" and chunk.content and (text := clean_citation(chunk.content)):
                 yield _line({"type": "text", "content": text})
