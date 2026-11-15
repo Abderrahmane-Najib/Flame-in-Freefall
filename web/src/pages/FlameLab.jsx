@@ -7,7 +7,7 @@ import Explain from "../components/Explain.jsx";
 import FlameScene from "../components/FlameScene.jsx";
 import { fresh, get, post } from "../lib/api.js";
 
-const HABS = [["iss", "ISS", "ug"], ["moon_base_rover", "Moon base", "bounds"], ["mars_base", "Mars base", "bounds"]];
+const HABS = [["iss", "ISS", "ug"], ["moon_base_rover", "Moon habitat", "bounds"], ["mars_base", "Mars base", "bounds"]];
 // [id, label, experiment, a typical starting droplet in that experiment (mm)]
 const FUELS = [["methanol", "Methanol", "FLEX", 2.5], ["heptane", "n-Heptane", "FLEX", 2.5],
   ["dodecane", "n-Dodecane", "CFI", 4.4], ["dodecane_iso25", "Dodecane + 25 % iso", "CFI", 4.4],

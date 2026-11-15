@@ -33,7 +33,7 @@ export default function CoverageMap({ coverage, focus }) {
       {focus && <style>{`.space .map.focus .dot[data-psi="${focus}"]{opacity:1;background:var(--ember);transform:scale(1.9);box-shadow:0 0 6px var(--ember)}`}</style>}
       <div className={"map" + (focus ? " focus" : "")}>
         {near && <div className="zone z-near" style={box([near.o2_pct[0], O2[1]], near.pressure_kpa)} title={near.label} />}
-        {moon && <div className="zone z-moon" style={box([moon.o2_pct[0], O2[1]], moon.pressure_kpa)} title="Moon base & rover air" />}
+        {moon && <div className="zone z-moon" style={box([moon.o2_pct[0], O2[1]], moon.pressure_kpa)} title="Moon habitat & rover air" />}
         {iss && <div className="zone z-iss" style={box(iss.o2_pct, iss.pressure_kpa)} title="ISS air" />}
         {coverage && <Dots points={coverage.points} />}
         <span className="ax" style={{ left: -28, top: -4 }}>{O2[1]}%</span>
@@ -43,7 +43,7 @@ export default function CoverageMap({ coverage, focus }) {
         <span className="ax" style={{ right: 0, bottom: -18 }}>{P[1]} kPa</span>
       </div>
       <div className="legend">
-        <span><i style={{ background: "var(--ember)" }} />Moon-base air</span>
+        <span><i style={{ background: "var(--ember)" }} />Moon-habitat air</span>
         <span><i style={{ border: "1px dashed var(--cyan)" }} />Near-lunar</span>
         <span><i style={{ background: "var(--lime)" }} />ISS air</span>
       </div>

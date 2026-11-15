@@ -1,8 +1,9 @@
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import Response
 
-from services.tests_query import query_tests
+from services.tests_query import export_csv, query_tests
 
 router = APIRouter(tags=["tests"])
 
@@ -32,3 +33,20 @@ def tests(
     if "error" in result:
         raise HTTPException(400, result["error"])
     return result
+
+
+@router.get("/tests.csv")
+def tests_csv(
+    psi_id: str | None = Query(None, description="e.g. PSI-25"),
+    fuel_type: Literal["solid", "droplet", "gas", "smoke", "ground"] | None = None,
+    lunar_air: bool | None = Query(None, description="O2 >= 30% at <= 70.3 kPa"),
+    has_result: bool | None = None,
+) -> Response:
+    """Download the cleaned, unit-normalised test rows as CSV (at least one filter), for modelling.
+    Every cleaned column is kept, and each row carries its NASA PSI table, row number and source_url."""
+    result = export_csv({"psi_id": psi_id, "fuel_type": fuel_type, "lunar_air": lunar_air, "has_result": has_result})
+    if result is None:
+        raise HTTPException(400, "give at least one filter: psi_id, fuel_type, lunar_air or has_result")
+    name, text = result
+    return Response(text, media_type="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{name}"'})

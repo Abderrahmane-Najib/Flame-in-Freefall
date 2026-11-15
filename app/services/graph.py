@@ -59,7 +59,7 @@ HARDWARE = {
     "MSG": "Microgravity Science Glovebox (MSG)", "Cygnus": "Cygnus cargo vehicle (Saffire)",
     "ground": "Ground laboratory",
 }
-HABITATS = {"iss": "ISS air", "moon_base_rover": "Moon base & rover air", "mars_base": "Mars base air (assumed = Moon)"}
+HABITATS = {"iss": "ISS air", "moon_base_rover": "Moon habitat & rover air", "mars_base": "Mars base air (assumed = Moon)"}
 NEAR_LUNAR = ("near_lunar", "Near-lunar air (not lunar)")
 
 
@@ -123,7 +123,7 @@ def build_graph(cards: list[dict], near_lunar: dict[str, int]) -> dict:
         "edges": edges,
         "notes": [
             "Built from the 24 investigation cards. 'tested in this air' = tests with chamber O2 and pressure both "
-            "measured inside the habitat's box; Mars uses the Moon base air (team assumption).",
+            "measured inside the habitat's box; Mars uses the Moon habitat air (team assumption).",
             "Near-lunar = O2 >= 30% at 70.3-72.5 kPa (17 FLEX tests): never lunar.",
             "Materials are grouped from the raw fuel names; names that do not say the material are left out.",
             "Microgravity only: no edge means anything about Moon or Mars gravity.",

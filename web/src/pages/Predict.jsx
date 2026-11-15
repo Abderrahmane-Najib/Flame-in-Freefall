@@ -7,7 +7,7 @@ import { fresh } from "../lib/api.js";
 
 const RODS = [6.35, 9.53, 12.7];
 const RODS_IN = { 6.35: '1/4"', 9.53: '3/8"', 12.7: '1/2"' };
-const PRESETS = [["ISS air", 21], ["Moon base", 34]];
+const PRESETS = [["ISS air", 21], ["Moon habitat", 34]];
 const W = 760, H = 420, M = { l: 48, r: 110, t: 16, b: 40 };
 const Y = [12, 36];
 const FLOW = [0.5, 60];                        // slider range, cm/s (log)
@@ -59,7 +59,7 @@ export default function Predict({ level }) {
                   { title: "Meet the burning stick", text: <>Picture a stick of <strong>acrylic</strong> (the clear plastic of a plexiglass window) on fire inside a spacecraft. A flame needs two things: enough <strong>oxygen</strong>, and a little <strong>moving air</strong> to bring the oxygen in. In space hot air doesn't rise, so the only moving air is what the fans blow.</> },
                   { title: "The green line", focus: "curve", text: <>The green line is the <strong>least oxygen</strong> the flame needs to survive, for each airflow. <strong>Above</strong> the line it keeps burning. <strong>Below</strong> it, it dies.</> },
                   { title: "Too little or too much air", focus: "below", text: <>The grey area is where the flame can't survive. On the <strong>left</strong> the air barely moves, so the flame starves and cools down. On the <strong>right</strong> the air rushes so fast it blows the flame out, like a candle in the wind. The lowest point, a gentle breeze of about 10 cm/s, is where fire survives with the least oxygen.</> },
-                  { title: "Space, Earth and the Moon", focus: "refs", text: <>The dashed lines compare: <strong>13.5%</strong> is the least oxygen an acrylic rod burned with in space, <strong>15.4%</strong> the limit measured on Earth, <strong>21%</strong> is normal air, and a Moon base may have <strong>30% or more</strong>. At 30% the rod can keep burning at every airflow on this chart.</> },
+                  { title: "Space, Earth and the Moon", focus: "refs", text: <>The dashed lines compare: <strong>13.5%</strong> is the least oxygen an acrylic rod burned with in space, <strong>15.4%</strong> the limit measured on Earth, <strong>21%</strong> is normal air, and a Moon habitat may have <strong>30% or more</strong>. At 30% the rod can keep burning at every airflow on this chart.</> },
                   { title: "Your setting", focus: "you", text: p ? <>At <strong>{p.flow_cm_s} cm/s</strong> of airflow the rod needs at least <strong>{p.o2_min_pct}%</strong> oxygen. You chose {p.o2_pct}%, so {burns
                     ? <>it <strong>can keep burning</strong>, with {p.margin_pct} points to spare.</>
                     : <>it <strong>goes out</strong>: {Math.abs(p.margin_pct)} points short.</>} Move the sliders and watch the dot.</> : "Move the sliders on the right to place your own rod."},
@@ -80,7 +80,7 @@ export default function Predict({ level }) {
                 {refs.map((r) => (
                   <g key={r.o2_pct} className={focus === "refs" ? "pulse" : undefined}>
                     <line className="ref" x1={M.l} x2={W - M.r} y1={sy(r.o2_pct)} y2={sy(r.o2_pct)} />
-                    <text className="lbl" x={W - M.r + 6} y={sy(r.o2_pct) + 4}>{r.o2_pct}% {{ 13.5: "µg lowest", 15.4: "Earth limit", 21: "ISS air", 30: "Moon base" }[r.o2_pct] || ""}</text>
+                    <text className="lbl" x={W - M.r + 6} y={sy(r.o2_pct) + 4}>{r.o2_pct}% {{ 13.5: "µg lowest", 15.4: "Earth limit", 21: "ISS air", 30: "Moon habitat" }[r.o2_pct] || ""}</text>
                   </g>
                 ))}
                 <path d={line} fill="none" stroke="var(--ember)" strokeWidth={focus === "curve" ? 4 : 2} className={focus === "curve" ? "focus-glow" : undefined} />

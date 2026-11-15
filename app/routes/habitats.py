@@ -7,7 +7,7 @@ router = APIRouter(tags=["habitats"])
 
 @router.get("/habitats")
 def habitats() -> list[dict]:
-    """The habitats (ISS, Moon base & rover, Mars base) with their air, sources and assumptions."""
+    """The habitats (ISS, Moon habitat & rover, Mars base) with their air, sources and assumptions."""
     return list_habitats()
 
 

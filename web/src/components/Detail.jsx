@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Art from "./Art.jsx";
 import { ChatThread } from "./Chat.jsx";
 import { GUIDES } from "./Avatar.jsx";
-import { get } from "../lib/api.js";
+import { apiUrl, get } from "../lib/api.js";
 import { firstSentence, fmt } from "../lib/habitats.js";
 
 const JOB = { prevention: "prevention", detection: "detection", suppression: "suppression" };
@@ -11,6 +11,16 @@ const JOB = { prevention: "prevention", detection: "detection", suppression: "su
 function Source({ item }) {
   const cite = <cite>{item.cite}</cite>;
   return item.url ? <a href={item.url} target="_blank" rel="noreferrer">{cite}</a> : cite;
+}
+
+/** Download the investigation's cleaned test rows as CSV (GET /tests.csv). */
+function Export({ card }) {
+  if (!(card.tests?.count > 0) || card.origin === "upload") return null;
+  return (
+    <div className="dl">
+      <a className="btn2" href={apiUrl(`/tests.csv?psi_id=${encodeURIComponent(card.id)}`)} download>↓ Download test data (CSV, {fmt(card.tests.count)} rows)</a>
+    </div>
+  );
 }
 
 export default function Detail({ id, ev, onClose, persona, level }) {
@@ -62,6 +72,7 @@ export default function Detail({ id, ev, onClose, persona, level }) {
               {card.findings?.[0] && <> Key finding: {firstSentence(card.findings[0].text)}<Source item={card.findings[0]} /></>}
             </div>
           </div>}
+          <Export card={card} />
           <div className="acts">
             <button type="button" className="p" aria-expanded={asking} onClick={() => setAsking(!asking)}>✦ {asking ? `Hide your ${guide}` : `Ask your ${guide} about this card`}</button>
             {psiPage && <a href={psiPage} target="_blank" rel="noreferrer" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid var(--seam)" }}>Open NASA page ↗</a>}

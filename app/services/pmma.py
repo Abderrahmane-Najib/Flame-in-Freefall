@@ -53,7 +53,7 @@ def boundary(rod_diameter_mm: float, flow_cm_s: float | None = None, o2_pct: flo
              "cite": "BASS-II Summary Report, PDF p. 84", "url": REPORT.format(84)},
             {"o2_pct": 21.0, "label": "ISS / sea-level air", "cite": "NTRS 20240003211",
              "url": "https://ntrs.nasa.gov/citations/20240003211"},
-            {"o2_pct": 30.0, "label": "Moon base: 30% O2 or more (challenge text)",
+            {"o2_pct": 30.0, "label": "Moon habitat: 30% O2 or more (challenge text)",
              "cite": "NASA Space Apps 2026, Flame in Freefall challenge",
              "url": "https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/"},
         ],

@@ -16,12 +16,13 @@ const ROWS = [
 
 const METHOD = [
   ["Source", "NASA Physical Sciences Informatics (PSI): 24 combustion investigations, their test tables and reports. Public domain."],
-  ["Habitat air", "A test counts for a habitat only when both chamber O₂ and pressure were measured inside its box. Moon base: O₂ ≥ 30% at ≤ 70.3 kPa. Mars uses the Moon air (team assumption)."],
+  ["Habitat air", "A test counts for a habitat only when both chamber O₂ and pressure were measured inside its box. Moon habitat: O₂ ≥ 30% at ≤ 70.3 kPa. Mars uses the Moon air (team assumption)."],
   ["Near-lunar", "O₂ ≥ 30% at 70.3–72.5 kPa (17 FLEX tests): shown apart, never counted as lunar."],
   ["Burner stream", "O₂ blown out of a burner (inverse flames) is not cabin air and is never compared with it."],
   ["Gravity", "Every test ran in microgravity. Nothing here is a Moon- or Mars-gravity result."],
   ["Assistant", "Answers only from tool results (report search, cards, test tables) and cites each claim. Model: gpt-oss-120b on Groq."],
   ["Search", "Full-text and meaning (BGE-M3 embeddings) merged with Reciprocal Rank Fusion; every passage keeps its PDF page."],
+  ["Export", "Each investigation's cleaned test rows download as CSV (details panel or GET /tests.csv), every row with its NASA table, row and source link."],
   ["Predictor", "PMMA boundary = NASA's own fitted equation (BASS-II Eq. 6.1); not trained by us."],
 ];
 

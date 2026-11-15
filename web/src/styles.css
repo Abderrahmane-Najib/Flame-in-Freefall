@@ -21,9 +21,9 @@ a{color:inherit;text-decoration:none}
 [data-mode="dark"] .stars{opacity:.35}
 
 /* drawer (left nav) */
-.nav{position:fixed;inset:0 auto 0 0;width:var(--drawer);background:color-mix(in srgb,var(--panel) 92%,transparent);border-right:1px solid var(--seam);display:flex;flex-direction:column;padding:18px 14px;z-index:30;backdrop-filter:blur(10px)}
+.nav{position:fixed;inset:0 auto 0 0;width:var(--drawer);background:color-mix(in srgb,var(--panel) 92%,transparent);border-right:1px solid var(--seam);display:flex;flex-direction:column;padding:18px 14px;z-index:30;backdrop-filter:blur(10px);overflow-y:auto}
 /* logo: cropped to the flame, orbits and wordmark; blend mode drops the image background into the drawer */
-.logo{width:172px;margin:0 auto 16px;aspect-ratio:1165/770;overflow:hidden}
+.logo{width:172px;margin:0 auto 16px;aspect-ratio:1165/770;overflow:hidden;flex:none} /* flex:none: the nav column must not squash it on short screens */
 .logo img{display:block;width:131.8%;max-width:none;margin:-1.7% 0 0 -15.45%}
 [data-mode="light"] .logo img{mix-blend-mode:multiply}[data-mode="dark"] .logo img{mix-blend-mode:screen}
 [data-mode="light"] .logo-dark,[data-mode="dark"] .logo-light{display:none}
@@ -629,6 +629,10 @@ section{padding:56px 48px 0}
 .mascot.away .mascot-say{opacity:0}
 .mascot-say{transition:transform .25s var(--ease),opacity .25s}
 
+/* CSV download in the details drawer */
+.dl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.dl .btn2{padding:8px 12px;font-size:13px}
+.acts{flex-wrap:wrap}
 /* Mir on phones: the scene stays pinned under the top bar while you read and choose, so each choice's
    consequence is visible; its caption is page text under the picture (pages/Mir.jsx, compact scene). */
 .mir-say{font-size:13px;line-height:1.4;padding:7px 10px;margin-top:6px;border-radius:8px;background:#0b141b;color:#e2e8f0}

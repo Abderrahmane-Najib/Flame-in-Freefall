@@ -7,21 +7,21 @@ export const HABITATS = {
       "What is a cool flame?"],
   },
   moon: {
-    apiId: "moon_base_rover", moonLike: true, photo: "moon", label: "Moon base",
-    cred: "Apollo 17, Taurus-Littrow valley · NASA", rank: "Experiments ranked for Moon-base air",
-    sugg: ["What happens to a fuel-droplet fire in Moon-base air?", "Which experiments used air close to a Moon base?",
+    apiId: "moon_base_rover", moonLike: true, photo: "moon", label: "Moon habitat",
+    cred: "Apollo 17, Taurus-Littrow valley · NASA", rank: "Experiments ranked for Moon-habitat air",
+    sugg: ["What happens to a fuel-droplet fire in Moon-habitat air?", "Which experiments used air close to a Moon habitat?",
       "Why was Moon gravity never tested?"],
   },
   rover: {
     apiId: "moon_base_rover", moonLike: true, photo: "moon", label: "Rover",
     cred: "Apollo 17, Taurus-Littrow valley · NASA", rank: "Experiments ranked for rover air",
-    sugg: ["What happens to a fuel-droplet fire in Moon-base air?", "Which experiments used air close to a Moon base?",
+    sugg: ["What happens to a fuel-droplet fire in Moon-habitat air?", "Which experiments used air close to a Moon habitat?",
       "Why was Moon gravity never tested?"],
   },
   mars: {
     apiId: "mars_base", moonLike: true, photo: "mars", label: "Mars",
     cred: "Mars, Viking orbiter mosaic · NASA/JPL", rank: "Experiments ranked for Mars habitat air (Moon-like)",
-    sugg: ["Which experiments used air close to a Mars habitat?", "What happens to a fuel-droplet fire in Moon-base air?",
+    sugg: ["Which experiments used air close to a Mars habitat?", "What happens to a fuel-droplet fire in Moon-habitat air?",
       "Why was Mars gravity never tested?"],
   },
 };

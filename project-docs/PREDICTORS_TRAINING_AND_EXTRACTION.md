@@ -4,7 +4,7 @@
 
 ## In one paragraph
 
-P1–P8 are trained and saved as small JSON models that the app can run with the Python standard library alone. Each answer comes with a trust badge, the 7 nearest real tests, caveats and sources. Every model was scored on test days it never saw, and every one beats its baseline. For solids, we transcribed the outcome of **250 BASS / BASS-II tests** from the NASA report and workbooks into CSVs with page references. That data gives P10 its real test dots (the blowoff branch lands on NASA's curve), gives P11 its fabric chart, and gives P9 an outcome map. **P9 has no model**: the classes are too unbalanced within any one material.
+P1–P8 are trained and saved as small JSON models that the app can run with the Python standard library alone. Each answer comes with a trust badge, the 7 nearest real tests, caveats and sources. Every model was scored on test days it never saw, and every one beats its baseline. For solids, we transcribed the outcome of **250 BASS / BASS-II tests** from the NASA report and workbooks into CSVs with page references. That data is ready to give P10 its real test dots (the blowoff branch lands on NASA's curve), P11 its fabric chart and P9 an outcome map; none of the three is drawn in the app yet. **P9 has no model**: the classes are too unbalanced within any one material.
 
 ## What is trained and what is not
 
@@ -103,7 +103,7 @@ Full tables with confusion matrices: `models/REPORT.md`.
 
 - **P10:** 38 points (outcome + last stable flow per Olson test, final O₂). The **8 blowoff points lie on NASA's Eq. 6.1** (O₂ − boundary = −0.84 to +0.47). Quench points are flow ranges that all cross the quench branch. Draw them as horizontal bars.
 - **P11:** Table 7.1 as a chart table. Fabric: no ignition at 16.4–16.8% O₂, complete burn at 17.1%, quench at 2–5 cm/s.
-- **P9: no model.** Usable rows (labelled, fresh sample, no N₂): 137, spread over 15 material × shape × flow-direction groups. The largest group has 29 tests, and several are almost one class (PMMA rods in opposed flow: 16 quench, 1 other). P9 ships as an outcome map plus the nearest real tests.
+- **P9: no model.** Usable rows (labelled, fresh sample, no N₂): 137, spread over 15 material × shape × flow-direction groups. The largest group has 29 tests, and several are almost one class (PMMA rods in opposed flow: 16 quench, 1 other). P9 is meant to ship as an outcome map plus the nearest real tests (data ready, not in the app yet).
 - **Headline numbers** (fresh samples, starting O₂):
   - Nomex: no ignition at 21–22.5% (burned once at 22.0% with the igniter left on)
   - Ultem: never ignited
@@ -112,6 +112,8 @@ Full tables with confusion matrices: `models/REPORT.md`.
   - wax candles: down to 15.9%
 
 ## Open items
+
+- **In the app (15 Nov):** Flame Lab uses P1b, P6b, P7, P8; the Predict page uses P10. P1–P6 are served by the API only (`/predict/models`), and the P9 / P10 dots / P11 data is not drawn yet.
 
 - **Human check** of the stage 3 and 4 labels, starting with the rows where `confidence` = low. Stages 1–2 were checked.
 - P1's extinction-boundary chart (sweep CO₂/He at P(extinction) = 0.5) is not built yet. P7: find the 2 `Dext,cool` values blank in the clean CSV (needs the PSI-39 workbook).

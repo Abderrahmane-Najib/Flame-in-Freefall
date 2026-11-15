@@ -1,6 +1,6 @@
 const BUTTONS = [
   ["iss", "ISS · spacecraft", "21% O₂ · 101 kPa"],
-  ["moon", "Moon base", "≥30% O₂ · ≤70 kPa"],
+  ["moon", "Moon habitat", "≥30% O₂ · ≤70 kPa"],
   ["rover", "Pressurized rover", "≥30% O₂ · ≤70 kPa"],
   ["mars", "Mars habitat", "air not defined yet"],
 ];

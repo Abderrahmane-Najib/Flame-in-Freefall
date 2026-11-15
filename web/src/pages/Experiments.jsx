@@ -24,7 +24,7 @@ export default function Experiments({ onOpen }) {
 
   return (
     <div className="page">
-      <PageHead title="Experiments" sub="Every NASA PSI combustion investigation, plus the reports you uploaded and approved. Open one for its sourced findings.">
+      <PageHead title="Experiments" sub="Every NASA PSI combustion investigation, plus the reports you uploaded and approved. Open one for its sourced findings and test data.">
         <div className="chips" role="group" aria-label="Fuel family">
           {FUELS.map(([id, label]) => <button key={label} className="chip" type="button" aria-pressed={fuel === id} onClick={() => setFuel(id)}>{label}</button>)}
         </div>

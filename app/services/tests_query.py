@@ -99,3 +99,49 @@ def query_tests(filters: dict, max_rows: int = MAX_ROWS) -> dict:
         "notes": "O2 filters use chamber O2 only (burner-stream O2 is not cabin air). "
                  "'fires' sums known test counts; rows_fires_unknown rows have no count.",
     }
+
+
+EXPORT_SQL = """
+select * from tests where {where}
+order by psi_id, source_file, source_row
+limit %(limit)s
+"""
+EXPORT_LIMIT = 5000  # more than all 2,128 rows: a whole-collection export still fits
+INTERNAL = {"id", "extra"}  # database-only columns left out of the file
+
+
+def export_csv(filters: dict) -> tuple[str, str] | None:
+    """The matching rows as CSV text, every cleaned column kept (table-specific ones come from 'extra'),
+    plus source_url: the NASA PSI table each row was cleaned from. None if no filter is given.
+    Returns (file name, CSV text)."""
+    import csv
+    import io
+
+    used, where, params = _where(filters)
+    if not used:
+        return None
+    with connect() as conn:
+        rows = conn.execute(EXPORT_SQL.format(where=where), dict(params, limit=EXPORT_LIMIT)).fetchall()
+
+    base = [k for k in (rows[0].keys() if rows else []) if k not in INTERNAL]
+    extra_cols: list[str] = []
+    for r in rows:  # table-specific columns, in first-seen order
+        for k in (r.get("extra") or {}):
+            if k not in extra_cols and k not in base:
+                extra_cols.append(k)
+    cols = base + extra_cols + ["source_url"]
+
+    out = io.StringIO()
+    w = csv.DictWriter(out, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
+    w.writeheader()
+    for r in rows:
+        line = {k: r.get(k) for k in base}
+        line.update(r.get("extra") or {})
+        if isinstance(line.get("flags"), list):
+            line["flags"] = ";".join(line["flags"])
+        name = os.path.basename(r.get("source_file") or "")
+        line["source_url"] = PSI_FILE_URL.format(psi=r["psi_id"], file=urllib.parse.quote(name)) if name else ""
+        w.writerow(line)
+
+    tag = "_".join(f"{k}-{v}" for k, v in used.items()).replace(" ", "")
+    return f"etna_tests_{tag or 'all'}.csv", out.getvalue()
