@@ -1,0 +1,19 @@
+# Ghostflame BASE image: Python + CPU torch + requirements + the BGE-M3 model (~3 GB, the slow part).
+# Rebuilt only when app/requirements.txt changes (see project-docs/DEPLOY.md):
+#   gcloud builds submit --config cloudbuild-base.yaml --region europe-west3 --project ghostflame
+# The app image (Dockerfile) starts FROM this one, so a normal deploy skips all of it.
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    HF_HOME=/srv/hf
+WORKDIR /srv/app
+
+# CPU-only torch first, so requirements.txt does not pull the CUDA build (several GB).
+RUN pip install --no-cache-dir torch==2.9.0 --index-url https://download.pytorch.org/whl/cpu
+COPY app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Bake the BGE-M3 embedding model (~2.3 GB) into the image: no download on cold start.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3')"
+ENV HF_HUB_OFFLINE=1 WARM_EMBEDDINGS=1

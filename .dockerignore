@@ -1,0 +1,10 @@
+# Only app/ and web/ go into the image (the data lives in the database).
+*
+!app/
+!web/
+app/.env
+app/scripts/
+**/__pycache__/
+**/*.pyc
+web/node_modules/
+web/dist/

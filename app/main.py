@@ -1,5 +1,8 @@
 """FlameScope API: creates the app and plugs in the routes (logic lives in services/)."""
 
+import os
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -9,7 +12,18 @@ from fastapi.staticfiles import StaticFiles
 from core.config import CORS_ORIGINS
 from routes import chat, coverage, graph, habitats, health, investigations, predict, search, tests, uploads
 
-app = FastAPI(title="FlameScope API")
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # In the container (WARM_EMBEDDINGS=1) load BGE-M3 in the background at startup, so the first
+    # search does not wait ~20 s. Off locally, where --reload would reload 2.3 GB on every edit.
+    if os.environ.get("WARM_EMBEDDINGS") == "1":
+        from services.embeddings import embed
+
+        threading.Thread(target=embed, args=(["warm-up"],), daemon=True).start()
+    yield
+
+
+app = FastAPI(title="FlameScope API", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_methods=["GET", "POST"], allow_headers=["*"])
 
 app.include_router(health.router)
