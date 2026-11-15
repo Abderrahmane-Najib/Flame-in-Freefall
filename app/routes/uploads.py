@@ -7,6 +7,7 @@ The UI flow:
   POST /uploads/{id}/card            the card agent drafts a card (saved on the upload)
   POST /uploads/{id}/approve         the card becomes investigation 'UP-<id>' (in /investigations, main chat, graph)
   POST /uploads/{id}/reject          out of every search
+  DELETE /uploads/{id}               delete it for good (pages, passages and its card)
 """
 
 from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
@@ -100,3 +101,11 @@ def reject(doc_id: int) -> dict:
     _upload(doc_id)
     uploads.reject(doc_id)
     return _upload(doc_id)
+
+
+@router.delete("/{doc_id}")
+def delete(doc_id: int) -> dict:
+    """Delete the upload for good: its pages, passages and approved card. It can be uploaded again afterwards."""
+    _upload(doc_id)
+    uploads.delete(doc_id)
+    return {"deleted": doc_id}

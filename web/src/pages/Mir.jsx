@@ -131,7 +131,7 @@ export default function Mir() {
   const info = sceneInfo(sStage, sChoice);
 
   return (
-    <div className="page">
+    <div className={"page mir-page" + (phase === "intro" ? "" : " playing")}>
       <PageHead title="Mir 1997: fire on a space station"
                 sub="A real fire in orbit, told in five decisions. Choices that match the record follow what happened; others show clearly labelled, imagined consequences. Every step links to its NASA or ESA source.">
         {phase === "intro" && <Intro onDone={() => setPhase("story")} />}
@@ -143,7 +143,7 @@ export default function Mir() {
               {narrow && <p className={"mir-say" + (info.warn ? " warn" : "")}>{info.label}</p>}
               <div className="mir-steps" aria-label="Progress">
                 {STORY.stages.map((s, k) => (
-                  <span key={s.id} className={k < stage || phase === "debrief" ? "done" : k === stage ? "now" : ""}>{k + 1}. {s.label}</span>
+                  <span key={s.id} className={k < stage || phase === "debrief" ? "done" : k === stage ? "now" : ""}><b>{k + 1}</b><i>{s.label}</i></span>
                 ))}
               </div>
             </div>

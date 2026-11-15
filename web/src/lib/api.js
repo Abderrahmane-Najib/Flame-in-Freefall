@@ -43,6 +43,8 @@ export const post = (path, json) => send(path, json === undefined ? {} : {
   headers: { "Content-Type": "application/json" }, body: JSON.stringify(json),
 });
 
+export const del = (path) => send(path, { method: "DELETE" });
+
 export function upload(path, file) {
   const form = new FormData();
   form.append("file", file);

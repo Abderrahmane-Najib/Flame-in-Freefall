@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PageHead } from "../components/InvCard.jsx";
 import { ChatThread } from "../components/Chat.jsx";
-import { forget, fresh, post, upload } from "../lib/api.js";
+import { del, forget, fresh, post, upload } from "../lib/api.js";
 
 const STATUS = { processing: "embedding…", unreviewed: "ready · not reviewed", approved: "approved", rejected: "rejected", failed: "failed" };
 const FUELS = ["solid", "droplet", "gas", "smoke", "ground"];
@@ -71,13 +71,14 @@ export default function Uploads({ persona, level }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(null);
+  const [confirmDel, setConfirmDel] = useState(false); // first click asks, second click deletes
   const fileInput = useRef(null);
 
   const refreshList = useCallback(() => fresh("/uploads").then(setList).catch((e) => setError(e.message)), []);
   const refreshOne = useCallback(async () => { if (selId) setU(await fresh(`/uploads/${selId}`)); await refreshList(); }, [selId, refreshList]);
 
   useEffect(() => { refreshList(); }, [refreshList]);
-  useEffect(() => { setU(null); setPage(null); if (selId) fresh(`/uploads/${selId}`).then(setU).catch((e) => setError(e.message)); }, [selId]);
+  useEffect(() => { setU(null); setPage(null); setConfirmDel(false); if (selId) fresh(`/uploads/${selId}`).then(setU).catch((e) => setError(e.message)); }, [selId]);
   useEffect(() => { // poll while embedding
     if (u?.status !== "processing") return;
     const t = setInterval(() => fresh(`/uploads/${u.id}`).then((x) => { setU(x); if (x.status !== "processing") refreshList(); }), 2000);
@@ -95,6 +96,16 @@ export default function Uploads({ persona, level }) {
     setSending(false);
   }
 
+  async function remove() {
+    if (!confirmDel) { setConfirmDel(true); return; }
+    try {
+      await del(`/uploads/${u.id}`);
+      if (u.status === "approved") { forget("/investigations"); forget("/graph"); }
+      setSelId(null); await refreshList();
+    } catch (e) { setError(e.message); }
+    setConfirmDel(false);
+  }
+
   async function openPage(url) {
     try { setPage(await fresh(url)); } catch (e) { setError(e.message); }
   }
@@ -104,7 +115,7 @@ export default function Uploads({ persona, level }) {
   return (
     <div className="page">
       <PageHead title="My reports" sub="Upload a combustion report (PDF). Etna reads it, lets you chat with it alone, and drafts an experiment card for you to approve. Uploads are never mixed with NASA data until you approve them.">
-        <div className="cols" style={{ gridTemplateColumns: "320px minmax(0,1fr)" }}>
+        <div className="cols up-cols">
           <div className="list">
             <div className={"drop" + (drag ? " on" : "")}
                  onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)}
@@ -129,6 +140,8 @@ export default function Uploads({ persona, level }) {
               <div className="panel">
                 <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
                   <h3 style={{ margin: 0, flex: 1, overflowWrap: "anywhere" }}>{u.file}</h3><Status s={u.status} />
+                  <button type="button" className={"up-del" + (confirmDel ? " on" : "")} onClick={remove} onBlur={() => setConfirmDel(false)}
+                          title="Delete this report and its card">{confirmDel ? "Delete for good?" : "Delete"}</button>
                 </div>
                 <p className="tool">{u.n_pages} pages · {u.chunks} passages · {u.chunks_embedded} embedded{u.psi_id ? ` · card ${u.psi_id}` : ""}</p>
                 {u.status === "processing" && <div className="bar" style={{ marginTop: 10 }}><i style={{ width: pct + "%" }} /></div>}

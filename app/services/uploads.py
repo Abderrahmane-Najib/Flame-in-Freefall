@@ -147,3 +147,12 @@ def reject(doc_id: int) -> None:
         conn.execute("update documents set status = 'rejected', psi_id = null where id = %s", (doc_id,))
         if row and row["psi_id"] and row["psi_id"].startswith("UP-"):
             conn.execute("delete from investigations where id = %s", (row["psi_id"],))
+
+
+def delete(doc_id: int) -> None:
+    """Delete the upload for good: its pages and passages (cascade) and its approved card, if any."""
+    with connect() as conn:
+        row = conn.execute("delete from documents where id = %s and origin = 'upload' returning psi_id",
+                           (doc_id,)).fetchone()
+        if row and row["psi_id"] and row["psi_id"].startswith("UP-"):
+            conn.execute("delete from investigations where id = %s", (row["psi_id"],))
