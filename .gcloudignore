@@ -5,6 +5,10 @@
 !/.dockerignore
 !/app/
 !/web/
+!/models/
+!/scripts/
+/scripts/*
+!/scripts/predict.py
 /app/.env
 /app/scripts/
 /web/node_modules/

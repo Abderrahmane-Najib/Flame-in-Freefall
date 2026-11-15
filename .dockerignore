@@ -1,7 +1,10 @@
-# Only app/ and web/ go into the image (the data lives in the database).
+# Only app/, web/ and the trained predictors (models/ + scripts/predict.py) go into the image
+# (the data lives in the database).
 *
 !app/
 !web/
+!models/
+!scripts/predict.py
 app/.env
 app/scripts/
 **/__pycache__/

@@ -26,5 +26,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./
 COPY --from=web /web/dist /srv/web/dist
 
+# Trained predictors P1-P8 (app/services/predictors.py loads them from /srv/models and /srv/scripts).
+COPY models/ /srv/models/
+COPY scripts/predict.py /srv/scripts/predict.py
+
 # Cloud Run sets PORT; 8080 elsewhere.
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
