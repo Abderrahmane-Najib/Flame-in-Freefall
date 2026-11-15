@@ -1,5 +1,5 @@
 # Etna BASE image: Python + CPU torch + requirements + the BGE-M3 model (~3 GB, the slow part).
-# Rebuilt only when app/requirements.txt changes (see project-docs/DEPLOY.md):
+# Rebuilt only when app/requirements.txt changes (see README.md):
 #   gcloud builds submit --config cloudbuild-base.yaml --region europe-west3 --project ghostflame
 # The app image (Dockerfile) starts FROM this one, so a normal deploy skips all of it.
 

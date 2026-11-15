@@ -1,7 +1,7 @@
 # Etna: one image = the web UI (web/dist) + the API (app/), for Cloud Run.
 # Starts FROM the base image (Python + torch + BGE-M3, see Dockerfile.base), so a deploy only
 # builds the UI and copies the code: a few minutes instead of re-downloading ~3 GB.
-# Deploy: see project-docs/DEPLOY.md.
+# Deploy: see README.md.
 
 ARG BASE=europe-west3-docker.pkg.dev/ghostflame/cloud-run-source-deploy/ghostflame-base:latest
 
