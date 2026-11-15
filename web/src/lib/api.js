@@ -45,7 +45,7 @@ export function upload(path, file) {
   return send(path, { body: form });
 }
 
-/** POST to a chat endpoint and yield its NDJSON events: session, tool, text, error, done (app/services/chat.py). */
+/** POST to a chat endpoint and yield its NDJSON events: session, tool, text, chart, error, done (app/services/chat.py). */
 export async function* streamChat(path, body, signal) {
   const r = await fetch(BASE + path, {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal,

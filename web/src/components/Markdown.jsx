@@ -1,5 +1,8 @@
 // A small, safe markdown renderer for the assistant's answers: paragraphs, lists, tables,
-// **bold**, `code` and [links](url). No raw HTML is ever inserted.
+// **bold**, `code`, [links](url) and ```mermaid diagrams (components/Diagram.jsx). No raw HTML is ever inserted.
+import { Fragment } from "react";
+import Diagram from "./Diagram.jsx";
+
 const SAFE_URL = /^(https?:\/\/|\/)/;
 
 // onLink(url): called instead of opening links to an uploaded report's page ('/uploads/<id>/pages/<n>').
@@ -34,6 +37,18 @@ const cells = (line) => line.trim().replace(/^\||\|$/g, "").split("|").map((c) =
 
 export default function Markdown({ text, onLink }) {
   onLinkHandler = onLink || null; // rendering is synchronous, so the handler is set for this render only
+  // Images are never rendered: the model sometimes writes ![chart](attachment://...) for a make_chart chart.
+  // ```mermaid blocks become diagrams; one still streaming (no closing fence yet) shows a placeholder.
+  const parts = text.replace(/!\[[^\]]*\]\([^)]*\)/g, "").split(/```mermaid[^\n]*\n([\s\S]*?)(?:```|$)/);
+  const open = text.split("```").length % 2 === 0; // odd number of fences: the last block is unfinished
+  return <>{parts.map((part, i) => (i % 2 === 0
+    ? <Fragment key={i}>{blocksOf(part)}</Fragment>
+    : open && i === parts.length - 2
+      ? <p key={i} className="tool">drawing a diagram…</p>
+      : <Diagram key={i} code={part.trim()} />))}</>;
+}
+
+function blocksOf(text) { // called directly (not as a component) so onLinkHandler is still set
   const lines = text.split("\n");
   const blocks = [];
   let i = 0;

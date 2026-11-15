@@ -28,3 +28,18 @@ def get_card(psi_id: str) -> dict | None:
     with connect() as conn:
         row = conn.execute("select card from investigations where id = %s", (psi_id,)).fetchone()
     return row["card"] if row else None
+
+
+FINDINGS_SQL = """
+select i.id as psi_id, i.name, i.fuel_type, i.safety_jobs,
+       f ->> 'text' as text, f ->> 'cite' as cite, f ->> 'url' as url
+from investigations i, jsonb_array_elements(coalesce(i.card -> 'findings', '[]')) f
+where coalesce(i.card ->> 'origin', 'psi') = 'psi'
+order by i.id
+"""
+
+
+def all_findings() -> list[dict]:
+    """Every sourced finding on the NASA cards (user uploads excluded), word for word, with its document page."""
+    with connect() as conn:
+        return conn.execute(FINDINGS_SQL).fetchall()

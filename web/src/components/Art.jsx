@@ -6,7 +6,7 @@ const PHOTOS = {
   "PSI-26": ["/img/PSI-26.jpg", "BASS session · ISS 2013"],
 };
 
-const ILL = {
+export const ILL = {
   gas: (
     <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="g-gas" cx="50%" cy="55%" r="50%"><stop offset="0" stopColor="#fff3d6" /><stop offset=".35" stopColor="#FF9B5A" /><stop offset=".62" stopColor="#3a62ff" stopOpacity=".85" /><stop offset="1" stopColor="#3a62ff" stopOpacity="0" /></radialGradient></defs><rect width="300" height="150" fill="#06080F" /><circle cx="150" cy="80" r="62" fill="url(#g-gas)" /><circle cx="150" cy="80" r="16" fill="#2a2d36" /></svg>
   ),

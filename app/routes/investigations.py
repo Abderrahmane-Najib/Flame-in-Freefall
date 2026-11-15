@@ -7,7 +7,7 @@ from schemas.chat import ChatRequest
 from schemas.investigations import InvestigationSummary
 from services.assistant import make_card_agent
 from services.chat import chat_events
-from services.investigations import get_card, list_investigations
+from services.investigations import all_findings, get_card, list_investigations
 
 router = APIRouter(tags=["investigations"])
 
@@ -22,6 +22,13 @@ def investigations(
 ) -> list[dict]:
     """The 24 investigations, short form (for the list / grid of cards)."""
     return list_investigations(fuel_type, safety_job)
+
+
+@router.get("/investigations/findings")
+def findings() -> list[dict]:
+    """Every finding on the NASA cards, word for word, each with its cite line and document page link
+    (for the "Did you know?" panel). Declared before /investigations/{psi_id} so 'findings' is not read as an id."""
+    return all_findings()
 
 
 @router.post("/investigations/{psi_id}/chat")

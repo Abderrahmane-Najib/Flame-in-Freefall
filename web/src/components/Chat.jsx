@@ -1,14 +1,16 @@
-// Chat with the assistant. ChatThread streams one endpoint (NDJSON: session, tool, text, error, done)
+// Chat with the assistant. ChatThread streams one endpoint (NDJSON: session, tool, text, chart, error, done)
 // and keeps its session for follow-ups; used by the floating "Ask Ghostflame" and by each uploaded report.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Markdown from "./Markdown.jsx";
+import ChartView from "./ChartView.jsx";
 import Avatar, { GUIDES } from "./Avatar.jsx";
 import { streamChat } from "../lib/api.js";
 
 const TOOL_LABEL = {
   search_reports: "searching NASA reports", search_report: "searching the report",
   get_investigation: "reading an investigation card", list_investigations: "listing investigations",
-  rank_for_habitat: "ranking for a habitat", query_tests: "querying test tables",
+  rank_for_habitat: "ranking for a habitat", query_tests: "querying test tables", make_chart: "drawing a chart",
+  get_card: "reading the card", search_card_reports: "searching its reports", query_card_tests: "querying its tests",
 };
 
 export const ChatThread = forwardRef(function ChatThread(
@@ -33,12 +35,13 @@ export const ChatThread = forwardRef(function ChatThread(
     if (!q || busy) return;
     setValue("");
     setBusy(true);
-    setMsgs((m) => [...m, { role: "me", text: q }, { role: "bot", text: "", tools: [] }]);
+    setMsgs((m) => [...m, { role: "me", text: q }, { role: "bot", text: "", tools: [], charts: [] }]);
     abort.current = new AbortController();
     try {
       for await (const ev of streamChat(endpoint, { message: q, session_id: session.current, persona }, abort.current.signal)) {
         if (ev.type === "session") session.current = ev.session_id;
         else if (ev.type === "tool") update((b) => ({ ...b, tools: [...b.tools, TOOL_LABEL[ev.name] || ev.name] }));
+        else if (ev.type === "chart") update((b) => ({ ...b, charts: [...b.charts, ev.spec] }));
         else if (ev.type === "text") update((b) => ({ ...b, text: b.text + ev.content }));
         else if (ev.type === "error") update((b) => ({ ...b, error: ev.message }));
       }
@@ -65,6 +68,7 @@ export const ChatThread = forwardRef(function ChatThread(
               <div className={"bub" + (m.error ? " err" : "")}>
                 {m.tools.length > 0 && <div className="tool">{[...new Set(m.tools)].join(" · ")}…</div>}
                 {m.text ? <Markdown text={m.text} onLink={onLink} /> : !m.error && <span className="tool">thinking…</span>}
+                {m.charts.map((c, j) => <ChartView key={j} spec={c} />)}
                 {m.error && <p className="tool">Something went wrong: {m.error}</p>}
               </div>
             </div>)}
@@ -81,6 +85,7 @@ export const ChatThread = forwardRef(function ChatThread(
 
 export default function Chat({ open, setOpen, context, suggestions, persona, level, draft, setDraft }) {
   const thread = useRef(null);
+  const [big, setBig] = useState(false);
   const guide = GUIDES[level] || GUIDES.student;
   return (
     <>
@@ -88,10 +93,15 @@ export default function Chat({ open, setOpen, context, suggestions, persona, lev
         <span className="fab-av"><Avatar level={level} size={30} /></span>
         Ask Ghostflame
       </button>
-      <div className="chat" id="chat" role="dialog" aria-label="Ask Ghostflame">
+      <div className={"chat" + (big ? " big" : "")} id="chat" role="dialog" aria-label="Ask Ghostflame">
         <header>
           <div className="chat-who"><Avatar level={level} size={38} /><div><b>Ask Ghostflame</b><br /><span>{guide.role} · {context}</span></div></div>
-          <div><button className="pill" type="button" title="New conversation" onClick={() => thread.current?.reset()}>↺</button></div>
+          <div className="chat-actions">
+            <button className="pill" type="button" title="New conversation" aria-label="New conversation" onClick={() => thread.current?.reset()}>↺</button>
+            <button className="pill" type="button" title={big ? "Make smaller" : "Expand"} aria-label={big ? "Make smaller" : "Expand"}
+                    aria-pressed={big} onClick={() => setBig(!big)}>{big ? "⤡" : "⤢"}</button>
+            <button className="pill" type="button" title="Close" aria-label="Close chat" onClick={() => setOpen(false)}>✕</button>
+          </div>
         </header>
         <ChatThread ref={thread} endpoint="/chat" persona={persona} level={level} suggestions={suggestions} draft={draft} setDraft={setDraft}
                     autoFocus={open} placeholder="Ask about any experiment or habitat…" />

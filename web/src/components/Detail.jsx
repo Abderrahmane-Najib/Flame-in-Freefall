@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Art from "./Art.jsx";
 import { ChatThread } from "./Chat.jsx";
+import { GUIDES } from "./Avatar.jsx";
 import { get } from "../lib/api.js";
 import { firstSentence, fmt } from "../lib/habitats.js";
 
@@ -13,6 +14,7 @@ function Source({ item }) {
 }
 
 export default function Detail({ id, ev, onClose, persona, level }) {
+  const guide = (GUIDES[level] || GUIDES.student).name; // the selected persona: space guide / teacher / research colleague
   const [card, setCard] = useState(null);
   const [error, setError] = useState(null);
   const [asking, setAsking] = useState(false);
@@ -61,7 +63,7 @@ export default function Detail({ id, ev, onClose, persona, level }) {
             </div>
           </div>}
           <div className="acts">
-            <button type="button" className="p" aria-expanded={asking} onClick={() => setAsking(!asking)}>✦ {asking ? "Hide AI" : "Ask AI about this card"}</button>
+            <button type="button" className="p" aria-expanded={asking} onClick={() => setAsking(!asking)}>✦ {asking ? `Hide your ${guide}` : `Ask your ${guide} about this card`}</button>
             {psiPage && <a href={psiPage} target="_blank" rel="noreferrer" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid var(--seam)" }}>Open NASA page ↗</a>}
           </div>
           {asking && (
