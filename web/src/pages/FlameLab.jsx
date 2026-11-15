@@ -1,7 +1,7 @@
 // Flame Lab: a burning fuel droplet in 3D (GET /predict/droplet). Timing comes from the nearest NASA droplet tests:
 // FLEX (methanol, heptane) and CFI (dodecane and blends, with the cool-flame phase). Flame size and the Earth 1 g
 // shape are an illustration. Habitat buttons set the air from GET /habitats.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageHead } from "../components/InvCard.jsx";
 import Explain from "../components/Explain.jsx";
 import FlameScene from "../components/FlameScene.jsx";
@@ -107,33 +107,16 @@ export default function FlameLab({ level }) {
                   { title: "Three ways to end", text: <>A fire can <strong>go out</strong> before the fuel is gone, the drop can <strong>burst</strong>, or it can <strong>burn away completely</strong>. The lab shows the ending most nearby NASA tests had.</> },
                   { title: "Moon and Mars", text: <>Nobody has burned a drop in Moon or Mars gravity. So for those habitats you see <strong>two flames</strong>: the space one and an Earth one. The real flame would sit somewhere between them.</> },
                 ]} />}>
-        <div className="cols">
+        {/* Row 1: the 3D droplet | the controls (and the verdict they change) */}
+        <div className="lab-top">
           <div className="panel lab-panel">
             <FlameScene run={run || { fuel, o2, p, d0, est: null }} mode={grav} playing={playing} speed={speed} onTick={setTick} />
-            <DPlot res={res} t={tick.t} />
-            <div className="lab-kv">
-              <span>Time</span><b>{tick.t.toFixed(1)} s</b>
-              <span>Droplet now</span><b>{tick.d.toFixed(2)} mm</b>
-              <span>Burning now</span><b className={tick.stage === "cool" ? "lab-cool" : undefined}>{STAGE[tick.stage] || "–"}</b>
-              <span>Hot flame K</span><b>{est ? `${est.k_mm2_s} mm²/s` : "–"}</b>
-              <span>Hot flame out at</span><b title={est ? `From the ${est.ext_ratio_source}` : undefined}>{est ? `${est.end === "completion" ? 0 : est.d_ext_mm} mm${est.ext_ratio_source === "P6b model" ? " (P6b)" : ""}` : "–"}</b>
-              <span>Hot flame time</span><b>{est ? `${est.burn_time_s} s` : "–"}</b>
-              {cool && <>
-                <span>Cool flame K</span><b className="lab-cool">{cool.k_mm2_s} mm²/s</b>
-                <span>Cool flame ends at</span><b className="lab-cool">{cool.d_end_mm} mm</b>
-                <span>Cool flame time</span><b className="lab-cool">{cool.burn_time_s} s</b>
-              </>}
-              <span>Ending</span><b>{est ? (cool ? `cool flame, then ${ENDS[cool.end] || "unknown"}` : ENDS[est.end] || est.end) : "–"}</b>
-            </div>
-            <div className="chips" style={{ marginTop: 12 }}>
+            <div className="chips lab-play">
               <button type="button" className="chip" onClick={() => setPlaying(!playing)}>{playing ? "Pause" : "Play"}</button>
               {[0.5, 1, 2, 5].map((s) => <button key={s} type="button" className="chip" aria-pressed={speed === s} onClick={() => setSpeed(s)}>{s}×</button>)}
             </div>
-            {cool?.extrapolated_share > 0 && <p className="tool" style={{ marginTop: 8 }}>{Math.round(cool.extrapolated_share * 100)} % of the weight comes from tests whose cool-flame end NASA extrapolated (the droplet left the camera view).</p>}
-            {res && <p className="cav" style={{ marginTop: 12 }}>{res.check.text} {res.illustration.join(" ")}</p>}
           </div>
-
-          <aside className="panel">
+          <aside className="panel lab-controls">
             <h3>Habitat</h3>
             <div className="chips">
               {HABS.map(([id, label, g]) => <button key={id} type="button" className="chip" aria-pressed={hab === id} onClick={() => pickHab(id, g)}>{label}</button>)}
@@ -176,30 +159,58 @@ export default function FlameLab({ level }) {
               {res.status === "outside" && res.tested_range && <small> {res.experiment} tested {res.fuel_label} with {res.diluent} at {res.tested_range.o2_pct.join("–")} % O₂, {res.tested_range.pressure_kpa.join("–")} kPa and {res.tested_range.d0_mm.join("–")} mm droplets.</small>}
               {grav !== "ug" && <small> {grav === "1g" ? "The Earth shape is" : "The two shapes are"} an illustration from a NASA photo: the droplet tests have no 1 g runs and Moon or Mars gravity was never tested.</small>}
             </div>}
-
-            {preds.length > 0 && <>
-              <h3 style={{ marginTop: 16 }}>Trained models: a second opinion</h3>
-              <p className="tool" style={{ marginBottom: 8 }}>Fitted to all {res.experiment} tests, not just the 5 nearest, They can disagree with the lab.</p>
-              {preds.map(({ id, result }) => <ModelAnswer key={id} result={result} />)}
-            </>}
-            {res && res.diluent !== "N2" && <p className="tool" style={{ marginTop: 12 }}>Trained models are shown for nitrogen air only.</p>}
-
-            {res?.nearest?.length > 0 && <>
-              <h3 style={{ marginTop: 16 }}>Nearest NASA tests ({res.experiment})</h3>
-              <table className="lab-near">
-                <thead><tr><th>O₂</th><th>kPa</th><th>d₀</th><th>K</th><th>Ending</th></tr></thead>
-                <tbody>{res.nearest.map((n) => (
-                  <tr key={n.cite}>
-                    <td>{n.o2_pct}</td><td>{n.pressure_kpa}</td><td>{n.d0_mm}</td><td>{n.k_mm2_s}</td>
-                    <td><a href={n.url} target="_blank" rel="noreferrer" title={n.cite}>
-                      {n.cool ? `cool flame${n.cool.end ? ", " + ENDS[n.cool.end] : ""}` : ENDS[n.end] || n.end} ↗</a></td>
-                  </tr>))}
-                </tbody>
-              </table>
-              <p className="tool">d₀ in mm, K (hot flame) in mm²/s. Links open the {res.source.cite}.</p>
-            </>}
           </aside>
         </div>
+
+        {/* Row 2: what happens to this droplet | second opinion + nearest NASA tests */}
+        <div className="lab-results">
+          <section className="panel">
+            <h3>What happens to this droplet</h3>
+            <DPlot res={res} t={tick.t} />
+            <div className="lab-kv">
+              <span>Time</span><b>{tick.t.toFixed(1)} s</b>
+              <span>Droplet now</span><b>{tick.d.toFixed(2)} mm</b>
+              <span>Burning now</span><b className={tick.stage === "cool" ? "lab-cool" : undefined}>{STAGE[tick.stage] || "–"}</b>
+              <span>Hot flame K</span><b>{est ? `${est.k_mm2_s} mm²/s` : "–"}</b>
+              <span>Hot flame out at</span><b title={est ? `From the ${est.ext_ratio_source}` : undefined}>{est ? `${est.end === "completion" ? 0 : est.d_ext_mm} mm${est.ext_ratio_source === "P6b model" ? " (P6b)" : ""}` : "–"}</b>
+              <span>Hot flame time</span><b>{est ? `${est.burn_time_s} s` : "–"}</b>
+              {cool && <>
+                <span>Cool flame K</span><b className="lab-cool">{cool.k_mm2_s} mm²/s</b>
+                <span>Cool flame ends at</span><b className="lab-cool">{cool.d_end_mm} mm</b>
+                <span>Cool flame time</span><b className="lab-cool">{cool.burn_time_s} s</b>
+              </>}
+              <span>Ending</span><b>{est ? (cool ? `cool flame, then ${ENDS[cool.end] || "unknown"}` : ENDS[est.end] || est.end) : "–"}</b>
+            </div>
+            {cool?.extrapolated_share > 0 && <p className="tool" style={{ marginTop: 8 }}>{Math.round(cool.extrapolated_share * 100)} % of the weight comes from tests whose cool-flame end NASA extrapolated (the droplet left the camera view).</p>}
+          </section>
+          <div className="lab-side">
+            {(preds.length > 0 || (res && res.diluent !== "N2")) && <section className="panel">
+              {preds.length > 0 && <>
+                <h3>Trained models: a second opinion</h3>
+                <p className="tool" style={{ marginBottom: 8 }}>Fitted to all {res.experiment} tests, not just the 5 nearest. They can disagree with the lab.</p>
+                {preds.map(({ id, result }) => <ModelAnswer key={id} result={result} />)}
+              </>}
+              {res && res.diluent !== "N2" && <p className="tool" style={{ marginTop: 12 }}>Trained models are shown for nitrogen air only.</p>}
+            </section>}
+            {res?.nearest?.length > 0 && <section className="panel">
+              {res?.nearest?.length > 0 && <>
+                <h3>Nearest NASA tests ({res.experiment})</h3>
+                <table className="lab-near">
+                  <thead><tr><th>O₂</th><th>kPa</th><th>d₀</th><th>K</th><th>Ending</th></tr></thead>
+                  <tbody>{res.nearest.map((n) => (
+                    <tr key={n.cite}>
+                      <td>{n.o2_pct}</td><td>{n.pressure_kpa}</td><td>{n.d0_mm}</td><td>{n.k_mm2_s}</td>
+                      <td><a href={n.url} target="_blank" rel="noreferrer" title={n.cite}>
+                        {n.cool ? `cool flame${n.cool.end ? ", " + ENDS[n.cool.end] : ""}` : ENDS[n.end] || n.end} ↗</a></td>
+                    </tr>))}
+                  </tbody>
+                </table>
+                <p className="tool">d₀ in mm, K (hot flame) in mm²/s. Links open the {res.source.cite}.</p>
+              </>}
+            </section>}
+          </div>
+        </div>
+        {res && <p className="cav lab-note">{res.check.text} {res.illustration.join(" ")}</p>}
       </PageHead>
     </div>
   );
@@ -222,10 +233,21 @@ function ModelAnswer({ result }) {
 }
 
 /** d² against time: the hot-flame line, then the cool-flame line (CFI), a dot for now, dashed lines at the end sizes. */
+// The chart fills its box (.lab-plot, which grows to the card's free height): the viewBox height follows the
+// box's shape, so text and marks keep their size instead of being stretched.
 function DPlot({ res, t }) {
+  const box = useRef(null);
+  const [shape, setShape] = useState(150 / 640);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return undefined;
+    const ro = new ResizeObserver(([e]) => { const { width, height } = e.contentRect; if (width) setShape(height / width); });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [res]);
   const est = res?.estimate;
   if (!est) return null;
-  const W = 640, H = 150, L = 40, R = 10, T = 10, B = 24;
+  const W = 640, H = Math.max(150, Math.round(W * shape)), L = 40, R = 10, T = 10, B = 24;
   const d0 = res.query.d0_mm, dHot = est.end === "completion" ? 0 : est.d_ext_mm, c = est.cool;
   const tHot = Math.max(0, (d0 ** 2 - dHot ** 2) / est.k_mm2_s);
   const tCool = c ? Math.max(0, (dHot ** 2 - c.d_end_mm ** 2) / c.k_mm2_s) : 0;
@@ -234,7 +256,8 @@ function DPlot({ res, t }) {
   const tt = Math.min(t, tEnd);
   const yNow = tt <= tHot ? d0 ** 2 - est.k_mm2_s * tt : dHot ** 2 - c.k_mm2_s * (tt - tHot);
   return (
-    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Droplet diameter squared against time" style={{ marginTop: 12 }}>
+    <div className="lab-plot" ref={box}>
+    <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Droplet diameter squared against time">
       <g className="grid"><line x1={L} x2={W - R} y1={Y(0)} y2={Y(0)} /><line x1={L} x2={L} y1={T} y2={Y(0)} /></g>
       <line x1={X(0)} y1={Y(dEnd ** 2)} x2={W - R} y2={Y(dEnd ** 2)} stroke="var(--faint)" strokeDasharray="3 3" />
       <line x1={X(0)} y1={Y(d0 ** 2)} x2={X(tHot)} y2={Y(dHot ** 2)} stroke="var(--ember)" strokeWidth="2" />
@@ -245,8 +268,9 @@ function DPlot({ res, t }) {
         <text x={L - 6} y={Y(0) + 4} textAnchor="end">0</text>
         <text x={L} y={H - 6}>0 s</text>
         <text x={W - R} y={H - 6} textAnchor="end">{tMax.toFixed(1)} s</text>
-        <text x={L + 6} y={T + 10}>d² (mm²): hot flame{c ? " ─, cool flame ╌" : ""}</text>
+        <text x={W - R} y={T + 10} textAnchor="end">d² (mm²): hot flame{c ? " ─, cool flame ╌" : ""}</text>
       </g>
     </svg>
+    </div>
   );
 }

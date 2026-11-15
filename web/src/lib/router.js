@@ -1,7 +1,7 @@
 // Tiny hash router: "#/predict" -> "predict". No dependency; works on any static host.
 import { useEffect, useState } from "react";
 
-export const ROUTES = ["home", "experiments", "coverage", "predict", "graph", "search", "uploads", "compare", "lab", "data"];
+export const ROUTES = ["home", "experiments", "coverage", "predict", "graph", "search", "uploads", "mir", "lab", "data"];
 
 const read = () => {
   const r = location.hash.replace(/^#\/?/, "").split("?")[0];

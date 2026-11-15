@@ -3,6 +3,7 @@
 // Written by the team (not generated), so it never adds new facts: it explains what the page already shows.
 import { useEffect, useRef, useState } from "react";
 import Avatar, { GUIDES } from "./Avatar.jsx";
+import Character from "./Character.jsx";
 
 export const SIMPLE_LEVELS = new Set(["explorer", "student"]);
 
@@ -11,6 +12,13 @@ export default function Explain({ level, steps, onStep }) {
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
   const box = useRef(null);
+  const [talking, setTalking] = useState(false);
+  useEffect(() => { // the guide "says" each new step for a moment, then listens
+    if (!open) return;
+    setTalking(true);
+    const t = setTimeout(() => setTalking(false), 1800);
+    return () => clearTimeout(t);
+  }, [open, i]);
 
   useEffect(() => { onStep?.(open ? steps[i]?.focus ?? null : null); }, [open, i]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -34,7 +42,7 @@ export default function Explain({ level, steps, onStep }) {
       {open && (
         <div className="xp-pop" role="dialog" aria-label="Simple explanation">
           <div className="xp-head">
-            <Avatar level={level} size={34} />
+            <Character level={level} state={talking ? "talking" : "idle"} height={78} />
             <div><b>{step.title}</b><small>{GUIDES[level].role} · step {i + 1} of {steps.length}</small></div>
           </div>
           <div className="xp-text">{step.text}</div>

@@ -84,7 +84,10 @@ export default function DidYouKnow({ onOpen }) {
       <button type="button" className="df-discover" onClick={open} title="Fire safety facts from NASA"
               aria-label="Did you know? Fire safety facts from NASA">
         <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-          <path d="M8 1.5l1.6 4.9 4.9 1.6-4.9 1.6L8 14.5l-1.6-4.9L1.5 8l4.9-1.6z" fill="currentColor" />
+          {/* lightbulb: a fact, not AI */}
+          <path d="M8 1.5a4.5 4.5 0 0 0-2.6 8.2c.4.3.6.7.6 1.1v.7h4v-.7c0-.4.2-.8.6-1.1A4.5 4.5 0 0 0 8 1.5z"
+                fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+          <path d="M6.2 13.6h3.6M6.8 15h2.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
         <span className="df-label">Did you know?</span>
       </button>
