@@ -202,7 +202,7 @@ function drawCabin(c, t, sc, fansOn, age) {
   c.fillStyle = sc.on ? "#e2e8f0" : "#94a3b8"; c.font = "13px monospace"; c.fillText(sc.on ? "on" : "off", EL.x + 34, EL.y + 54);
   if (sc.alarm) { c.fillStyle = `rgba(239,68,68,${0.5 + 0.5 * Math.sin(t * 8)})`; roundRect(c, 760, 128, 150, 30, 6); c.fill();
     c.fillStyle = "#fff"; c.font = "700 15px monospace"; c.fillText("FIRE ALARM", 788, 149); }
-  c.fillStyle = "#94a3b8"; c.font = "15px monospace"; c.fillText("ZVEZDA · CUTAWAY · ILLUSTRATION", 120, 96 + 330);
+  c.fillStyle = "#94a3b8"; c.font = "15px monospace"; c.fillText("ZVEZDA · CUTAWAY · SI-GENERATED", 120, 96 + 330);
 }
 
 function drawFilter(c, age) {

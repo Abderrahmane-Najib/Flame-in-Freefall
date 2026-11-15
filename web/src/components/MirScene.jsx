@@ -194,7 +194,7 @@ function drawCabin(c, t) {
   c.fillStyle = "#9ca3af"; c.fillRect(790, 292, 14, 16);
   c.fillStyle = "#cbd5e1"; c.font = "700 15px monospace"; c.fillText("O₂ GENERATOR", 790, 362);
   c.fillStyle = `rgba(239,68,68,${0.5 + 0.5 * Math.sin(t * 6)})`; c.beginPath(); c.arc(855, 276, 4, 0, 7); c.fill();
-  c.fillStyle = "#94a3b8"; c.font = "15px monospace"; c.fillText("KVANT-1 · CUTAWAY · ILLUSTRATION", 56, 96);
+  c.fillStyle = "#94a3b8"; c.font = "15px monospace"; c.fillText("KVANT-1 · CUTAWAY · SI-GENERATED", 56, 96);
 }
 
 // A crew member as a pixel-art sprite (the team prototype's style): blocks of U px on a grid, drawn at low

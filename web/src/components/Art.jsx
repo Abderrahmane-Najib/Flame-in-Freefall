@@ -34,5 +34,5 @@ export const ILL = Object.fromEntries(Object.keys(DRAW).map((t) => [t, <Ill type
 export default function Art({ inv }) {
   const photo = PHOTOS[inv.id];
   if (photo) return <><img src={photo[0]} alt="" loading="lazy" /><span className="src">{photo[1]}</span></>;
-  return <>{ILL[inv.fuel_type] || ILL.ground}<span className="src">illustration</span></>;
+  return <>{ILL[inv.fuel_type] || ILL.ground}<span className="src">SI-generated</span></>;
 }
