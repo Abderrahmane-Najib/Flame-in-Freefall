@@ -20,7 +20,7 @@ const TYPES = {
 const HABITATS = [
   [null, "All habitats"],
   ["hab:iss", "ISS air"],
-  ["hab:moon_base_rover", "Moon base & rover"],
+  ["hab:moon_base_rover", "Moon habitat & rover"],
   ["hab:mars_base", "Mars base"],
   ["hab:near_lunar", "Near-lunar (not lunar)"],
 ];
@@ -131,7 +131,7 @@ export default function Graph({ onOpen, level }) {
                   { title: "A map of connections", focus: "all", text: <>Think of it as a <strong>map of who is connected to what</strong>. <strong>Blue</strong> dots are NASA's fire experiments (bigger means more fires). <strong>Orange</strong> dots are the things they burned. The <strong>green planets</strong> are the kinds of air astronauts breathe.</> },
                   { title: "What a line means", text: <>A line means "this experiment <strong>burned</strong> that material" or "was <strong>tested in</strong> that air". Hover any dot to light up its lines, or click it to read about it on the right.</> },
                   { title: "Space-station air", focus: "iss", text: <>Here are only the experiments that lit fires in <strong>space-station air</strong>. Several experiments, many materials: this air is well studied.</> },
-                  { title: "Moon-base air", focus: "moon", text: <>And here is <strong>Moon-base air</strong>: just <strong>one experiment</strong>, burning only gases. No solid material (like fabric or plastic) has been tested in this air. That's how little we know about fire on a Moon base.</> },
+                  { title: "Moon-habitat air", focus: "moon", text: <>And here is <strong>Moon-habitat air</strong>: just <strong>one experiment</strong>, burning only gases. No solid material (like fabric or plastic) has been tested in this air. That's how little we know about fire on a Moon habitat.</> },
                   { title: "Your turn", focus: "all", text: <>Use the <strong>Habitat</strong> buttons to switch between airs, and the <strong>Show</strong> buttons to hide what you don't need.</> },
                 ]} />}>
         {error && <p className="cav">Could not load: {error}</p>}

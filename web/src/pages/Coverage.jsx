@@ -66,13 +66,13 @@ export default function Coverage({ onOpen, level }) {
   return (
     <div className="page">
       <PageHead title="Coverage map: oxygen × pressure"
-                sub="Every NASA test row with both chamber oxygen and pressure measured. The boxes are the habitats' air: see how few fires were tested in Moon-base air."
+                sub="Every NASA test row with both chamber oxygen and pressure measured. The boxes are the habitats' air: see how few fires were tested in Moon-habitat air."
                 right={<Explain level={level} onStep={setFocus} steps={[
                   { title: "Every dot is a fire", focus: "dots", text: <>Each dot is <strong>one fire NASA lit in space</strong>. The shape and colour tell you what burned: a gas, a liquid droplet or a solid material. Hover a dot to see which experiment it came from.</> },
                   { title: "Reading the map", text: <>Going <strong>up</strong> means more oxygen in the air (normal air has 21%). Going <strong>right</strong> means thicker air, measured as pressure: 101 kPa is the air at sea level.</> },
                   { title: "Space-station air", focus: "iss", text: <>The blue box is <strong>space-station air</strong>, almost like Earth's. That's where most of NASA's fires were tested, so we know it well.</> },
-                  { title: "Moon-base air", focus: "moon", text: <>The green box is the air planned for a <strong>Moon base</strong>: thinner, but richer in oxygen. Very few dots land in it{data ? <>: only <strong>{data.counts.lunar_tests} fires</strong></> : ""}. The dashed strip next to it is <em>almost</em> Moon-base air, kept apart because "almost" is not the same.</> },
-                  { title: "The big gap", focus: "moon", text: <>So the map shows what is missing: we know a lot about fire in station air, and <strong>very little about fire in Moon-base air</strong>. That's the gap future experiments need to fill.</> },
+                  { title: "Moon-habitat air", focus: "moon", text: <>The green box is the air planned for a <strong>Moon habitat</strong>: thinner, but richer in oxygen. Very few dots land in it{data ? <>: only <strong>{data.counts.lunar_tests} fires</strong></> : ""}. The dashed strip next to it is <em>almost</em> Moon-habitat air, kept apart because "almost" is not the same.</> },
+                  { title: "The big gap", focus: "moon", text: <>So the map shows what is missing: we know a lot about fire in station air, and <strong>very little about fire in Moon-habitat air</strong>. That's the gap future experiments need to fill.</> },
                 ]} />}>
         {error && <p className="cav">Could not load: {error}</p>}
         <div className="cols">
@@ -98,7 +98,7 @@ export default function Coverage({ onOpen, level }) {
                   {X_TICKS.map((t) => <line key={t} y1={M.t} y2={H - M.b} x1={sx(t)} x2={sx(t)} />)}
                 </g>
                 {moon && <g className={focus === "moon" ? "pulse focus-glow" : undefined}><rect {...zoneRect(moon.o2_pct, moon.pressure_kpa)} fill="color-mix(in srgb,var(--ember) 10%,transparent)" stroke="var(--ember)" strokeWidth="1.5" rx="4" />
-                  <text className="lbl" x={sx(moon.pressure_kpa[0] < P[0] ? P[0] : moon.pressure_kpa[0]) + 6} y={sy(41) + 4}>☾ Moon base / rover air</text></g>}
+                  <text className="lbl" x={sx(moon.pressure_kpa[0] < P[0] ? P[0] : moon.pressure_kpa[0]) + 6} y={sy(41) + 4}>☾ Moon habitat / rover air</text></g>}
                 {near && <rect {...zoneRect([near.o2_pct[0], O2[1]], near.pressure_kpa)} fill="none" stroke="var(--cyan)" strokeDasharray="4 3" strokeWidth="1.5" />}
                 {near && <text className="lbl" x={sx(near.pressure_kpa[1]) + 5} y={sy(31.5)}>near-lunar</text>}
                 {iss && <g className={focus === "iss" ? "pulse" : undefined} style={focus === "iss" ? { filter: "drop-shadow(0 0 6px var(--lime))" } : undefined}><rect {...zoneRect(iss.o2_pct, iss.pressure_kpa)} fill="color-mix(in srgb,var(--lime) 10%,transparent)" stroke="var(--lime)" strokeWidth="1.5" rx="4" />
@@ -133,7 +133,7 @@ export default function Coverage({ onOpen, level }) {
             <h3>What the map holds</h3>
             {c ? <table className="table"><tbody>
               <tr><td>Rows drawn</td><td className="n">{fmt(c.points)}</td></tr>
-              <tr><td>Fires in Moon-base air</td><td className="n">{fmt(c.lunar_tests)}</td></tr>
+              <tr><td>Fires in Moon-habitat air</td><td className="n">{fmt(c.lunar_tests)}</td></tr>
               <tr><td>Fires just outside it (near-lunar)</td><td className="n">{fmt(c.near_lunar_tests)}</td></tr>
               <tr><td>Burner-stream rows left out</td><td className="n">{fmt(c.burner_stream_rows)}</td></tr>
               <tr><td>Rows without a single O₂ / pressure</td><td className="n">{fmt(c.rows_without_single_value)}</td></tr>
@@ -145,7 +145,7 @@ export default function Coverage({ onOpen, level }) {
       <PageHead title="By experiment" sub="The same rows as a table: which experiments tested which air. Click a row to open it.">
         <div className="panel">
           <table className="table">
-            <thead><tr><th>Experiment</th><th className="n">Rows on the map</th><th className="n">…in Moon-base air</th><th className="n">…near-lunar</th><th className="n">…in ISS air</th></tr></thead>
+            <thead><tr><th>Experiment</th><th className="n">Rows on the map</th><th className="n">…in Moon-habitat air</th><th className="n">…near-lunar</th><th className="n">…in ISS air</th></tr></thead>
             <tbody>{byInv.map((r) => (
               <tr key={r.psi_id} onClick={() => onOpen(r.psi_id)} style={{ cursor: "pointer" }}>
                 <td><b>{r.name}</b> <span className="mono" style={{ color: "var(--faint)" }}>{r.psi_id}</span></td>

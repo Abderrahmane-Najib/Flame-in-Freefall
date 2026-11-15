@@ -20,15 +20,15 @@ export function moonKpis({ coverage, ranking, nearTests }) {
   const nearPsi = rows[0]?.psi_id;
 
   return [
-    [fmt(c.lunar_tests), "fire tests in Moon-base air",
-      T(`Only ${fmt(c.lunar_tests)} NASA fire tests used Moon-base air.`,
+    [fmt(c.lunar_tests), "fire tests in Moon-habitat air",
+      T(`Only ${fmt(c.lunar_tests)} NASA fire tests used Moon-habitat air.`,
         `All by ${names(measured)}: ≥30% O₂ at ≤70.3 kPa.`,
         `O₂ and pressure recorded per test; ${withResults} with results.`),
       measured.length ? `NASA PSI · ${measured.map((r) => r.name).join(", ")}` : "NASA PSI test tables", measured[0]?.url || PSI_HOME],
     [fmt(c.near_lunar_tests), "tests just outside it",
       T(`${fmt(c.near_lunar_tests)} more came very close.`,
         `${nearNames.join(", ")}: just above 70.3 kPa.`,
-        "Kept apart, never counted as Moon-base air."),
+        "Kept apart, never counted as Moon-habitat air."),
       nearPsi ? `NASA PSI · ${nearNames.join(", ")}` : "NASA PSI test tables", Object.values(nearTests?.tables || {})[0] || PSI_HOME],
     [rows.length ? `${selfOut} of ${rows.length}` : "–", "went out by themselves",
       T(selfOut === 0 ? "None put themselves out." : `${selfOut} put themselves out.`,
