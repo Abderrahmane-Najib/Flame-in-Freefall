@@ -19,3 +19,12 @@ data/psi/docs_selected.csv
 # Web UI (React + Vite)
 web/node_modules/
 web/dist/
+web/.vite/
+
+# Editor / AI-tool folders and personal notes
+.codex/
+.cursor/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

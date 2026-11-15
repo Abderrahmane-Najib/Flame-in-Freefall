@@ -2,7 +2,7 @@
 //  - From the experiments: the curated NASA card findings, word for word, with their report page
 //    (GET /investigations/findings).
 //  - Space → Earth: the discovery prototype's facts (lib/spinoffs.js), word for word, NASA Spinoff / nasa.gov.
-// Only for the Explorer and Student levels (App.jsx). Style from the discovery prototype (discovery/).
+// Only for the Explorer and Student levels (App.jsx).
 import { useEffect, useRef, useState } from "react";
 import { ILL } from "./Art.jsx";
 import { get } from "../lib/api.js";
