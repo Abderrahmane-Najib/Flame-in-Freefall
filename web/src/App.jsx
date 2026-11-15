@@ -14,6 +14,7 @@ import Search from "./pages/Search.jsx";
 import Uploads from "./pages/Uploads.jsx";
 import DataMethod from "./pages/DataMethod.jsx";
 import Placeholder from "./pages/Placeholder.jsx";
+import Mir from "./pages/Mir.jsx";
 import { get } from "./lib/api.js";
 import { go, useRoute } from "./lib/router.js";
 import { HABITATS, PERSONA, evidence, nearLunarByPsi, score } from "./lib/habitats.js";
@@ -96,7 +97,7 @@ export default function App() {
     search: <Search level={level} />,
     uploads: <Uploads persona={persona} level={level} />,
     data: <DataMethod />,
-    compare: <Placeholder id="compare" />,
+    mir: <Mir />,
     lab: <FlameLab level={level} />,
   }[route];
 

@@ -203,7 +203,8 @@ export default function FlameScene({ run, mode, playing, speed, onTick }) {
       const { run, mode, playing, speed, onTick } = live.current;
       const c = clock.current;
       const w = el.clientWidth, h = el.clientHeight;
-      if (renderer.domElement.width !== Math.floor(w * renderer.getPixelRatio())) {
+      const pr = renderer.getPixelRatio(); // resize on width or height changes (the stage can grow with the page)
+      if (renderer.domElement.width !== Math.floor(w * pr) || renderer.domElement.height !== Math.floor(h * pr)) {
         renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
       }
       if (playing && run.est) {

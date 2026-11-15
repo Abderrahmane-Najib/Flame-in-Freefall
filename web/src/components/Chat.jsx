@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import Markdown from "./Markdown.jsx";
 import ChartView from "./ChartView.jsx";
 import Avatar, { GUIDES } from "./Avatar.jsx";
+import Character from "./Character.jsx";
 import { streamChat } from "../lib/api.js";
 
 const TOOL_LABEL = {
@@ -14,7 +15,7 @@ const TOOL_LABEL = {
 };
 
 export const ChatThread = forwardRef(function ChatThread(
-  { endpoint, persona, level, intro, suggestions = [], placeholder, onLink, draft, setDraft, autoFocus }, ref) {
+  { endpoint, persona, level, intro, suggestions = [], placeholder, onLink, draft, setDraft, autoFocus, onStatus }, ref) {
   const [msgs, setMsgs] = useState([]);
   const [busy, setBusy] = useState(false);
   const [own, setOwn] = useState("");
@@ -27,6 +28,9 @@ export const ChatThread = forwardRef(function ChatThread(
 
   useEffect(() => { end.current?.scrollIntoView({ block: "nearest" }); }, [msgs]);
   useEffect(() => { if (autoFocus) input.current?.focus(); }, [autoFocus, draft]);
+  // What the guide character shows: thinking (looking things up), talking (answer streaming), idle.
+  const status = !busy ? "idle" : msgs.at(-1)?.text ? "talking" : "thinking";
+  useEffect(() => { onStatus?.(status); }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = (fn) => setMsgs((m) => { const c = [...m]; c[c.length - 1] = fn({ ...c[c.length - 1] }); return c; });
 
@@ -58,13 +62,15 @@ export const ChatThread = forwardRef(function ChatThread(
   return (
     <>
       <div className="msgs" aria-live="polite">
-        <div className="bot-row"><Avatar level={level} size={28} /><div className="bub">{intro || GUIDES[level]?.greet}</div></div>
+        <div className="bot-row"><Avatar level={level} size={28} state={msgs.length ? "still" : "idle"} /><div className="bub">{intro || GUIDES[level]?.greet}</div></div>
         {!msgs.length && suggestions.length > 0 && (
           <div className="sugg">{suggestions.map((s) => <button key={s} type="button" onClick={() => ask(s)}>{s}</button>)}</div>
         )}
         {msgs.map((m, i) => m.role === "me"
           ? <div key={i} className="bub me">{m.text}</div>
-          : <div key={i} className="bot-row"><Avatar level={level} size={28} />
+          : <div key={i} className="bot-row">
+              <Avatar level={level} size={28}
+                      state={i < msgs.length - 1 ? "still" : !busy ? "idle" : m.text ? "talking" : "thinking"} />
               <div className={"bub" + (m.error ? " err" : "")}>
                 {m.tools.length > 0 && <div className="tool">{[...new Set(m.tools)].join(" · ")}…</div>}
                 {m.text ? <Markdown text={m.text} onLink={onLink} /> : !m.error && <span className="tool">thinking…</span>}
@@ -86,16 +92,27 @@ export const ChatThread = forwardRef(function ChatThread(
 export default function Chat({ open, setOpen, context, suggestions, persona, level, draft, setDraft }) {
   const thread = useRef(null);
   const [big, setBig] = useState(false);
+  const [status, setStatus] = useState("idle");
+  // The guide steps aside while the page scrolls (content passes under it), and comes back once scrolling stops.
+  const [away, setAway] = useState(false);
+  useEffect(() => {
+    let t;
+    const onScroll = () => { setAway(true); clearTimeout(t); t = setTimeout(() => setAway(false), 900); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); clearTimeout(t); };
+  }, []);
   const guide = GUIDES[level] || GUIDES.student;
   return (
     <>
-      <button className="fab" type="button" aria-expanded={open} aria-controls="chat" onClick={() => setOpen(!open)}>
-        <span className="fab-av"><Avatar level={level} size={30} /></span>
-        Ask Etna
+      {/* The guide is the chat button: "Ask me!" appears on hover / keyboard focus (and peeks out now and then) */}
+      <button className={"mascot" + (away ? " away" : "")} type="button" aria-label={`Ask Etna: ${guide.role.toLowerCase()}`}
+              aria-expanded={open} aria-controls="chat" onClick={() => setOpen(!open)}>
+        <span className="mascot-say" aria-hidden="true">Ask me!</span>
+        <Character level={level} height={88} title="" />
       </button>
       <div className={"chat" + (big ? " big" : "")} id="chat" role="dialog" aria-label="Ask Etna">
         <header>
-          <div className="chat-who"><Avatar level={level} size={38} /><div><b>Ask Etna</b><br /><span>{guide.role} · {context}</span></div></div>
+          <div className="chat-who"><span className="chat-char"><Character level={level} state={status} height={62} /></span><div><b>Ask Etna</b><br /><span>{guide.role} · {context}</span></div></div>
           <div className="chat-actions">
             <button className="pill" type="button" title="New conversation" aria-label="New conversation" onClick={() => thread.current?.reset()}>↺</button>
             <button className="pill" type="button" title={big ? "Make smaller" : "Expand"} aria-label={big ? "Make smaller" : "Expand"}
@@ -104,7 +121,7 @@ export default function Chat({ open, setOpen, context, suggestions, persona, lev
           </div>
         </header>
         <ChatThread ref={thread} endpoint="/chat" persona={persona} level={level} suggestions={suggestions} draft={draft} setDraft={setDraft}
-                    autoFocus={open} placeholder="Ask about any experiment or habitat…" />
+                    autoFocus={open} onStatus={setStatus} placeholder="Ask about any experiment or habitat…" />
       </div>
     </>
   );
