@@ -19,8 +19,9 @@ Every answer says how far it can be trusted. Where NASA never tested something (
 | **Experiments** | All investigations as cards: summary, key findings with report page links, limitations. Filter the 2,100+ test rows by fuel, O₂, pressure, flow, lunar air. |
 | **Coverage map** | Which O₂ / pressure conditions were tested, and where the gaps are. |
 | **Knowledge graph** | Investigations linked to fuels, materials, safety jobs, hardware and the habitats whose air they were tested in. |
-| **Predict** | Ten trained predictors (droplet, gas-flame and cool-flame outcomes) and NASA's PMMA flammability boundary. Each answer comes with a **trust badge** (*tested here* / *between tests* / *outside tested range*), the 7 nearest real tests and the sources. |
-| **Flame Lab** | An interactive 3D flame driven by the predictors: change the air and see how the fire would end. |
+| **Predict** | Will an acrylic (PMMA) rod keep burning? NASA's own flammability boundary from the BASS-II tests: pick O₂ and air flow and see which side of the curve you are on. |
+| **Flame Lab** | A burning fuel droplet in 3D. Choose a habitat or your own air: the droplet shrinks and goes out the way the 5 nearest NASA droplet tests (FLEX, CFI) did, including the near-invisible cool flame. Trained models give a second opinion with a **trust badge** (*tested here* / *between tests* / *outside tested range*). |
+| **Mir 1997** | An interactive story of the 1997 fire aboard the Mir space station: NASA photos, five crew decisions, and what the record says happened. |
 | **Assistant** | A chat that answers from the NASA reports (semantic search over every page) and from the test data, and cites what it used. |
 | **My reports** | Upload your own report: it is searched, gets its own chat, and an AI draft card that a human approves. |
 | **Data & method** | Where every number comes from and how it was checked. |
@@ -40,19 +41,23 @@ More: [`project-docs/DATA_EXPLAINED.md`](project-docs/DATA_EXPLAINED.md).
 
 Small, readable models (logistic / ridge regression), each scored on **whole test days it never saw**. Gradient boosting was tried on the same folds as a challenger and never clearly won, so we kept the simpler models.
 
-| ID | Question | Held-out result (baseline) |
-|---|---|---|
-| P1b | Does a fuel droplet's flame go out early? (FLEX) | 81% accuracy (68%), AUC 0.85 |
-| P2 | Droplet burn time | MAE 3.4 s (6.0 s) |
-| P3 | Will a gas flame ignite? (CFI-G) | 79% (75%), AUC 0.75 |
-| P4 | Will it go out by itself? | AUC 0.83 |
-| P5 | Hot-flame burn time (CFI) | MAE 1.0 s (3.2 s) |
-| P6 | Droplet size when the flame goes out | MAE 0.14 mm (0.64 mm), R² 0.92 |
-| P7 | How does the cool flame end? | 79% (59%), AUC 0.87 |
-| P8 | Does it reignite? | 79% (76%), AUC 0.89 |
-| P10 | PMMA flammability boundary | NASA's own equation, with 38 real test points |
+| ID | Question | Held-out result (baseline) | Where |
+|---|---|---|---|
+| P1b | Does a fuel droplet's flame go out early? (FLEX) | 81% accuracy (68%), AUC 0.85 | Flame Lab |
+| P6b | Droplet size when the hot flame goes out, relative to its start (CFI) | R² 0.44 (5 nearest tests: 0.06) | Flame Lab |
+| P7 | How does the cool flame end? (CFI) | 79% (59%), AUC 0.87 | Flame Lab |
+| P8 | Does it reignite? (CFI) | 79% (76%), AUC 0.89 | Flame Lab |
+| P10 | PMMA flammability boundary (BASS-II) | NASA's own equation (Eq. 6.1), nothing to train | Predict page, Home |
+| P1 | How does a droplet fire end? (3 outcomes) | 74% (68%), AUC 0.77 | API only |
+| P2 | Droplet burn time (FLEX) | MAE 3.4 s (6.0 s) | API only |
+| P3 | Will a gas flame ignite? (CFI-G) | 79% (75%), AUC 0.75 | API only |
+| P4 | Will it go out by itself? (CFI-G) | AUC 0.83 | API only |
+| P5 | Hot-flame burn time (CFI) | MAE 1.0 s (3.2 s) | API only |
+| P6 | Droplet size when the flame goes out (CFI) | MAE 0.14 mm (0.64 mm), R² 0.92 | API only |
 
-P1 (all three droplet outcomes) and P6b are also served. Solid materials (P9) have **no model on purpose**: 137 usable tests over 15 material groups is too thin, so the app shows the outcome map and nearest real tests instead.
+"API only" models are served at `/predict/models/{id}` (see `/docs` on the live app), each answer with its trust badge, the 7 nearest real tests and the sources, but no page shows them yet. Flame Lab's main answer comes from the 5 nearest NASA tests, which score about as well as the trained models on held-out days ([`models/NEAREST_VS_MODELS.md`](models/NEAREST_VS_MODELS.md)); the models are shown next to it as a second opinion.
+
+Solid materials (P9) have **no model on purpose**: 137 usable tests over 15 material groups is too thin. The 250 hand-extracted solid-fuel outcomes are in `data/psi/extracted/` but are not in the app yet.
 
 Full method and confusion matrices: [`project-docs/PREDICTORS_TRAINING_AND_EXTRACTION.md`](project-docs/PREDICTORS_TRAINING_AND_EXTRACTION.md), [`models/REPORT.md`](models/REPORT.md).
 
