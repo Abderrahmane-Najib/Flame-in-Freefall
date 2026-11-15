@@ -1,9 +1,9 @@
 // The assistant's look for each explanation level: the Ghostflame flame dressed as a guide, a teacher or a
 // scientist. Purely visual (the answer rules are the same for everyone).
 export const GUIDES = {
-  explorer: { role: "Your space guide", bg: "var(--lime)", greet: "Hi! I'm your space guide. Ask me anything about fire in space, I'll keep it simple and show where every fact comes from." },
-  student: { role: "Your teacher", bg: "var(--ember)", greet: "Hello! I'm your teacher for today. Ask me about NASA's fire experiments and I'll explain step by step, with the source of every fact." },
-  researcher: { role: "Your research colleague", bg: "var(--cyan)", greet: "Hi. I answer from NASA's combustion reports and test tables, with conditions, counts and a source for every claim." },
+  explorer: { name: "space guide", role: "Your space guide", bg: "var(--lime)", greet: "Hi! I'm your space guide. Ask me anything about fire in space, I'll keep it simple and show where every fact comes from." },
+  student: { name: "teacher", role: "Your teacher", bg: "var(--ember)", greet: "Hello! I'm your teacher for today. Ask me about NASA's fire experiments and I'll explain step by step, with the source of every fact." },
+  researcher: { name: "research colleague", role: "Your research colleague", bg: "var(--cyan)", greet: "Hi. I answer from NASA's combustion reports and test tables, with conditions, counts and a source for every claim." },
 };
 
 function Face() {

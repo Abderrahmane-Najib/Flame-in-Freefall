@@ -42,15 +42,38 @@ limit %(limit)s
 """
 
 
-def query_tests(filters: dict, max_rows: int = MAX_ROWS) -> dict:
-    """max_rows: 10 for the assistant (token limit); the API allows more for tables and charts."""
+def _where(filters: dict) -> tuple[dict, str, dict]:
+    """The filters actually given, the SQL condition and its parameters."""
     used = {k: v for k, v in filters.items() if k in FILTERS and v is not None}
-    if not used:
-        return {"error": "give at least one filter", "filters": list(FILTERS)}
-    params = dict(used, limit=max_rows)
+    params = dict(used)
     if "fuel" in params:
         params["fuel"] = f"%{params['fuel']}%"
-    where = " and ".join(FILTERS[k] for k in used)
+    return used, " and ".join(FILTERS[k] for k in used), params
+
+
+CHART_SQL = """
+select psi_id, fuel, fuel_type, n_tests, o2_pct, o2_location, pressure_kpa, flow_cm_s, source_file, source_row, extra
+from tests where {where}
+order by psi_id, source_file, source_row
+limit %(limit)s
+"""
+
+
+def chart_rows(filters: dict, limit: int = 2000) -> list[dict] | None:
+    """All matching rows (up to limit) for a chart; None if no filter is given."""
+    used, where, params = _where(filters)
+    if not used:
+        return None
+    with connect() as conn:
+        return conn.execute(CHART_SQL.format(where=where), dict(params, limit=limit)).fetchall()
+
+
+def query_tests(filters: dict, max_rows: int = MAX_ROWS) -> dict:
+    """max_rows: 10 for the assistant (token limit); the API allows more for tables and charts."""
+    used, where, params = _where(filters)
+    if not used:
+        return {"error": "give at least one filter", "filters": list(FILTERS)}
+    params["limit"] = max_rows
 
     with connect() as conn:
         totals = conn.execute(TOTALS_SQL.format(where=where), params).fetchone()

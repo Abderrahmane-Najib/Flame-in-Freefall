@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Nav from "./components/Nav.jsx";
 import TopBar from "./components/TopBar.jsx";
 import Detail from "./components/Detail.jsx";
+import DidYouKnow from "./components/DidYouKnow.jsx";
 import Chat from "./components/Chat.jsx";
 import Home from "./pages/Home.jsx";
 import Experiments from "./pages/Experiments.jsx";
@@ -104,7 +105,9 @@ export default function App() {
       <div className="stars" aria-hidden="true" />
       <Nav route={route} level={level} setLevel={setLevel} onNavigate={() => setNavOpen(false)} />
       <div className="main">
-        <TopBar mode={mode} setMode={setMode} onMenu={() => setNavOpen(true)} onSearch={() => go("search")} />
+        <TopBar mode={mode} setMode={setMode} onMenu={() => setNavOpen(true)} onSearch={() => go("search")}>
+          {(level === "explorer" || level === "student") && <DidYouKnow onOpen={setDetailId} />}
+        </TopBar>
         {page}
         <p className="foot">All evidence was measured in microgravity. Moon and Mars gravity were never tested. Ghostflame is a NASA Space Apps 2026 project and is not affiliated with NASA.</p>
       </div>

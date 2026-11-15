@@ -1,0 +1,26 @@
+// "Space → Earth" facts, copied word for word from the discovery prototype (discovery/discovery.js).
+// Sources: NASA Spinoff articles and nasa.gov (wording checked by the team on 2026-11-14), not PSI test data.
+// Each fact: [title, text, why it matters, index into SOURCES, source label]. shape = SVG drawing (88x88).
+export const SOURCES = ['https://spinoff.nasa.gov/Spinoff2020/ip_5.html','https://www.nasa.gov/missions/station/studying-combustion-and-fire-safety/','https://spinoff.nasa.gov/node/9407','https://spinoff.nasa.gov/node/9918','https://spinoff.nasa.gov/node/9582'];
+
+export const OBJECTS = [
+    {name:'Extinguisher',color:'#ed997e',shape:'<rect x="25" y="29" width="29" height="47" rx="10"/><path d="M33 29V17h17M37 17l15-6M50 20q19 0 17 22l-4 14M28 43h23M34 52h11M36 59h7"/>',facts:[
+      ['No up. No down. Still a mist.','NASA and ADA Technologies developed a fine-water-mist extinguisher design that can discharge in any orientation in microgravity.','Spacecraft equipment must work without relying on gravity.',0,'NASA Spinoff · 2020'],
+      ['A tiny valve, an Earth connection','The spacecraft extinguisher project adapted an existing zero-leak valve. NASA’s Spinoff account describes its wider industrial applications.','The Earth connection includes component improvements—not the invention of all water-mist extinguishers.',0,'NASA Spinoff · 2020'],
+      ['Reach behind the rack','The design described in NASA’s 2020 account includes a wand extension for reaching fires behind instrument racks or walls.','Equipment layout matters when engineers design suppression tools.',0,'NASA Spinoff · 2020']]},
+    {name:'Microgravity flame',color:'#8cd7f7',shape:'<circle cx="44" cy="45" r="27"/><path d="M30 52c-8-16 15-24 16-33 19 19 18 43-2 46-9 1-16-4-14-13Z"/><path d="M39 54q-2-10 7-16 10 17-2 21"/>',facts:[
+      ['A rounder kind of flame','In microgravity, flames can become spherical instead of taking the familiar candle-like shape seen on Earth.','Removing buoyancy helps scientists isolate other influences on combustion.',1,'NASA · Combustion and fire safety'],
+      ['Fire is a research tool','NASA studies combustion aboard the station to understand burning and improve fire safety in space.','Controlled experiments help researchers build better physical models.',1,'NASA · Combustion and fire safety']]},
+    {name:'Smoke detector',color:'#c9b4ff',shape:'<ellipse cx="44" cy="31" rx="30" ry="14"/><path d="M14 31v17c0 22 60 22 60 0V31M27 49h6m6 3h10m6-3h6"/><circle cx="44" cy="31" r="4"/>',facts:[
+      ['Dust is not a fire','NASA’s 1978 Spinoff account describes a detector that distinguished combustion particles from dust to reduce false alarms.','Detection is also about recognizing what is not a fire.',2,'NASA Spinoff · 1978 · Historical'],
+      ['A network that locates trouble','The same 1978 account describes connecting multiple sensors to a central display to locate an emerging fire in a large area.','Sensors become more useful when their locations are part of the information.',2,'NASA Spinoff · 1978 · Historical']]},
+    {name:'Protective clothing',color:'#e9c57a',shape:'<path d="m28 19 10-5h12l10 5 16 22-12 9-6-9v35H29V41l-6 9-12-9Z"/><path d="m38 14 6 12 6-12M44 26v50M29 57h29M29 63h29"/>',facts:[
+      ['Apollo ideas, firefighter gear','Project FIRES applied Apollo-derived materials and design concepts to firefighter protective equipment. NASA described the work in 1982.','Space technology can inform protective clothing on Earth.',3,'NASA Spinoff · 1982 · Historical'],
+      ['Protection, tested in the field','NASA’s 1982 account describes fourteen municipal fire departments participating in evaluations of the FIRES ensemble.','Real-world evaluation connects materials research with the needs of firefighters.',3,'NASA Spinoff · 1982 · Historical']]},
+    {name:'Air tank',color:'#91dbb8',shape:'<rect x="28" y="23" width="31" height="54" rx="13"/><path d="M38 23V12h12v11M34 12h20M28 40h31M28 60h31M59 33q14 0 12 22l-5 8"/>',facts:[
+      ['Less weight on their shoulders','NASA’s 1976 account describes a firefighter air-supply backpack developed with Johnson Space Center that weighed 13 pounds less than conventional equipment of that era.','Lower equipment weight was a concrete benefit of this historical collaboration.',4,'NASA Spinoff · 1976 · Historical'],
+      ['A tank with a layered structure','The 1976 design used an aluminum liner wrapped in resin-impregnated glass fibers.','Composite construction helped lighten the air tank.',4,'NASA Spinoff · 1976 · Historical']]},
+    {name:'Engine & energy',color:'#edb1d4',shape:'<path d="M20 29h41v38H20zM28 29V18h22v11M61 40h12v20H61M11 38h9M11 56h9"/><circle cx="41" cy="48" r="10"/><path d="m43 36-7 14h9l-6 12"/>',facts:[
+      ['Space research, Earth questions','NASA links combustion research in space with efforts to improve combustion efficiency and reduce pollutants on Earth.','The benefit is better understanding for future technology—not a measured energy saving from this app.',1,'NASA · Combustion and fire safety'],
+      ['A laboratory without the usual rise','Microgravity gives researchers a different environment for studying combustion processes.','Comparing behavior across environments can help refine combustion models.',1,'NASA · Combustion and fire safety']]}
+  ];

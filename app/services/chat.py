@@ -4,6 +4,7 @@ Events, one JSON object per line (NDJSON):
   {"type": "session", "session_id": "..."}             first: send it back with the next question
   {"type": "tool", "name": "...", "args": {...}}       the assistant looks something up
   {"type": "text", "content": "..."}                   a piece of the answer, in order
+  {"type": "chart", "spec": {...}}                     a chart drawn by make_chart (see services/charts.py)
   {"type": "error", "message": "..."}                  the run failed (e.g. model rate limit)
   {"type": "done"}                                     last
 """
@@ -24,6 +25,7 @@ def _line(event: dict) -> str:
 def chat_events(agent: Agent, message: str, session_id: str | None) -> Iterator[str]:
     """agent: the main assistant (make_agent) or one upload's chat (make_report_agent)."""
     session_id = session_id or str(uuid.uuid4())
+    charts = getattr(agent, "charts", [])  # the report chat has no chart tool
     yield _line({"type": "session", "session_id": session_id})
     try:
         # stream_events=True: also tool-call events, not only the answer text
@@ -35,6 +37,8 @@ def chat_events(agent: Agent, message: str, session_id: str | None) -> Iterator[
                 yield _line({"type": "tool", "name": chunk.tool.tool_name, "args": chunk.tool.tool_args})
             elif chunk.event == "RunError":
                 yield _line({"type": "error", "message": str(chunk.content)})
+            while charts:  # make_chart has run: send its chart (the model only saw a summary)
+                yield _line({"type": "chart", "spec": charts.pop(0)})
     except Exception as e:  # the stream has started: report the error as an event, not an HTTP status
         yield _line({"type": "error", "message": f"{type(e).__name__}: {e}"})
     yield _line({"type": "done"})

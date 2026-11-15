@@ -1,6 +1,8 @@
 # Handoff: Flame in Freefall (NASA Space Apps 2026)
 
-*Last updated 2026-11-14 (late evening). Read this first when continuing on another PC.*
+*Last updated 2026-11-15 (morning). Read this first when continuing on another PC.*
+
+**Status on 15 Nov (morning):** BGE-M3 embedding run **finished** (all chunks embedded). Report upload **tested end to end** by the user with `test_upload_LPIC.pdf` (a made-up 4-page report, not NASA data). Predictors P1–P8 are wired into the API and the Flame Lab (8c). Still open: deploy (the Dockerfile is the first version, see 9 #7), Compare page, languages, submission texts.
 
 **Newest (14 Nov, evening):** the web app **Ghostflame** exists (React + Vite in `web/`, the design of `ghostflame-home.html`), wired to every backend feature; report **upload** (chunk, embed, own chat, card agent, approve) and a **card-only chat** were added to the API. See sections 8c and 8d. Flame Lab research started (8e). Deadline: **Sun 15 Nov, 23:59**.
 
@@ -23,7 +25,7 @@ The build plan, in order:
 | 2 | Filters (fuel type, safety job, O₂/pressure/flow ranges, lunar air, has results) | ✅ `query_tests` tool, `GET /tests`, filter chips on the Experiments page |
 | 3 | Ranker | ✅ done, **without weights**: investigations ranked by tests *measured* in the habitat's air (section 8) |
 | 4 | AI assistant: RAG over the reports, plus a data tool for numbers | ✅ done (8b); plus a card-only chat and a per-upload chat (8c) |
-| 5 | Models (predictors P1–P11, see `predictors/README.md`) | 🔧 P1–P8 trained (`models/*.json`, scores in `models/REPORT.md`, runtime `scripts/predict.py`, not yet wired to the API). P10 (PMMA boundary) done: `GET /predict/pmma` + Predict page; its test dots are in `data/psi/extracted/p10_olson_points.csv`. P11 chart data ready. See `PREDICTORS_TRAINING_AND_EXTRACTION.md` |
+| 5 | Models (predictors P1–P11, see `predictors/README.md`) | ✅ P1–P8 trained (`models/*.json`, scores in `models/REPORT.md`, runtime `scripts/predict.py`) and served by `GET/POST /predict/models` (8c); Flame Lab uses P1b, P7, P8, P6b. P10 (PMMA boundary) done: `GET /predict/pmma` + Predict page; its test dots are in `data/psi/extracted/p10_olson_points.csv`. P11 chart data ready. See `PREDICTORS_TRAINING_AND_EXTRACTION.md` |
 | 6 | **UI** (explanation levels, languages, accessibility: see `IDEAS.md`) | 🔧 Ghostflame web app working (8d); Flame Lab and Compare are placeholders; languages not started |
 | 7 | P9 solid outcomes: extraction in stages (Olson → T'ien → others → BASS) | ✅ 250 tests in `data/psi/extracted/` (scripts `extract_p9_*.py`, `build_p9_dataset.py`, `build_p10_points.py`). No model: chart + nearest tests. ⏳ human check of stage 3–4 labels |
 
@@ -259,8 +261,9 @@ All endpoints (Swagger at `/docs`):
 2. `POST /uploads/{id}/chat`: a chat that searches **only that report** (`make_report_agent`); citations point to `/uploads/{id}/pages/{n}` (page text).
 3. `POST /uploads/{id}/card`: a **separate card agent** (not the chatbot) drafts a card in the NASA cards' shape. It reads only ~3,000 words of passages found by 5 fixed questions (Groq token limit); every point must name its page, points citing a page it was not shown are **dropped**, cite/url are built by code, never by the model.
 4. `POST /uploads/{id}/approve` (optionally with the user-edited card) → investigation `UP-{id}`: appears in `/investigations`, the graph and the main search. `POST /uploads/{id}/reject` removes it from everything.
-- ⚠ **Run once** `python app/scripts/push_data.py --no-reports` so the database gets the new `documents.card` column.
-- ⚠ **Not tested end to end yet** against Neon + Groq. Risk: Groq JSON mode may not fill the card schema cleanly.
+- On a new database, run once `python app/scripts/push_data.py --no-reports` so it gets the `documents.card` column (done on Neon, 14 Nov).
+- Uploading a PDF that is already a NASA report now returns a clear message instead of a 404 (fixed 14 Nov).
+- ✅ **Tested end to end** (15 Nov) with `test_upload_LPIC.pdf` in the project root (fictional report, footer says so).
 
 ### 8d. Web app "Ghostflame" (`web/`, React 18 + Vite 5)
 
@@ -278,6 +281,8 @@ The design is `ghostflame-home.html` (the team's mock): its CSS is copied **unch
 | Data & method | `/health` | counts + the rules behind every number |
 | Flame Lab | `/predict/droplet` | three.js droplet (`components/FlameScene.jsx`): shrinks by d² = d0² − K·t with FLEX/CFI K, ends as extinction / disruption (burst) / completion, or (CFI) hot flame → brightened cool flame + vapour cloud; 1 g teardrop measured on the Researcher's Guide Fig. 1 heptane photo (3.5× taller than wide) + Saufi et al. (methanol 1 g flame ≲ 2 droplet diameters); habitat presets from `/habitats`; Moon/Mars = µg and 1 g shapes side by side; ghost wireframe outside the tested range. Flame size and the 1 g shape are illustrations (labelled) |
 | Compare | — | "coming soon" placeholder |
+
+**"Did you know?"** (15 Nov, `components/DidYouKnow.jsx`, Explorer + Student levels only): a button above the chat opens a dialog in the style of the `discovery/` prototype. Facts = the 58 card findings **word for word** (`GET /investigations/findings`, NASA cards only, uploads excluded), by fuel family, each with its cite + report page link and an "Open the card" button. No AI text. Second group **"Space → Earth"**: the prototype's 13 facts (6 objects: extinguisher, microgravity flame, smoke detector, protective clothing, air tank, engine & energy), copied word for word into `web/src/lib/spinoffs.js`, sources NASA Spinoff + nasa.gov, labelled apart from the PSI findings.
 
 Everywhere: card drawer (findings with links, "Why it matters for fire safety", **"Ask AI about this card"** inline chat), floating "Ask Ghostflame" chat (streams `/chat`).
 
@@ -301,16 +306,17 @@ Goal (from the mock): real NASA test videos next to reconstructions built from t
 
 | # | What | Notes |
 |---|---|---|
-| 1 | Finish the embedding run (BGE-M3) | `python app/scripts/push_data.py --no-reports --embed` until all 4,075 chunks are embedded; check `/health` → `chunks_embedded` |
+| 1 | ~~Finish the embedding run (BGE-M3)~~ | ✅ finished (15 Nov) |
 | 2 | ~~AI assistant~~ | ✅ done (8b), on Groq instead of Gemini |
-| 3 | Assistant tools | ✅ 5 done (8b). Still to do: `make_chart` (**Vega-Lite**, data must come from a `query_tests` result), `make_diagram` (**Mermaid**, labelled as an illustration) |
+| 3 | Assistant tools | ✅ 5 done (8b). ✅ **`make_chart`** (15 Nov, main + card chat): `services/charts.py` draws scatter (x/y = O₂, pressure, flow or any numeric result field, colour = fuel family or top-3 fuels) or bar (fires per investigation / fuel / family) **from the database rows**; the full chart streams to the UI as a `chart` event, the model only gets a short summary (counts, ranges, medians per x range, tables to cite) so it can't invent points and the Groq token limit holds. UI: `components/ChartView.jsx`, plain SVG, no new package; shows filters, hover row, source table links. ✅ **Diagrams** (15 Nov): no tool; the model may add one ` ```mermaid ` flowchart (≤ 10 nodes, facts from tool results only). `components/Diagram.jsx` draws it with `mermaid@11.4.1` (lazy-loaded chunk, `securityLevel: strict`), caption "Illustration by the assistant, not measured data"; shows the code if it can't be drawn. ⚠ The model can still leave cases out of a diagram (FLEX test: it omitted 'disruption') |
 | 4 | ~~Personas~~ | ✅ done (8b) |
 | 5 | ~~Rules for every answer~~ | ✅ in `INSTRUCTIONS` (8b). Open: the model still mixes "measured" and "suggests" sometimes; link text is the word "cite" |
 | 5b | Groq token limit | Decide: Dev tier (paid) for the demo, or keep the free tier |
-| 6 | ~~Report upload~~ | ✅ built (8c), the PDF itself is not stored (only its text). **Test it end to end** (upload → chat → `/card` → approve) |
-| 7 | Deploy | API on **Google Cloud Run** (`europe-west3`, next to Neon) from `app/Dockerfile`; set `DATABASE_URL` and `GROQ_API_KEY`; CPU torch + BGE-M3 baked in (8b). The Dockerfile must also **build `web/`** (`npm ci && npm run build`) and copy `web/dist` next to `app/` |
+| 6 | ~~Report upload~~ | ✅ built (8c) and tested end to end (15 Nov); the PDF itself is not stored (only its text) |
+| 7 | Deploy | API on **Google Cloud Run** (`europe-west3`, next to Neon) from `app/Dockerfile`; set `DATABASE_URL` and `GROQ_API_KEY`; CPU torch + BGE-M3 baked in (8b). ⚠ `app/Dockerfile` is still the **first version**: it copies only `app/`. Still to add: CPU torch + baked BGE-M3, a Node stage that builds `web/` (`npm ci && npm run build`) with `web/dist` next to `app/`, and `models/` + `scripts/predict.py` (so build from the repo root) |
 | 8 | ~~API for the UI~~ | ✅ (8c, 8d) |
 | 8b | **Flame Lab** | next: pick clips (BASS-II matched to rows), a video endpoint, and a microgravity flame reconstruction (8e) |
 | 8c | Compare page, languages | placeholders now |
 | 8d | Optional | backend answer styles matching the 3 avatars (explorer / teacher / researcher) — started, then cancelled by the user; not done |
+| 8e | Repo clean-up | `web/.vite/` (Vite cache, ~60k lines) was committed by mistake: add it to `.gitignore` and `git rm -r --cached web/.vite`. Root extras: `flamelab-preview.html` (Flame Lab mock), `image.png` (screenshot), `test_upload_LPIC.pdf` (upload test). An old stash "WIP on main: card creation" (14 Nov) can be dropped |
 | 9 | Before submitting | **Reset the Neon password** (it was shared in a chat); write the SI-usage description; list all libraries and data in References (add React, Vite, d3-force/zoom/selection, Geist font) |
