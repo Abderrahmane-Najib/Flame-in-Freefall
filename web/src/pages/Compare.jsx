@@ -21,7 +21,8 @@ const cite = (f) => f && (f.url ? <a href={f.url} target="_blank" rel="noreferre
 /** The compared rows: [label, card => {text, node?}]. text is what "same / differs" is judged on. */
 const ROWS = [
   ["Fuel family", (c) => ({ text: FUEL[c.fuel_type] || c.fuel_type || "–" })],
-  ["Hardware", (c) => ({ text: c.hardware_raw || c.hardware_group || "–" })],
+  // Judged on the hardware group (MSG, CIR + MDCA…): the raw PSI wording varies ("Glovebox" vs "Glovebox (MSG)").
+  ["Hardware", (c) => ({ text: c.hardware_group || c.hardware_raw || "–", node: c.hardware_raw || c.hardware_group || "–" })],
   ["Flown on", (c) => ({ text: c.in_space === false ? "Ground study" : c.flight_program || "–" })],
   ["Tests", (c) => ({ text: c.tests?.count == null ? "no test table" : fmt(c.tests.count) })],
   ["In Moon-base air", (c) => ({ text: c.tests?.count == null ? "–" : `${fmt(c.tests.lunar_air || 0)} tests` })],
