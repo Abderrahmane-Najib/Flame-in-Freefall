@@ -6,7 +6,7 @@
 //    follow the record; others show labelled, imagined consequences. 3. Debrief with every source.
 import { useEffect, useState } from "react";
 import { PageHead } from "../components/InvCard.jsx";
-import MirScene from "../components/MirScene.jsx";
+import MirScene, { sceneInfo } from "../components/MirScene.jsx";
 import STORY from "../lib/mirStory.js";
 
 const RETRO = "https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/";
@@ -79,6 +79,18 @@ function Intro({ onDone }) {
   );
 }
 
+// Phones: the scene's caption becomes page text (the picture is too small to read text inside it).
+function useNarrow() {
+  const q = "(max-width: 640px)";
+  const [n, setN] = useState(() => typeof matchMedia !== "undefined" && matchMedia(q).matches);
+  useEffect(() => {
+    const m = matchMedia(q), h = () => setN(m.matches);
+    m.addEventListener("change", h);
+    return () => m.removeEventListener("change", h);
+  }, []);
+  return n;
+}
+
 function Source({ id }) {
   const s = STORY.sources[id];
   return s ? <a className="mir-src" href={s.url} target="_blank" rel="noreferrer" title={s.note}>{s.title} ↗</a> : null;
@@ -91,6 +103,7 @@ export default function Mir() {
   const [record, setRecord] = useState(false);
   const [trail, setTrail] = useState([]);      // first choice made at each stage
   const [page_, setPage] = useState(0);
+  const narrow = useNarrow();
 
   const st = STORY.stages[stage];
   const picked = st && choice != null ? st.choices[choice] : null;
@@ -114,6 +127,8 @@ export default function Mir() {
   }); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pages = [...STORY.debrief, { title: "Sources", sources: true }];
+  const sStage = phase === "debrief" ? 3 : stage, sChoice = phase === "debrief" ? 1 : choice;
+  const info = sceneInfo(sStage, sChoice);
 
   return (
     <div className="page">
@@ -124,7 +139,8 @@ export default function Mir() {
         {phase !== "intro" && (
           <div className="mir-game">
             <div className="mir-stage">
-              <MirScene stage={phase === "debrief" ? 3 : stage} choice={phase === "debrief" ? 1 : choice != null ? choice : null} />
+              <MirScene stage={sStage} choice={sChoice} compact={narrow} />
+              {narrow && <p className={"mir-say" + (info.warn ? " warn" : "")}>{info.label}</p>}
               <div className="mir-steps" aria-label="Progress">
                 {STORY.stages.map((s, k) => (
                   <span key={s.id} className={k < stage || phase === "debrief" ? "done" : k === stage ? "now" : ""}>{k + 1}. {s.label}</span>

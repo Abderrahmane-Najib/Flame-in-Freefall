@@ -64,11 +64,13 @@ const BOARD = [ // lessons checklist per choice of the last decision: 1 covered,
   { label: "Cause still under investigation", v: [null, 0, 1] },
 ];
 
-export default function MirScene({ stage, choice, paused }) {
+// compact (phones): the caption is shown by the page as text, and crew names are drawn larger.
+export default function MirScene({ stage, choice, paused, compact = false }) {
   const ref = useRef(null);
   const st = useRef({ stage, choice, paused, t0: performance.now() });
   useEffect(() => { Object.assign(st.current, { stage, choice, t0: performance.now() }); }, [stage, choice]);
   useEffect(() => { st.current.paused = paused; }, [paused]);
+  useEffect(() => { st.current.compact = compact; }, [compact]);
 
   useEffect(() => {
     const cv = ref.current, ctx = cv.getContext("2d");
@@ -107,7 +109,7 @@ export default function MirScene({ stage, choice, paused }) {
         drawCabin(ctx, clock);
         drawSmoke(ctx);
         drawFire(ctx, fire, clock);
-        drawCrew(ctx, pos, sc, clock, haze, spraying);
+        drawCrew(ctx, pos, sc, clock, haze, spraying, S.compact);
         drawFoam(ctx);
         // overall haze: the cabin fades behind smoke
         if (haze > 0.01) { ctx.fillStyle = `rgba(120,118,112,${haze * 0.75})`; ctx.fillRect(0, 0, W, H); }
@@ -115,7 +117,7 @@ export default function MirScene({ stage, choice, paused }) {
         if (sc.clock) drawClock(ctx, age);
         if (sc.spray === "team") drawHandoff(ctx, pos, clock);
       }
-      caption(ctx, sc.label, sc.warn);
+      if (!S.compact) caption(ctx, sc.label, sc.warn);
       raf = requestAnimationFrame(draw);
     };
 
@@ -216,12 +218,12 @@ function figure(c, x, y, rot, col, mask, alpha, bob) {
   c.restore();
 }
 
-function drawCrew(c, pos, sc, t, haze, spraying) {
+function drawCrew(c, pos, sc, t, haze, spraying, big) {
   pos.forEach(([x, y, r], i) => {
     const fade = sc.warn && haze > 0.6 ? 0.55 : 1;
     figure(c, x, y, r, CREW[i].c, sc.masks && !(sc.pose === "chain" && sc.warn && i === 0), fade, Math.sin(t * 1.3 + i) * 3);
-    c.fillStyle = "rgba(226,232,240,.9)"; c.font = "15px monospace"; c.textAlign = "center";
-    c.fillText(CREW[i].name, x, y + 64); c.textAlign = "left";
+    c.fillStyle = "rgba(226,232,240,.95)"; c.font = big ? "700 26px monospace" : "15px monospace"; c.textAlign = "center";
+    c.fillText(CREW[i].name, x, y + (big ? 72 : 64)); c.textAlign = "left";
   });
   if (sc.pose === "chain" && !sc.warn) { // Linenger's hold on Korzun
     c.strokeStyle = "#3fa7d6"; c.lineWidth = 3; c.setLineDash([4, 4]);
