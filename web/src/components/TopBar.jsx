@@ -14,7 +14,6 @@ export default function TopBar({ mode, setMode, onMenu, onSearch, children }) {
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}>{m === "light" ? "Light" : "Dark"}</button>
         ))}
       </div>
-      <button className="pill" type="button">EN ▾</button>
     </div>
   );
 }

@@ -10,8 +10,9 @@ export default function Home({ hab, habitat, setHab, level, data, ranking, ranke
     : issKpis({ habitat: data.habitats?.find((h) => h.id === "iss"), ranking, pmma: data.pmma });
   return (
     <>
-      <Hero hab={hab} habitat={habitat} setHab={setHab} kpis={kpis} level={level} />
-      <Strip investigations={data.investigations} health={data.health} />
+      <Hero hab={hab} habitat={habitat} setHab={setHab} kpis={kpis} level={level}>
+        <Strip investigations={data.investigations} health={data.health} />
+      </Hero>
       <Ranked title={habitat.rank} ranked={ranked} coverage={data.coverage} onOpen={onOpen} level={level} />
       <Equipment />
       <FlameLab />

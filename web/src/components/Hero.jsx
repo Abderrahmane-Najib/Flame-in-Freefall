@@ -10,7 +10,7 @@ const PHOTOS = [
   ["mars", { backgroundImage: "url(/img/mars.jpg)", backgroundSize: "60%", backgroundPosition: "110% 40%", backgroundRepeat: "no-repeat", backgroundColor: "#000" }],
 ];
 
-export default function Hero({ hab, habitat, setHab, kpis, level }) {
+export default function Hero({ hab, habitat, setHab, kpis, level, children }) {
   return (
     <header className="hero">
       {PHOTOS.map(([id, style]) => <div key={id} className={"photo" + (habitat.photo === id ? " on" : "")} style={style} />)}
@@ -32,6 +32,7 @@ export default function Hero({ hab, habitat, setHab, kpis, level }) {
           </div>
         ))}
       </div>
+      {children /* the totals strip (Strip.jsx), inside the photo */}
       <span className="photocred">Photo: {habitat.cred}</span>
     </header>
   );
