@@ -1,3 +1,5 @@
+// Fire stories: interactive retellings of real incidents in orbit. Mir 1997 (fire) and ISS 2006 (Elektron leak)
+// share this page; each story brings its intro slides, its five decisions and its own illustrated scene.
 // Mir 1997: an interactive story of the fire aboard the Mir space station (replaces the Compare placeholder).
 // 1. Intro "video": NASA public-domain photos with slow zoom/pan and captions (facts from the NASA 2022
 //    retrospective and the photos' own NASA captions). Autoplays; pause, previous/next, skip.
@@ -6,8 +8,10 @@
 //    follow the record; others show labelled, imagined consequences. 3. Debrief with every source.
 import { useEffect, useState } from "react";
 import { PageHead } from "../components/InvCard.jsx";
-import MirScene, { sceneInfo } from "../components/MirScene.jsx";
-import STORY from "../lib/mirStory.js";
+import MirScene, { sceneInfo as mirInfo } from "../components/MirScene.jsx";
+import IssScene, { sceneInfo as issInfo } from "../components/IssScene.jsx";
+import MIR_STORY from "../lib/mirStory.js";
+import ISS_STORY from "../lib/issStory.js";
 
 const RETRO = "https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/";
 const img = (id) => `https://images-assets.nasa.gov/image/${id}/${id}~large.jpg`;
@@ -35,7 +39,21 @@ const SLIDES = [
 ];
 const SLIDE_S = 8;
 
-function Intro({ onDone }) {
+// One entry per story: its data (sources, stages, debrief), intro, scene, and what the debrief scene shows.
+const STORIES = {
+  mir: { tab: "Mir 1997 · fire", title: "Mir 1997: fire on a space station",
+         sub: "A real fire in orbit, told in five decisions. Choices that match the record follow what happened; others show clearly labelled, imagined consequences. Every step links to its NASA or ESA source.",
+         data: MIR_STORY, slides: SLIDES, facts: { url: RETRO, label: 'Facts: NASA, "25 years ago: fire aboard Mir" (2022)' },
+         Scene: MirScene, info: mirInfo, end: [3, 1], prologue: "An ordinary evening changes.", first: "history",
+         note: "Figures, positions and timing are illustrations; dialogue and choices are original paraphrases of the NASA and ESA sources." },
+  iss: { tab: "ISS 2006 · chemical leak", title: "ISS 2006: a leak in the oxygen machine",
+         sub: "A real emergency on the International Space Station, told in five decisions. Choices that match the record follow what happened; others show clearly labelled, imagined consequences. Every step links to its source.",
+         data: ISS_STORY, slides: ISS_STORY.slides, facts: ISS_STORY.facts,
+         Scene: IssScene, info: issInfo, end: [4, 1], prologue: "A routine restart.", first: "mcc",
+         note: "Figures, positions and timing are illustrations; choices are original paraphrases of NASA's status report and same-day reporting." },
+};
+
+function Intro({ slides: SLIDES, facts, onDone }) {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const [t, setT] = useState(0); // seconds into this slide
@@ -54,12 +72,12 @@ function Intro({ onDone }) {
   const s = SLIDES[i], last = i === SLIDES.length - 1;
 
   return (
-    <div className="mir-video" role="region" aria-label="Introduction: Mir in 1997">
+    <div className="mir-video" role="region" aria-label="Introduction">
       {SLIDES.map((x, k) => x.id && (
         <img key={x.id} src={img(x.id)} alt="" className={"mir-photo" + (k === i ? " on" : "") + (k % 2 ? " pan-l" : " pan-r")}
              style={{ animationPlayState: paused || reduced ? "paused" : "running" }} />
       ))}
-      {!s.id && <div className="mir-ember" aria-hidden="true" />}
+      {!s.id && <div className={s.tone === "leak" ? "mir-ember mir-leak" : "mir-ember"} aria-hidden="true" />}
       <div className="mir-bars" aria-hidden="true">
         {SLIDES.map((_, k) => <span key={k}><i style={{ width: `${k < i ? 100 : k > i ? 0 : Math.min(100, (t / SLIDE_S) * 100)}%` }} /></span>)}
       </div>
@@ -67,7 +85,7 @@ function Intro({ onDone }) {
         <span className="mir-kick">{s.kicker}</span>
         <p>{s.text}</p>
         {s.id && <a href={page(s.id)} target="_blank" rel="noreferrer">Photo: {s.credit} ↗</a>}
-        <a href={RETRO} target="_blank" rel="noreferrer">Facts: NASA, "25 years ago: fire aboard Mir" (2022) ↗</a>
+        <a href={facts.url} target="_blank" rel="noreferrer">{facts.label} ↗</a>
       </div>
       <div className="mir-vctl">
         <button type="button" onClick={() => go(i - 1)} disabled={!i} aria-label="Previous">‹</button>
@@ -91,12 +109,26 @@ function useNarrow() {
   return n;
 }
 
-function Source({ id }) {
-  const s = STORY.sources[id];
+function Source({ id, sources }) {
+  const s = sources[id];
   return s ? <a className="mir-src" href={s.url} target="_blank" rel="noreferrer" title={s.note}>{s.title} ↗</a> : null;
 }
 
 export default function Mir() {
+  const [which, setWhich] = useState("mir");
+  const picker = (
+    <div className="chips mir-pick" role="group" aria-label="Choose a story">
+      {Object.entries(STORIES).map(([k, x]) => (
+        <button key={k} type="button" className="chip" aria-pressed={which === k} onClick={() => setWhich(k)}>{x.tab}</button>
+      ))}
+    </div>
+  );
+  return <div className="page"><Story key={which} cfg={STORIES[which]} picker={picker} /></div>;
+}
+
+function Story({ cfg, picker }) {
+  const STORY = cfg.data, Scene = cfg.Scene;
+  const Src = ({ id }) => <Source id={id} sources={STORY.sources} />;
   const [phase, setPhase] = useState("intro"); // intro | story | debrief
   const [stage, setStage] = useState(-1);      // -1 = briefing
   const [choice, setChoice] = useState(null);
@@ -127,19 +159,19 @@ export default function Mir() {
   }); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pages = [...STORY.debrief, { title: "Sources", sources: true }];
-  const sStage = phase === "debrief" ? 3 : stage, sChoice = phase === "debrief" ? 1 : choice;
-  const info = sceneInfo(sStage, sChoice);
+  const sStage = phase === "debrief" ? cfg.end[0] : stage, sChoice = phase === "debrief" ? cfg.end[1] : choice;
+  const info = cfg.info(sStage, sChoice);
 
   return (
-    <div className={"page mir-page" + (phase === "intro" ? "" : " playing")}>
-      <PageHead title="Mir 1997: fire on a space station"
-                sub="A real fire in orbit, told in five decisions. Choices that match the record follow what happened; others show clearly labelled, imagined consequences. Every step links to its NASA or ESA source.">
-        {phase === "intro" && <Intro onDone={() => setPhase("story")} />}
+    <div className={"mir-page" + (phase === "intro" ? "" : " playing")}>
+      <PageHead title={cfg.title} sub={cfg.sub}>
+        {picker}
+        {phase === "intro" && <Intro slides={cfg.slides} facts={cfg.facts} onDone={() => setPhase("story")} />}
 
         {phase !== "intro" && (
           <div className="mir-game">
             <div className="mir-stage">
-              <MirScene stage={sStage} choice={sChoice} compact={narrow} />
+              <Scene stage={sStage} choice={sChoice} compact={narrow} />
               {narrow && <p className={"mir-say" + (info.warn ? " warn" : "")}>{info.label}</p>}
               <div className="mir-steps" aria-label="Progress">
                 {STORY.stages.map((s, k) => (
@@ -151,10 +183,10 @@ export default function Mir() {
             <div className="panel mir-panel">
               {phase === "story" && stage === -1 && <>
                 <span className="mir-kick">Prologue · a real event, illustrated</span>
-                <h2>An ordinary evening changes.</h2>
+                <h2>{cfg.prologue}</h2>
                 <p>{STORY.briefing}</p>
                 <p className="tool">You guide the story, not a named astronaut. The scene is an illustration; the sequence is simplified.</p>
-                <Source id="history" />
+                <Src id={cfg.first} />
                 <div className="mir-actions"><button type="button" className="mir-go" onClick={() => setStage(0)}>Begin the incident →</button>
                   <button type="button" onClick={() => setPhase("intro")}>Watch the intro again</button></div>
               </>}
@@ -178,7 +210,7 @@ export default function Mir() {
                     <p>{picked.result}</p>
                     <p><strong>What happened:</strong> {st.record}</p>
                     <p className="mir-lesson">{st.lesson}</p>
-                    <Source id={st.source} />
+                    <Src id={st.source} />
                     <div className="mir-actions"><button type="button" className="mir-go" onClick={next}>
                       {stage < STORY.stages.length - 1 ? "Next decision →" : "See the debrief →"}</button></div>
                   </div>
@@ -186,7 +218,7 @@ export default function Mir() {
                   <div className="mir-out bad">
                     <span className="mir-kick">Imagined · not what happened</span>
                     <p>{picked.result}</p>
-                    {record && <p><strong>What happened:</strong> {st.record} <Source id={st.source} /></p>}
+                    {record && <p><strong>What happened:</strong> {st.record} <Src id={st.source} /></p>}
                     <div className="mir-actions">
                       <button type="button" onClick={() => setChoice(null)}>↶ Try another choice</button>
                       {!record && <button type="button" onClick={() => setRecord(true)}>Read what really happened</button>}
@@ -204,7 +236,7 @@ export default function Mir() {
                     <li key={id}><a href={s.url} target="_blank" rel="noreferrer">{s.title} ↗</a><small>{s.note}</small></li>))}
                     <li><a href="https://images.nasa.gov/" target="_blank" rel="noreferrer">Intro photos: NASA Image and Video Library (public domain) ↗</a></li>
                   </ul>
-                ) : <><p>{pages[page_].text}</p><Source id={pages[page_].source} /></>}
+                ) : <><p>{pages[page_].text}</p><Src id={pages[page_].source} /></>}
                 {page_ === 0 && trail.length > 0 && (
                   <p className="tool">Your first choices: {trail.map((k, s) => (STORY.stages[s].choices[k]?.good ? "✓" : "✗")).join(" ")} (✓ = matched the record on the first try)</p>
                 )}
@@ -218,7 +250,7 @@ export default function Mir() {
             </div>
           </div>
         )}
-        <p className="cav" style={{ marginTop: 18 }}>A historical learning story, not a fire simulation or an emergency procedure. Figures, positions and timing are illustrations; dialogue and choices are original paraphrases of the NASA and ESA sources.</p>
+        <p className="cav" style={{ marginTop: 18 }}>A historical learning story, not a fire simulation or an emergency procedure. {cfg.note}</p>
       </PageHead>
     </div>
   );

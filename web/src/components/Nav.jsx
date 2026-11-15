@@ -13,7 +13,7 @@ const LINKS = [
   ["experiments", "Experiments", <>{[[2, 2], [10, 2], [2, 10], [10, 10]].map(([x, y]) => <rect key={x + "" + y} x={x} y={y} width="6" height="6" rx="1.5" {...sw} />)}</>],
   ["coverage", "Coverage map", <><path d="M2 16V2M2 16h14" {...sw} /><circle cx="6" cy="10" r="1.5" fill="currentColor" /><circle cx="10" cy="6" r="1.5" fill="currentColor" /><circle cx="13" cy="11" r="1.5" fill="currentColor" /></>],
   ["graph", "Knowledge graph", <><circle cx="4" cy="4" r="2" {...sw} /><circle cx="14" cy="6" r="2" {...sw} /><circle cx="8" cy="14" r="2" {...sw} /><path d="M6 5l6 1M5 6l2 6M13 8l-4 5" {...sw} /></>],
-  ["mir", "Mir 1997", <><circle cx="9" cy="9" r="2.5" {...sw} /><path d="M2 9h4.5M11.5 9H16M9 2v4.5M9 11.5V16" {...sw} /></>],
+  ["mir", "Fire stories", <><circle cx="9" cy="9" r="2.5" {...sw} /><path d="M2 9h4.5M11.5 9H16M9 2v4.5M9 11.5V16" {...sw} /></>],
   ["predict", "Predict", <path d="M2 14l4-5 3 3 6-8" {...sw} />],
   ["lab", "Flame Lab", <path d="M9 2c3 4 5 6 5 9a5 5 0 0 1-10 0c0-3 2-5 5-9z" {...sw} />],
   ["uploads", "My reports", <><path d="M4 2h7l3 3v11H4z" {...sw} /><path d="M9 13V7M6.5 9.5L9 7l2.5 2.5" {...sw} /></>],

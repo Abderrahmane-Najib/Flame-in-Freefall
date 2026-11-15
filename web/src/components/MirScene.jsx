@@ -162,9 +162,9 @@ export default function MirScene({ stage, choice, paused, compact = false }) {
                  aria-label="Illustrated Mir scene that changes with each decision (illustration, not to scale)" />;
 }
 
-function prune(a, keep) { let j = 0; for (const p of a) if (keep(p)) a[j++] = p; a.length = j; }
+export function prune(a, keep) { let j = 0; for (const p of a) if (keep(p)) a[j++] = p; a.length = j; }
 
-function roundRect(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
+export function roundRect(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
 
 function drawCabin(c, t) {
   const g = c.createLinearGradient(0, 60, 0, 480);
@@ -200,7 +200,8 @@ function drawCabin(c, t) {
 // A crew member as a pixel-art sprite (the team prototype's style): blocks of U px on a grid, drawn at low
 // resolution and scaled up with sharp pixels. Clothing colour identifies the person, not a uniform.
 const U = 6;
-function figure(c, x, y, rot, col, mask, alpha, bob) {
+// mask: true = breathing mask and hose (Mir); "surgical" = surgical mask, goggles and gloves (ISS 2006).
+export function figure(c, x, y, rot, col, mask, alpha, bob) {
   const px = (cx, cy, w, h, color) => { c.fillStyle = color; c.fillRect(cx * U, cy * U, w * U, h * U); };
   c.save(); c.globalAlpha = alpha; c.translate(Math.round(x), Math.round(y + bob)); c.rotate((rot * Math.PI) / 180);
   const dark = "rgba(0,0,0,.28)", skin = "#f1d3b3", hair = "#2b2b2b";
@@ -211,7 +212,11 @@ function figure(c, x, y, rot, col, mask, alpha, bob) {
   px(2, -4, 1, 1, col); px(3, -3, 1, 2, col); px(3, -1, 1, 1, skin);                          // right arm, hand
   px(-2, -8, 4, 4, skin); px(-2, -8, 4, 1, hair); px(-2, -7, 1, 1, hair);                     // head, hair
   c.fillStyle = "#1b1e2e"; c.fillRect(-1 * U + 1, -6 * U, 2, 3); c.fillRect(0.5 * U, -6 * U, 2, 3); // eyes
-  if (mask) { // breathing mask over nose and mouth, hose to a canister on the chest
+  if (mask === "surgical") {
+    px(-2, -5.2, 4, 1.4, "#f8fafc"); px(-2, -5.2, 4, 0.3, "#cbd5e1");                           // surgical mask
+    px(-2.2, -6.4, 4.4, 1, "#1e293b"); px(-1.8, -6.25, 1.5, 0.7, "#7dd3fc"); px(0.3, -6.25, 1.5, 0.7, "#7dd3fc"); // goggles
+    px(-4, -1, 1, 1, "#a5f3fc"); px(3, -1, 1, 1, "#a5f3fc");                                     // gloves
+  } else if (mask) { // breathing mask over nose and mouth, hose to a canister on the chest
     px(-2, -6, 4, 2, "#7dd3fc"); px(-2, -6, 4, 0.34, "#0c4a6e");
     px(2, -4, 1, 1, "#e2e8f0"); px(2, -3, 1, 1, "#e2e8f0"); px(0, -3, 2, 2, "#e2e8f0");
   }
@@ -326,7 +331,7 @@ function drawBoard(c, choice, age) {
   });
 }
 
-function caption(c, text, warn) {
+export function caption(c, text, warn) {
   if (!text) return;
   c.font = "700 17px monospace";
   const w = c.measureText(text).width + 28;
