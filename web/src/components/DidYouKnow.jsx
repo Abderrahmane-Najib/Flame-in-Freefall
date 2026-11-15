@@ -92,7 +92,7 @@ export default function DidYouKnow({ onOpen }) {
               onClick={(e) => { if (e.target === dialog.current) dialog.current.close(); }}>
         <button type="button" className="df-close" aria-label="Close" onClick={() => dialog.current.close()}>×</button>
         <div className="df-heading">
-          <span className="df-eyebrow">Ghostflame / Did you know?</span>
+          <span className="df-eyebrow">Etna / Did you know?</span>
           <h2 id="df-title">Small discoveries.<br />Earth-sized possibilities.</h2>
           <p>Pick a topic. Every fact links to the NASA page it comes from.</p>
         </div>

@@ -1,5 +1,9 @@
-// FlameScope API client. Empty base = same address (FastAPI serves the UI; Vite proxies in development).
-const BASE = import.meta.env.VITE_API_URL || "";
+// Etna API client. Empty base = same address (FastAPI serves the UI; Vite proxies in development).
+// On etna.web.app (Firebase Hosting in front of Cloud Run) the API is called on Cloud Run directly:
+// Firebase buffers streamed chat answers and cuts requests off after 60 s.
+const CLOUD_RUN = "https://ghostflame-ryhaqcvtmq-ey.a.run.app";
+const ON_FIREBASE = /\.(web\.app|firebaseapp\.com)$/.test(location.hostname);
+const BASE = import.meta.env.VITE_API_URL || (ON_FIREBASE ? CLOUD_RUN : "");
 
 const cache = new Map();
 

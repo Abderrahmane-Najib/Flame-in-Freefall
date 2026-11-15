@@ -1,4 +1,4 @@
-"""The FlameScope assistant: an Agno agent on Groq, with tools over our database.
+"""The Etna assistant: an Agno agent on Groq, with tools over our database.
 
 Tools: report search, one investigation's card, the list of investigations, ranking for a habitat's air,
 test rows filtered by conditions, and a chart of test rows (make_chart).
@@ -311,7 +311,7 @@ def make_report_agent(doc_id: int, file: str, persona: str = "researcher") -> Ag
             "Use search_report for every fact. Never state a number or condition that is not in a passage.",
             "Cite each claim as a markdown link [cite](url), copying the 'cite' line and url of the passage.",
             "If the report does not say it, answer that it is not in the report.",
-            "This is a user upload, not reviewed by NASA or FlameScope: never present it as NASA PSI data.",
+            "This is a user upload, not reviewed by NASA or Etna: never present it as NASA PSI data.",
             "A finding holds only for the conditions the report states (gravity, oxygen, pressure): never move it.",
             "Never call the same tool with the same arguments twice.",
             PERSONAS[persona],

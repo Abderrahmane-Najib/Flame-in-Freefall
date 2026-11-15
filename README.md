@@ -1,13 +1,13 @@
-# Ghostflame
+# Etna
 
 **Fire safety for the Moon, Mars and the ISS, built on what NASA actually measured in microgravity.**
 NASA Space Apps Challenge 2026 · *Flame in Freefall*
 
-**▶ Live app: https://ghostflame-ryhaqcvtmq-ey.a.run.app**
+**▶ Live app: https://etna.web.app**
 
-NASA's Physical Sciences Informatics (PSI) system holds 24 combustion investigations flown on the ISS: thousands of test rows and dozens of reports, spread over spreadsheets and PDFs. Ghostflame turns them into one place where a student, an engineer or a researcher can ask *"what do we really know about fire in this habitat's air?"* and get an answer that points back to the exact test or report page.
+NASA's Physical Sciences Informatics (PSI) system holds 24 combustion investigations flown on the ISS: thousands of test rows and dozens of reports, spread over spreadsheets and PDFs. Etna turns them into one place where a student, an engineer or a researcher can ask *"what do we really know about fire in this habitat's air?"* and get an answer that points back to the exact test or report page.
 
-Every answer says how far it can be trusted. Where NASA never tested something (for example Moon or Mars gravity), Ghostflame says so instead of guessing.
+Every answer says how far it can be trusted. Where NASA never tested something (for example Moon or Mars gravity), Etna says so instead of guessing.
 
 ---
 
@@ -109,4 +109,4 @@ Report search also needs the NASA PDFs (`python scripts/psi_download.py`, then `
 
 ## Credits
 
-Data: NASA Physical Sciences Informatics (PSI), [psi.nasa.gov](https://psi.nasa.gov/). Ghostflame is a NASA Space Apps 2026 project and is not affiliated with or endorsed by NASA.
+Data: NASA Physical Sciences Informatics (PSI), [psi.nasa.gov](https://psi.nasa.gov/). Etna is a NASA Space Apps 2026 project and is not affiliated with or endorsed by NASA.

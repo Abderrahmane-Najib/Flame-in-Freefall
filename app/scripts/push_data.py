@@ -1,4 +1,4 @@
-"""Push FlameScope data into the database (the one in DATABASE_URL).
+"""Push Etna data into the database (the one in DATABASE_URL).
 
 Run it from your computer, where the pipeline outputs and the downloaded NASA PDFs are:
 

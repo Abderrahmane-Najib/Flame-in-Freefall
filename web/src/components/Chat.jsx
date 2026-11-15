@@ -1,5 +1,5 @@
 // Chat with the assistant. ChatThread streams one endpoint (NDJSON: session, tool, text, chart, error, done)
-// and keeps its session for follow-ups; used by the floating "Ask Ghostflame" and by each uploaded report.
+// and keeps its session for follow-ups; used by the floating "Ask Etna" and by each uploaded report.
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import Markdown from "./Markdown.jsx";
 import ChartView from "./ChartView.jsx";
@@ -91,11 +91,11 @@ export default function Chat({ open, setOpen, context, suggestions, persona, lev
     <>
       <button className="fab" type="button" aria-expanded={open} aria-controls="chat" onClick={() => setOpen(!open)}>
         <span className="fab-av"><Avatar level={level} size={30} /></span>
-        Ask Ghostflame
+        Ask Etna
       </button>
-      <div className={"chat" + (big ? " big" : "")} id="chat" role="dialog" aria-label="Ask Ghostflame">
+      <div className={"chat" + (big ? " big" : "")} id="chat" role="dialog" aria-label="Ask Etna">
         <header>
-          <div className="chat-who"><Avatar level={level} size={38} /><div><b>Ask Ghostflame</b><br /><span>{guide.role} · {context}</span></div></div>
+          <div className="chat-who"><Avatar level={level} size={38} /><div><b>Ask Etna</b><br /><span>{guide.role} · {context}</span></div></div>
           <div className="chat-actions">
             <button className="pill" type="button" title="New conversation" aria-label="New conversation" onClick={() => thread.current?.reset()}>↺</button>
             <button className="pill" type="button" title={big ? "Make smaller" : "Expand"} aria-label={big ? "Make smaller" : "Expand"}

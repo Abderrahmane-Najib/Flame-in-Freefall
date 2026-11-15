@@ -77,7 +77,7 @@
           "text": "327 tests (207 normal, 120 inverse) but no outcome column: soot and extinction results are only in the final report.",
           "src": "data",
           "where": "flame_design_normal.csv, flame_design_inverse.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, flame_design_normal.csv, flame_design_inverse.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, flame_design_normal.csv, flame_design_inverse.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-10/download?file=PSI-10_Experimental%20table_Flame%20Design_Inverse%20Flame.csv",
           "file": "data/psi/clean/"
         },
@@ -85,7 +85,7 @@
           "text": "Burner-stream O2 in inverse flames is oxygen blown out of the burner, not cabin air; never compare it with chamber O2.",
           "src": "data",
           "where": "flame_design_inverse.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, flame_design_inverse.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, flame_design_inverse.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-10/download?file=PSI-10_Experimental%20table_Flame%20Design_Inverse%20Flame.csv",
           "file": "data/psi/clean/"
         },
@@ -93,7 +93,7 @@
           "text": "Airflow was not recorded.",
           "src": "data",
           "where": "flame_design_normal.csv, flame_design_inverse.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, flame_design_normal.csv, flame_design_inverse.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, flame_design_normal.csv, flame_design_inverse.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-10/download?file=PSI-10_Experimental%20table_Flame%20Design_Inverse%20Flame.csv",
           "file": "data/psi/clean/"
         },
@@ -593,7 +593,7 @@
           "text": "194 flames, no outcome column in the table.",
           "src": "data",
           "where": "bre.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, bre.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, bre.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-20/download?file=PSI-20_Experimental%20table_ACME%20BRE.csv",
           "file": "data/psi/clean/"
         },
@@ -898,7 +898,7 @@
           "text": "344 flames, no outcome column in the table.",
           "src": "data",
           "where": "cld.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, cld.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, cld.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-21/download?file=PSI-21_Experimental%20table_CLD%20Flame.csv",
           "file": "data/psi/clean/"
         },
@@ -1210,7 +1210,7 @@
           "text": "219 flames, no outcome column in the table.",
           "src": "data",
           "where": "efield.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, efield.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, efield.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-22/download?file=PSI-22_Experimental%20table_ACME%20E-FIELD%20Flames.csv",
           "file": "data/psi/clean/"
         },
@@ -1628,7 +1628,7 @@
           "text": "276 flames, no outcome column in the table.",
           "src": "data",
           "where": "sflame.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, sflame.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, sflame.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-23/download?file=PSI-23_Experimental%20table_ACME%20s-Flame.csv",
           "file": "data/psi/clean/"
         },
@@ -2253,7 +2253,7 @@
           "text": "129 tests, no outcome column in the table; outcomes are in the BASS-II Summary Report, Appendix A.",
           "src": "data",
           "where": "bass2.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, bass2.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, bass2.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Experimental%20table_BASS-II.csv",
           "file": "data/psi/clean/"
         },
@@ -2261,7 +2261,7 @@
           "text": "The airflow column holds the first airflow value of each test; 74 tests changed the airflow during the run.",
           "src": "data",
           "where": "bass2.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, bass2.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, bass2.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-25/download?file=PSI-25_Experimental%20table_BASS-II.csv",
           "file": "data/psi/clean/"
         }
@@ -2850,7 +2850,7 @@
           "text": "121 tests; outcomes are only free-text observations in the as-run workbook.",
           "src": "data",
           "where": "bass.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, bass.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, bass.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-26/download?file=PSI-26_Experimental%20table_BASS.csv",
           "file": "data/psi/clean/"
         },
@@ -2858,7 +2858,7 @@
           "text": "5 test numbers (24, 85, 89, 90, 91) appear twice and are matched to the workbook in order.",
           "src": "data",
           "where": "bass.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, bass.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, bass.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-26/download?file=PSI-26_Experimental%20table_BASS.csv",
           "file": "data/psi/clean/"
         },
@@ -3284,7 +3284,7 @@
           "text": "227 tests, 146 with a recorded result.",
           "src": "data",
           "where": "cfi.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, cfi.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, cfi.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-39/download?file=PSI-39_Science%20Documents_CFI_DataSummary_Spreadsheet_Jan2021.xlsx",
           "file": "data/psi/clean/"
         },
@@ -3558,7 +3558,7 @@
           "text": "No usable test table: an instrument check, used as context only.",
           "src": "data",
           "where": "daft.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, daft.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, daft.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-47/download?file=PSI-47_Experimental%20table_DAFT.csv",
           "file": "data/psi/clean/"
         }
@@ -3965,7 +3965,7 @@
           "text": "Only planned test ranges are in PSI; there is no as-run test table.",
           "src": "data",
           "where": "flex2.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, flex2.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, flex2.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-68/download?file=PSI-68_Experimental%20table_Flex2.csv",
           "file": "data/psi/clean/"
         },
@@ -4558,7 +4558,7 @@
           "text": "273 tests, all with a result.",
           "src": "data",
           "where": "flex.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, flex.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, flex.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=PSI-69_Experimental%20table_FLEX.csv",
           "file": "data/psi/clean/"
         },
@@ -4566,7 +4566,7 @@
           "text": "No lunar-air test (high O2 at low pressure).",
           "src": "data",
           "where": "flex.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, flex.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, flex.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-69/download?file=PSI-69_Experimental%20table_FLEX.csv",
           "file": "data/psi/clean/"
         },
@@ -5139,7 +5139,7 @@
           "text": "Only 2 burns: a rare large-scale example, not enough for statistics.",
           "src": "data",
           "where": "saffire1.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, saffire1.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, saffire1.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-98/download?file=PSI-98_Experimental%20table_SAFFIRE-1.csv",
           "file": "data/psi/clean/"
         },
@@ -5955,7 +5955,7 @@
           "text": "67 smoke tests in 109 rows (the rest are re-measurements of aged smoke); the report counts 66 test points.",
           "src": "data",
           "where": "same_r.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, same_r.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, same_r.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-101/download?file=PSI-101_Experimental%20table_SAME-R.csv",
           "file": "data/psi/clean/"
         },
@@ -5963,7 +5963,7 @@
           "text": "Conditions only: no detector or alarm column; detector results are in the final report.",
           "src": "data",
           "where": "same_r.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, same_r.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, same_r.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-101/download?file=PSI-101_Experimental%20table_SAME-R.csv",
           "file": "data/psi/clean/"
         }
@@ -6227,7 +6227,7 @@
           "text": "Only 4 rows.",
           "src": "data",
           "where": "same.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, same.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, same.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-102/download?file=PSI-102_Experimental%20table_SAME.csv",
           "file": "data/psi/clean/"
         },
@@ -6544,7 +6544,7 @@
           "text": "12 test days; the number of flames per day is not recorded.",
           "src": "data",
           "where": "slice.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, slice.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, slice.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-106/download?file=PSI-106_Experimental%20table_Slice.csv",
           "file": "data/psi/clean/"
         },
@@ -6810,7 +6810,7 @@
           "text": "About 150 flames spread over 469 rows.",
           "src": "data",
           "where": "spice.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, spice.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, spice.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-107/download?file=PSI-107_Experimental%20table_Spice.csv",
           "file": "data/psi/clean/"
         }
@@ -7653,7 +7653,7 @@
           {
             "src": "data",
             "where": "cfig_normal.csv",
-            "cite": "FlameScope analysis of the NASA PSI test tables, cfig_normal.csv",
+            "cite": "Etna analysis of the NASA PSI test tables, cfig_normal.csv",
             "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-159/download?file=PSI-159_Experimental%20table_CFI-G_Normal%20Flames.csv",
             "file": "data/psi/clean/"
           }
@@ -7690,7 +7690,7 @@
           "text": "333 tests, all with a result.",
           "src": "data",
           "where": "cfig_normal.csv, cfig_inverse.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, cfig_normal.csv, cfig_inverse.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, cfig_normal.csv, cfig_inverse.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-159/download?file=PSI-159_Experimental%20table_CFI-G_Inverse%20Flames.csv",
           "file": "data/psi/clean/"
         },
@@ -7698,7 +7698,7 @@
           "text": "20 tests are in lunar-air conditions: the only lunar-air tests in the whole dataset.",
           "src": "data",
           "where": "cfig_normal.csv",
-          "cite": "FlameScope analysis of the NASA PSI test tables, cfig_normal.csv",
+          "cite": "Etna analysis of the NASA PSI test tables, cfig_normal.csv",
           "url": "https://psi.nasa.gov/geode-py/ws/studies/PSI-159/download?file=PSI-159_Experimental%20table_CFI-G_Normal%20Flames.csv",
           "file": "data/psi/clean/"
         },

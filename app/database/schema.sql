@@ -1,4 +1,4 @@
--- FlameScope database schema (PostgreSQL 14+ with the pgvector extension).
+-- Etna database schema (PostgreSQL 14+ with the pgvector extension).
 -- Safe to run again: everything is "if not exists".
 
 create extension if not exists vector;         -- vector search for RAG, inside the same database

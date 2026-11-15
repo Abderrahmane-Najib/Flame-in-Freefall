@@ -108,7 +108,7 @@ def draft_card(doc_id: int, file: str) -> dict:
         "documents": {"file": file},
         "review": {
             "status": "draft",
-            "note": "Drafted by the FlameScope card agent from the uploaded report; check every point against "
+            "note": "Drafted by the Etna card agent from the uploaded report; check every point against "
                     "its page before approving. Not NASA PSI data.",
             "points_dropped": (len(d.findings[:6]) - len(findings)) + (len(d.limitations[:3]) - len(limitations))
                               + (summary is None),

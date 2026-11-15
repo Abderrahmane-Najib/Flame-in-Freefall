@@ -25,7 +25,7 @@ export default function Nav({ route, level, setLevel, onNavigate }) {
     <nav className="nav" aria-label="Main" onClick={(e) => e.target.closest("a") && onNavigate()}>
       <div className="logo">
         <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2c5 6 8 10 8 14a8 8 0 0 1-16 0c0-4 3-8 8-14z" fill="var(--ember)" /><circle cx="13" cy="16" r="3.6" fill="var(--panel)" /></svg>
-        Ghostflame
+        Etna
       </div>
       {LINKS.map(([id, label, icon]) => (
         <a key={id} href={"#/" + id} className={route === id ? "on" : undefined} aria-current={route === id ? "page" : undefined}>

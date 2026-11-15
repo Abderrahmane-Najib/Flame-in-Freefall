@@ -4,7 +4,7 @@
 
 **Status on 15 Nov (morning):** BGE-M3 embedding run **finished** (all chunks embedded). Report upload **tested end to end** by the user with `test_upload_LPIC.pdf` (a made-up 4-page report, not NASA data). Predictors P1–P8 are wired into the API and the Flame Lab (8c). Still open: deploy (the Dockerfile is the first version, see 9 #7), Compare page, languages, submission texts.
 
-**Newest (14 Nov, evening):** the web app **Ghostflame** exists (React + Vite in `web/`, the design of `ghostflame-home.html`), wired to every backend feature; report **upload** (chunk, embed, own chat, card agent, approve) and a **card-only chat** were added to the API. See sections 8c and 8d. Flame Lab research started (8e). Deadline: **Sun 15 Nov, 23:59**.
+**Newest (14 Nov, evening):** the web app **Etna** exists (React + Vite in `web/`, the design of `ghostflame-home.html`), wired to every backend feature; report **upload** (chunk, embed, own chat, card agent, approve) and a **card-only chat** were added to the API. See sections 8c and 8d. Flame Lab research started (8e). Deadline: **Sun 15 Nov, 23:59**.
 
 **New on 14 Nov:** all docs re-verified against the raw data and PDFs (`VERIFICATION.md`); product ideas and decisions in `IDEAS.md` (P9 go-ahead, near-lunar band, explanation levels, languages). Next step: **UI design**.
 
@@ -26,7 +26,7 @@ The build plan, in order:
 | 3 | Ranker | ✅ done, **without weights**: investigations ranked by tests *measured* in the habitat's air (section 8) |
 | 4 | AI assistant: RAG over the reports, plus a data tool for numbers | ✅ done (8b); plus a card-only chat and a per-upload chat (8c) |
 | 5 | Models (predictors P1–P11, see `predictors/README.md`) | ✅ P1–P8 trained (`models/*.json`, scores in `models/REPORT.md`, runtime `scripts/predict.py`) and served by `GET/POST /predict/models` (8c); Flame Lab uses P1b, P7, P8, P6b. P10 (PMMA boundary) done: `GET /predict/pmma` + Predict page; its test dots are in `data/psi/extracted/p10_olson_points.csv`. P11 chart data ready. See `PREDICTORS_TRAINING_AND_EXTRACTION.md` |
-| 6 | **UI** (explanation levels, languages, accessibility: see `IDEAS.md`) | 🔧 Ghostflame web app working (8d); Flame Lab and Compare are placeholders; languages not started |
+| 6 | **UI** (explanation levels, languages, accessibility: see `IDEAS.md`) | 🔧 Etna web app working (8d); Flame Lab and Compare are placeholders; languages not started |
 | 7 | P9 solid outcomes: extraction in stages (Olson → T'ien → others → BASS) | ✅ 250 tests in `data/psi/extracted/` (scripts `extract_p9_*.py`, `build_p9_dataset.py`, `build_p10_points.py`). No model: chart + nearest tests. ⏳ human check of stage 3–4 labels |
 
 Also pending:
@@ -265,7 +265,7 @@ All endpoints (Swagger at `/docs`):
 - Uploading a PDF that is already a NASA report now returns a clear message instead of a 404 (fixed 14 Nov).
 - ✅ **Tested end to end** (15 Nov) with `test_upload_LPIC.pdf` in the project root (fictional report, footer says so).
 
-### 8d. Web app "Ghostflame" (`web/`, React 18 + Vite 5)
+### 8d. Web app "Etna" (`web/`, React 18 + Vite 5)
 
 The design is `ghostflame-home.html` (the team's mock): its CSS is copied **unchanged** into `web/src/styles.css`; additions are appended below it. Photos extracted to `web/public/img/`. Plain hash routing (`#/predict`), no router library. Extra packages: `d3-force`, `d3-zoom`, `d3-selection` (graph only).
 
@@ -284,7 +284,7 @@ The design is `ghostflame-home.html` (the team's mock): its CSS is copied **unch
 
 **"Did you know?"** (15 Nov, `components/DidYouKnow.jsx`, Explorer + Student levels only): a button above the chat opens a dialog in the style of the `discovery/` prototype. Facts = the 58 card findings **word for word** (`GET /investigations/findings`, NASA cards only, uploads excluded), by fuel family, each with its cite + report page link and an "Open the card" button. No AI text. Second group **"Space → Earth"**: the prototype's 13 facts (6 objects: extinguisher, microgravity flame, smoke detector, protective clothing, air tank, engine & energy), copied word for word into `web/src/lib/spinoffs.js`, sources NASA Spinoff + nasa.gov, labelled apart from the PSI findings.
 
-Everywhere: card drawer (findings with links, "Why it matters for fire safety", **"Ask AI about this card"** inline chat), floating "Ask Ghostflame" chat (streams `/chat`).
+Everywhere: card drawer (findings with links, "Why it matters for fire safety", **"Ask AI about this card"** inline chat), floating "Ask Etna" chat (streams `/chat`).
 
 Design rules applied:
 - **Explanation level** (Explorer / Student / Researcher) changes KPI texts and the chat style (UI → API persona: explorer→student, student→researcher, researcher→researcher).

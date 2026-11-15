@@ -1,4 +1,4 @@
-"""FlameScope API: creates the app and plugs in the routes (logic lives in services/)."""
+"""Etna API: creates the app and plugs in the routes (logic lives in services/)."""
 
 import os
 import threading
@@ -23,7 +23,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="FlameScope API", lifespan=lifespan)
+app = FastAPI(title="Etna API", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_methods=["GET", "POST"], allow_headers=["*"])
 
 app.include_router(health.router)

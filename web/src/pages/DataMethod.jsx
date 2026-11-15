@@ -31,7 +31,7 @@ export default function DataMethod() {
   useEffect(() => { fresh("/health").then(setH).catch((e) => setError(e.message)); }, []);
   return (
     <div className="page">
-      <PageHead title="Data & method" sub="What Ghostflame holds, and the rules every number follows."
+      <PageHead title="Data & method" sub="What Etna holds, and the rules every number follows."
                 right={<a href="/docs" target="_blank" rel="noreferrer">API docs ↗</a>}>
         <div className="cols">
           <div className="list">

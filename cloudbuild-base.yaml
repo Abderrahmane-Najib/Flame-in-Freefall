@@ -1,4 +1,4 @@
-# Builds and pushes the Ghostflame base image (Dockerfile.base). Run from the repo root:
+# Builds and pushes the Etna base image (Dockerfile.base). Run from the repo root:
 #   gcloud builds submit --config cloudbuild-base.yaml --region europe-west3 --project ghostflame
 steps:
   - name: gcr.io/cloud-builders/docker

@@ -15,7 +15,7 @@ export default function Hero({ hab, habitat, setHab, kpis, level }) {
     <header className="hero">
       {PHOTOS.map(([id, style]) => <div key={id} className={"photo" + (habitat.photo === id ? " on" : "")} style={style} />)}
       <h1>Where will your crew live?</h1>
-      <p className="q">Pick a habitat. Ghostflame shows what NASA's fire experiments say about its air.</p>
+      <p className="q">Pick a habitat. Etna shows what NASA's fire experiments say about its air.</p>
       <div className="habs" role="group" aria-label="Habitat">
         {BUTTONS.map(([id, b, span]) => (
           <button key={id} className="hab" type="button" aria-pressed={hab === id} onClick={() => setHab(id)}>
@@ -23,7 +23,7 @@ export default function Hero({ hab, habitat, setHab, kpis, level }) {
           </button>
         ))}
       </div>
-      <div className={"mars" + (hab === "mars" ? " on" : "")}>Mars habitat air isn't defined yet, so Ghostflame shows it as Moon-like air.</div>
+      <div className={"mars" + (hab === "mars" ? " on" : "")}>Mars habitat air isn't defined yet, so Etna shows it as Moon-like air.</div>
       <div className="kpis">
         {kpis.map(([value, label, text, cite, url, warn]) => (
           <div key={label} className={"kpi" + (warn ? " warn" : "")}>

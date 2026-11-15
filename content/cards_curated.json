@@ -11,7 +11,7 @@
     "psi_files": {"label": "NASA PSI repository files, {id}", "where_prefix": "",
                   "file": "data/psi/{id}/investigation.json",
                   "url": "https://psi.nasa.gov/physci/repo/data/investigations/{id}"},
-    "data":      {"label": "FlameScope analysis of the NASA PSI test tables", "where_prefix": "",
+    "data":      {"label": "Etna analysis of the NASA PSI test tables", "where_prefix": "",
                   "file": "data/psi/clean/",
                   "url": "https://psi.nasa.gov/physci/repo/data/investigations/{id}"},
 

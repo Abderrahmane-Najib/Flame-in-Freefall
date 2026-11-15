@@ -1,4 +1,4 @@
-# The FlameScope data, explained for non-space people
+# The Etna data, explained for non-space people
 
 This guide is for the team: developers, not space scientists. It explains why fire in space matters, what NASA tested, what the data looks like and what we can do with it. For the short technical version, see `DATA_NOTES.md`.
 

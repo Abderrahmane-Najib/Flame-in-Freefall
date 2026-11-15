@@ -109,7 +109,7 @@ export default function App() {
           {(level === "explorer" || level === "student") && <DidYouKnow onOpen={setDetailId} />}
         </TopBar>
         {page}
-        <p className="foot">All evidence was measured in microgravity. Moon and Mars gravity were never tested. Ghostflame is a NASA Space Apps 2026 project and is not affiliated with NASA.</p>
+        <p className="foot">All evidence was measured in microgravity. Moon and Mars gravity were never tested. Etna is a NASA Space Apps 2026 project and is not affiliated with NASA.</p>
       </div>
       <div className="scrim" onClick={() => { setDetailId(null); setNavOpen(false); }} />
       <Detail id={detailId} ev={ranked.find((r) => r.inv.id === detailId)?.ev} onClose={() => setDetailId(null)} persona={persona} level={level} />

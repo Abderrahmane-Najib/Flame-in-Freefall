@@ -1,4 +1,4 @@
-// The assistant's look for each explanation level: the Ghostflame flame dressed as a guide, a teacher or a
+// The assistant's look for each explanation level: the Etna flame dressed as a guide, a teacher or a
 // scientist. Purely visual (the answer rules are the same for everyone).
 export const GUIDES = {
   explorer: { name: "space guide", role: "Your space guide", bg: "var(--lime)", greet: "Hi! I'm your space guide. Ask me anything about fire in space, I'll keep it simple and show where every fact comes from." },

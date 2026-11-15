@@ -41,7 +41,7 @@ def rank(habitat: str) -> dict | None:
                            "url": PSI_PAGE.format(c["id"])})
     ranked.sort(key=lambda r: [r[g] for g in GROUPS], reverse=True)
     return {
-        "cite": "FlameScope count of NASA PSI test rows in this habitat's air (cleaned PSI test tables)",
+        "cite": "Etna count of NASA PSI test rows in this habitat's air (cleaned PSI test tables)",
         "habitat": hab["data"],
         "groups": GROUPS_MEANING,
         "investigations": ranked,

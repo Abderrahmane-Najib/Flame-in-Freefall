@@ -103,7 +103,7 @@ export default function Uploads({ persona, level }) {
 
   return (
     <div className="page">
-      <PageHead title="My reports" sub="Upload a combustion report (PDF). Ghostflame reads it, lets you chat with it alone, and drafts an experiment card for you to approve. Uploads are never mixed with NASA data until you approve them.">
+      <PageHead title="My reports" sub="Upload a combustion report (PDF). Etna reads it, lets you chat with it alone, and drafts an experiment card for you to approve. Uploads are never mixed with NASA data until you approve them.">
         <div className="cols" style={{ gridTemplateColumns: "320px minmax(0,1fr)" }}>
           <div className="list">
             <div className={"drop" + (drag ? " on" : "")}

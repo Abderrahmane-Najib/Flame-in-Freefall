@@ -1,4 +1,4 @@
-"""Download NASA PSI combustion-science data for FlameScope.
+"""Download NASA PSI combustion-science data for Etna.
 
 Uses the public (undocumented) PSI web API that backs psi.nasa.gov/physci/repo.
 No login needed. Standard library only.
