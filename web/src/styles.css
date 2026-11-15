@@ -718,3 +718,7 @@ section{padding:56px 48px 0}
 .up-del{flex:none;padding:5px 10px;border-radius:8px;border:1px solid var(--seam);font-size:12.5px;color:var(--dim)}
 .up-del:hover{border-color:#ef4444;color:#ef4444}
 .up-del.on{background:#ef4444;border-color:#ef4444;color:#fff;font-weight:600}
+
+/* Fire stories (pages/Mir.jsx): story picker, and the ISS intro's last slide (a pale leak glow, not fire) */
+.mir-pick{margin-bottom:6px}
+.mir-ember.mir-leak{background:radial-gradient(ellipse at 70% 55%,rgba(190,198,160,.45),rgba(20,40,50,.3) 35%,#000 70%)}
