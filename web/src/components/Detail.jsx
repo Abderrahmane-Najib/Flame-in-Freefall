@@ -4,8 +4,6 @@ import Art from "./Art.jsx";
 import { ChatThread } from "./Chat.jsx";
 import { GUIDES } from "./Avatar.jsx";
 import { apiUrl, get } from "../lib/api.js";
-import { conditionRows, sourceTables } from "../lib/conditions.js";
-import { go } from "../lib/router.js";
 import { firstSentence, fmt } from "../lib/habitats.js";
 
 const JOB = { prevention: "prevention", detection: "detection", suppression: "suppression" };
@@ -15,33 +13,12 @@ function Source({ item }) {
   return item.url ? <a href={item.url} target="_blank" rel="noreferrer">{cite}</a> : cite;
 }
 
-/** How the tests were run: what was burned, in which air and flow, what varied between tests, and the data. */
-function Conditions({ card }) {
-  const rows = conditionRows(card);
-  const tables = sourceTables(card);
-  const hardware = card.hardware_raw || card.hardware_group;
-  if (!rows.length && !hardware) return null;
+/** Download the investigation's cleaned test rows as CSV (GET /tests.csv). */
+function Export({ card }) {
+  if (!(card.tests?.count > 0) || card.origin === "upload") return null;
   return (
-    <div><h4>How it was tested</h4>
-      <table className="table cond">
-        <tbody>
-          {hardware && <tr><th scope="row">Hardware</th><td colSpan={2}>{hardware}{card.flight_program ? ` · ${card.flight_program}` : ""}</td></tr>}
-          {rows.map(([label, value, tag, note]) => (
-            <tr key={label}>
-              <th scope="row">{label}</th>
-              <td>{value}{note && <small className="cond-note">{note}</small>}</td>
-              <td className="cond-tag">{tag && <span className={`tag ${tag === "varied" ? "t-var" : ""}`}>{tag}</span>}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {(card.conditions?.notes || []).length > 0 && <p className="tool" style={{ marginTop: 8 }}>{card.conditions.notes.join(" · ")}</p>}
-      {card.tests?.count > 0 && card.origin !== "upload" && (
-        <div className="dl">
-          <a className="btn2" href={apiUrl(`/tests.csv?psi_id=${encodeURIComponent(card.id)}`)} download>↓ Test rows (CSV, cleaned)</a>
-          {tables.map((t) => <a key={t.name} href={t.url} target="_blank" rel="noreferrer" className="tool">NASA table: {t.name} ↗</a>)}
-        </div>
-      )}
+    <div className="dl">
+      <a className="btn2" href={apiUrl(`/tests.csv?psi_id=${encodeURIComponent(card.id)}`)} download>↓ Download test data (CSV, {fmt(card.tests.count)} rows)</a>
     </div>
   );
 }
@@ -85,7 +62,6 @@ export default function Detail({ id, ev, onClose, persona, level }) {
             <div><b>{(card.findings || []).length}</b><small>sourced findings</small></div>
           </div>
           {card.summary?.text && <p>{card.summary.text}</p>}
-          <Conditions card={card} />
           <div><h4>What was found</h4>
             {(card.findings || []).map((f, i) => <div key={i} className="find">{f.text}<Source item={f} /></div>)}
             {!card.findings?.length && <p className="cav">No sourced findings on this card yet.</p>}
@@ -96,9 +72,9 @@ export default function Detail({ id, ev, onClose, persona, level }) {
               {card.findings?.[0] && <> Key finding: {firstSentence(card.findings[0].text)}<Source item={card.findings[0]} /></>}
             </div>
           </div>}
+          <Export card={card} />
           <div className="acts">
             <button type="button" className="p" aria-expanded={asking} onClick={() => setAsking(!asking)}>✦ {asking ? `Hide your ${guide}` : `Ask your ${guide} about this card`}</button>
-            {card.origin !== "upload" && <button type="button" onClick={() => { onClose(); go(`compare?ids=${card.id}`); }}>Compare ⇄</button>}
             {psiPage && <a href={psiPage} target="_blank" rel="noreferrer" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid var(--seam)" }}>Open NASA page ↗</a>}
           </div>
           {asking && (

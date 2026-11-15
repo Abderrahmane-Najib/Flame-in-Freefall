@@ -13,14 +13,13 @@ Every answer says how far it can be trusted. Where NASA never tested something (
 
 ## What you can do
 
-### Find and compare the evidence
+### Find the evidence
 
 | Page | What it does |
 |---|---|
 | **Home** | *"Where will your crew live?"* Pick the ISS, a Moon base, a pressurized rover or a Mars habitat. The investigations are ranked by how many tests were **measured** in that habitat's air (O₂ and pressure), with badges for *in this air*, *just outside it* (near-lunar) and *no tests in this air*; hovering a card highlights its tests on a mini coverage map. Below: collection figures, four Earth-facing evidence cards (smoke detectors, extinguishers, materials, ventilation), each linked to its NASA report or test table, and a Flame Lab preview. |
 | **Experiments** | Every investigation as a card, filtered by fuel family (solid, droplet, gas, smoke, ground) and by fire-safety job (prevention, detection, suppression). Approved user uploads appear here too, labelled as uploads. |
-| **Study details** | Opens over any page: summary, sourced findings (each with its report page), why it matters for fire safety, and **how it was tested**: hardware, fuels and sample sizes, cabin O₂, burner O₂ (kept apart: not cabin air), pressure (kPa and psi), airflow and diluent gas, each marked *varied* or *held fixed* across the tests. **Download the cleaned test rows as CSV**, open the original NASA table, compare with other studies, or chat about this study only. |
-| **Compare** | Up to three investigations side by side: fuel family, hardware, tests, tests in Moon-base air, fuels, O₂, pressure, airflow, diluents, safety job, key finding and limitation (with sources). Rows where they differ are highlighted, rows that match are marked *same*. The choice is in the address, so a comparison can be shared (`#/compare?ids=PSI-26,PSI-25`). |
+| **Study details** | Opens over any page: summary, sourced findings (each with its report page), why it matters for fire safety, a link to the NASA PSI page, and **Download test data (CSV)**: the investigation's cleaned test rows. Each study also has its own chat, limited to its card, reports and test tables. |
 | **Coverage map** | Every test with O₂ and pressure plotted against the ISS and Moon-base / rover air zones, plus a dashed near-lunar band. Hover a dot for its study, fuel, air and source table row; toggle categories; counts of lunar, near-lunar and excluded rows; a by-experiment table. It shows the gap: only 20 tests sit inside proposed Moon-base air. |
 | **Knowledge graph** | Experiments, materials, fuel families, habitats, fire-safety jobs and hardware (CIR + ACME, CIR + MDCA, MSG, Cygnus) as a connected map. Filter by habitat (all, ISS, Moon base & rover, Mars, near-lunar) and by node type; select a node to see what it connects to. |
 | **Search** (`Ctrl+K` / `⌘K`) | Search every NASA report page in your own words. Full-text and meaning (BGE-M3) search are merged; each result shows the report and page. Optionally include your own unreviewed uploads, labelled as such. |
@@ -80,7 +79,7 @@ Full method and confusion matrices: [`project-docs/PREDICTORS_TRAINING_AND_EXTRA
 
 ## Data for your own models
 
-Every investigation's cleaned, unit-normalised test rows download as CSV, from its details panel, the Compare page, or the API:
+Every investigation's cleaned, unit-normalised test rows download as CSV, from its details panel or the API:
 
 ```
 GET /tests.csv?psi_id=PSI-25        # one investigation
