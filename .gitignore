@@ -7,6 +7,7 @@ __pycache__/
 
 # Secrets (database address and passwords)
 app/.env
+.env
 
 # Raw NASA data is not committed: get it with  python scripts/psi_download.py
 # Only the outputs are committed: data/psi/clean/ and data/psi/cards.json

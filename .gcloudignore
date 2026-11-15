@@ -1,0 +1,12 @@
+# Upload only what the Docker build needs (gcloud run deploy --source .)
+/*
+!/Dockerfile
+!/Dockerfile.base
+!/.dockerignore
+!/app/
+!/web/
+/app/.env
+/app/scripts/
+/web/node_modules/
+/web/dist/
+**/__pycache__/
