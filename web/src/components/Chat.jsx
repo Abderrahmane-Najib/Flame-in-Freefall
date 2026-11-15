@@ -93,14 +93,22 @@ export default function Chat({ open, setOpen, context, suggestions, persona, lev
   const thread = useRef(null);
   const [big, setBig] = useState(false);
   const [status, setStatus] = useState("idle");
+  // The guide steps aside while the page scrolls (content passes under it), and comes back once scrolling stops.
+  const [away, setAway] = useState(false);
+  useEffect(() => {
+    let t;
+    const onScroll = () => { setAway(true); clearTimeout(t); t = setTimeout(() => setAway(false), 900); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); clearTimeout(t); };
+  }, []);
   const guide = GUIDES[level] || GUIDES.student;
   return (
     <>
       {/* The guide is the chat button: "Ask me!" appears on hover / keyboard focus (and peeks out now and then) */}
-      <button className="mascot" type="button" aria-label={`Ask Ghostflame: ${guide.role.toLowerCase()}`}
+      <button className={"mascot" + (away ? " away" : "")} type="button" aria-label={`Ask Ghostflame: ${guide.role.toLowerCase()}`}
               aria-expanded={open} aria-controls="chat" onClick={() => setOpen(!open)}>
         <span className="mascot-say" aria-hidden="true">Ask me!</span>
-        <Character level={level} height={104} title="" />
+        <Character level={level} height={88} title="" />
       </button>
       <div className={"chat" + (big ? " big" : "")} id="chat" role="dialog" aria-label="Ask Ghostflame">
         <header>

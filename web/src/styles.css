@@ -604,3 +604,11 @@ section{padding:56px 48px 0}
 @media (max-width:1100px){.mir-game{grid-template-columns:1fr}.mir-stage{position:static}}
 @media (max-width:640px){.mir-video{aspect-ratio:3/4;max-height:none}.mir-cap{left:16px;right:16px;bottom:66px}.mir-vctl{left:16px;right:16px}}
 @media (prefers-reduced-motion:reduce){.mir-photo.on{animation:none!important}.mir-ember{animation:none}}
+
+/* The guide in the corner must not sit on the page: only the figure and its bubble take clicks (the empty box
+   around them lets clicks through), and it slides out of the way while the page scrolls (.away, Chat.jsx). */
+.mascot{pointer-events:none;bottom:4px}
+.mascot .character,.mascot .mascot-say{pointer-events:auto}
+.mascot.away{transform:translateY(75%);opacity:.35}
+.mascot.away .mascot-say{opacity:0}
+.mascot-say{transition:transform .25s var(--ease),opacity .25s}
