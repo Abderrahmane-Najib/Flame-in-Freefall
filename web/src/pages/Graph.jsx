@@ -95,6 +95,8 @@ export default function Graph({ onOpen, level }) {
   const [t, setT] = useState(zoomIdentity);
   const svg = useRef(null);
   const zoomer = useRef(null);
+  // Phones: the wide graph fills the tall box (sides cropped, drag to see them) instead of a thin strip.
+  const phone = typeof matchMedia !== "undefined" && matchMedia("(max-width:640px)").matches;
 
   useEffect(() => { get("/graph").then(setData).catch((e) => setError(e.message)); }, []);
   const g = useMemo(() => (data ? layout(subgraph(data, habitat), habitat) : null), [data, habitat]);
@@ -153,7 +155,7 @@ export default function Graph({ onOpen, level }) {
           <div className="graph-box space">
             <div className="g-status">{habitat ? `${expCount} experiment${expCount === 1 ? "" : "s"} tested in ${habLabel}` : `${expCount} experiments · ${g?.nodes.length || 0} nodes`}</div>
             {habitat && expCount === 0 && <div className="g-empty">No experiment was tested in this air.</div>}
-            <svg ref={svg} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Network of experiments and what they connect to">
+            <svg ref={svg} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio={phone ? "xMidYMid slice" : "xMidYMid meet"} role="img" aria-label="Network of experiments and what they connect to">
               <defs>
                 <filter id="g-glow" x="-80%" y="-80%" width="260%" height="260%">
                   <feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>

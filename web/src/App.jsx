@@ -39,6 +39,7 @@ export default function App() {
   const [navOpen, setNavOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [data, setData] = useState({ investigations: [], rankings: {} });
+  const [apiDown, setApiDown] = useState(false); // the core list failed: show a banner instead of empty pages
 
   const habitat = HABITATS[hab];
 
@@ -52,7 +53,8 @@ export default function App() {
     load("pmma", "/predict/pmma?rod_diameter_mm=9.53");
   }, []);
   useEffect(() => {
-    get("/investigations").then((v) => setData((d) => ({ ...d, investigations: v }))).catch((e) => console.error(e));
+    get("/investigations").then((v) => { setApiDown(false); setData((d) => ({ ...d, investigations: v })); })
+      .catch((e) => { console.error(e); setApiDown(true); });
   }, [route]);
   useEffect(() => {
     get(`/habitats/${habitat.apiId}/ranking`)
@@ -111,6 +113,12 @@ export default function App() {
         <TopBar mode={mode} setMode={setMode} onMenu={() => setNavOpen(true)} onSearch={() => go("search")}>
           {(level === "explorer" || level === "student") && <DidYouKnow onOpen={setDetailId} />}
         </TopBar>
+        {apiDown && (
+          <div className="api-down" role="alert">
+            <b>Can't reach the NASA data right now.</b> The Ghostflame server is not answering; pages fill in once it is back.
+            <button type="button" className="chip" onClick={() => window.location.reload()}>Try again</button>
+          </div>
+        )}
         {page}
         <p className="foot">All evidence was measured in microgravity. Moon and Mars gravity were never tested. Etna is a NASA Space Apps 2026 project and is not affiliated with NASA.</p>
       </div>
