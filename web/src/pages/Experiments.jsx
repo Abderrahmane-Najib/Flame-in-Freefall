@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import InvCard, { PageHead } from "../components/InvCard.jsx";
 import { get } from "../lib/api.js";
+import { go } from "../lib/router.js";
 
 const FUELS = [[null, "All"], ["solid", "Solid materials"], ["droplet", "Liquid droplets"], ["gas", "Gas flames"],
   ["smoke", "Smoke & detection"], ["ground", "Ground studies"]];
@@ -24,7 +25,8 @@ export default function Experiments({ onOpen }) {
 
   return (
     <div className="page">
-      <PageHead title="Experiments" sub="Every NASA PSI combustion investigation, plus the reports you uploaded and approved. Open one for its sourced findings.">
+      <PageHead title="Experiments" sub="Every NASA PSI combustion investigation, plus the reports you uploaded and approved. Open one for its sourced findings, test conditions and data."
+                right={<button type="button" className="btn2" onClick={() => go("compare")}>Compare side by side ⇄</button>}>
         <div className="chips" role="group" aria-label="Fuel family">
           {FUELS.map(([id, label]) => <button key={label} className="chip" type="button" aria-pressed={fuel === id} onClick={() => setFuel(id)}>{label}</button>)}
         </div>

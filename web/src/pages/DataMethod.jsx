@@ -22,6 +22,7 @@ const METHOD = [
   ["Gravity", "Every test ran in microgravity. Nothing here is a Moon- or Mars-gravity result."],
   ["Assistant", "Answers only from tool results (report search, cards, test tables) and cites each claim. Model: gpt-oss-120b on Groq."],
   ["Search", "Full-text and meaning (BGE-M3 embeddings) merged with Reciprocal Rank Fusion; every passage keeps its PDF page."],
+  ["Export", "Each investigation's cleaned test rows download as CSV (details panel, Compare page, GET /tests.csv), every row with its NASA table, row and source link."],
   ["Predictor", "PMMA boundary = NASA's own fitted equation (BASS-II Eq. 6.1); not trained by us."],
 ];
 

@@ -6,6 +6,7 @@ import DidYouKnow from "./components/DidYouKnow.jsx";
 import Chat from "./components/Chat.jsx";
 import Home from "./pages/Home.jsx";
 import Experiments from "./pages/Experiments.jsx";
+import Compare from "./pages/Compare.jsx";
 import Coverage from "./pages/Coverage.jsx";
 import Predict from "./pages/Predict.jsx";
 import FlameLab from "./pages/FlameLab.jsx";
@@ -91,6 +92,7 @@ export default function App() {
   const page = {
     home: <Home hab={hab} habitat={habitat} setHab={setHab} level={level} data={data} ranking={ranking} ranked={ranked} onOpen={setDetailId} />,
     experiments: <Experiments onOpen={setDetailId} />,
+    compare: <Compare onOpen={setDetailId} />,
     coverage: <Coverage onOpen={setDetailId} level={level} />,
     predict: <Predict level={level} />,
     graph: <Graph onOpen={setDetailId} level={level} />,

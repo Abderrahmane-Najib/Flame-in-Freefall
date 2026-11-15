@@ -5,6 +5,9 @@ const CLOUD_RUN = "https://ghostflame-ryhaqcvtmq-ey.a.run.app";
 const ON_FIREBASE = /\.(web\.app|firebaseapp\.com)$/.test(location.hostname);
 const BASE = import.meta.env.VITE_API_URL || (ON_FIREBASE ? CLOUD_RUN : "");
 
+/** Full address of an API path, for plain links (CSV downloads) that do not go through fetch. */
+export const apiUrl = (path) => BASE + path;
+
 const cache = new Map();
 
 /** GET a JSON endpoint; the same path is fetched once per page load. */
